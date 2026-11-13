@@ -19,6 +19,12 @@ export interface BuildOptions {
   demands?: Record<string, number>;
   /** Include storage and fuel-switch source arcs. Default false (physical LNG + pipeline only). */
   buffers?: boolean;
+  /**
+   * Simple model (the site's "Simple version" tab): exporters → sea lanes → importers plus pipelines only.
+   * Import terminal (regas) capacity is unlimited, there are no buffers, and diversion is fixed at the central
+   * assumption (meta.diversion) whatever the scenario says.
+   */
+  simple?: boolean;
 }
 
 export interface FlowGraph {
@@ -59,7 +65,7 @@ export function buildGraph(net: Network, opts: BuildOptions = {}): FlowGraph {
   const head = (id: string) => routeIds.has(id) ? add(id + ":in") : impIds.has(id) ? add(id + ":in") : bad(id);
   function bad(id: string): never { throw new Error(`unknown node id in link: ${id}`); }
 
-  const div = sc?.diversion ?? net.meta.diversion.value;
+  const div = opts.simple ? net.meta.diversion.value : sc?.diversion ?? net.meta.diversion.value;
   for (const e of net.exporters) {
     const base = e.asia_deliveries.value, extra = exporterSupply(e, div) - base;
     push(s, add(e.id), capFor(e.id, base, sc), { type: "supply", id: e.id });
@@ -73,8 +79,8 @@ export function buildGraph(net: Network, opts: BuildOptions = {}): FlowGraph {
   }
   for (const im of net.importers) {
     const i = add(im.id + ":in"), o = add(im.id + ":out");
-    push(i, o, capFor(im.id + ":regas", im.regas.value, sc), { type: "regas", id: im.id });
-    if (opts.buffers) {
+    push(i, o, opts.simple ? BIG : capFor(im.id + ":regas", im.regas.value, sc), { type: "regas", id: im.id });
+    if (opts.buffers && !opts.simple) {
       push(s, o, im.fuel_switch.value, { type: "fuelswitch", id: im.id });
       push(s, im.storage.enters === "out" ? o : i, storageRate(im, sc?.horizon_days ?? net.meta.horizon_days?.value), { type: "storage", id: im.id });
     }

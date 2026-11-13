@@ -73,7 +73,9 @@ export function nMinus1(net: Network, base: Scenario = { label: "Baseline" }, in
     }
     return { closed: r.id, name: r.name, shortfall: sol.demand - sol.total, lambda: rationLambda(net, { scenario: sc }), worstImporter, worstShare, worstLastImporter, worstLastShare };
   });
-  return rows.sort((a, b) => b.shortfall - a.shortfall || a.lambda - b.lambda);
+  // round before sorting so float noise (~1e-13) can't reorder ties
+  const r6 = (x: number) => Math.round(x * 1e6);
+  return rows.sort((a, b) => r6(b.shortfall) - r6(a.shortfall) || r6(a.lambda) - r6(b.lambda));
 }
 
 export interface InvestRow {

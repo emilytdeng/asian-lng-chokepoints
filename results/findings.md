@@ -15,8 +15,8 @@ Allocation views: **outbid** = the importer wins every cargo it can physically r
 | Panama restricted | 314.2 / 314.2 | 0.0 | 100% | 100% |
 | Russian LNG sanctioned | 314.2 / 314.2 | 0.0 | 100% | 100% |
 | Hormuz + Red Sea closed | 277.5 / 314.2 | 36.8 | 88% | 100% |
-| Hormuz open only for Pakistan-bound cargoes | 314.2 / 314.2 | 0.0 | 100% | 100% |
-| 2026 as it happened (Hormuz at 37%) | 314.2 / 314.2 | 0.0 | 100% | 100% |
+| Hormuz open only for Pakistan-bound cargoes | LP only — see findings_lp.md | – | – | – |
+| 2026 as it happened (Hormuz at 37%) | LP only — see findings_lp.md | – | – | – |
 
 ## 2. Hormuz closed, by importer
 
@@ -68,10 +68,10 @@ Without China's fuel switching and storage, λ with buffers (90 days) is 100%: C
 | Closed | Shortfall (mtpa) | λ | Worst hit if last in line |
 |---|---|---|---|
 | Strait of Hormuz | 36.8 | 88% | India (0%) |
-| Cape of Good Hope | 0.0 | 100% | Japan (100%) |
-| Strait of Malacca | 0.0 | 100% | Japan (100%) |
 | Suez / Bab el-Mandeb | 0.0 | 100% | Japan (100%) |
+| Cape of Good Hope | 0.0 | 100% | Japan (100%) |
 | Panama Canal | 0.0 | 100% | Japan (100%) |
+| Strait of Malacca | 0.0 | 100% | Japan (100%) |
 | Lombok / Makassar | 0.0 | 100% | Japan (100%) |
 
 ## 4. Best single investment (Hormuz closed)
@@ -128,11 +128,11 @@ One-at-a-time: each of the 29 estimated values that affect max-flow scaled ×0.7
 | JPN last-in-line share | 44% | 32% (meta.diversion ×0.75) | 56% (meta.diversion ×1.25) |
 | CHN last-in-line share | 70% | 64% (meta.diversion ×0.75) | 77% (meta.diversion ×1.25) |
 | KOR last-in-line share | 24% | 8% (meta.diversion ×0.75) | 40% (meta.diversion ×1.25) |
-| IND last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×1.25) |
-| TWN last-in-line share | 0% | 0% (exporters[OTH_PAC].asia_deliveries ×0.75) | 0% (meta.diversion ×0.75) |
-| THA last-in-line share | 23% | 23% (meta.diversion ×0.75) | 23% (routes[PANAMA].capacity ×1.25) |
-| PAK last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×1.25) |
-| BGD last-in-line share | 0% | 0% (routes[PANAMA].capacity ×0.75) | 0% (meta.horizon_days ×0.75) |
+| IND last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×0.75) |
+| TWN last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×0.75) |
+| THA last-in-line share | 23% | 23% (meta.diversion ×0.75) | 23% (meta.diversion ×0.75) |
+| PAK last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×0.75) |
+| BGD last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×0.75) |
 | JPN days (rationed) | 257 | 199 (meta.diversion ×0.75) | 361 (meta.diversion ×1.25) |
 | CHN days (rationed) | ∞ | 2051 (importers[CHN].fuel_switch ×0.75) | ∞ (meta.diversion ×1.25) |
 | KOR days (rationed) | 460 | 317 (meta.diversion ×0.75) | 842 (meta.diversion ×1.25) |

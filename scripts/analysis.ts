@@ -54,7 +54,9 @@ function withScaled(path: string, factor: number): Network {
 }
 
 // ------------------------------------------------------------------ 1. scenarios
-const scenarioKeys = Object.keys(NET.scenarios);
+// Scenarios with selective or partial passage, or a fleet limit, need the LP (analysis_lp.ts); max-flow can't represent them.
+const lpOnly = (k: string) => !!(NET.scenarios[k].hormuz || NET.scenarios[k].fleet);
+const scenarioKeys = Object.keys(NET.scenarios).filter((k) => !lpOnly(k));
 const results: ScenarioResult[] = scenarioKeys.map((k) => runScenario(NET, k, NET.scenarios[k]));
 csv("scenarios_system.csv",
   ["scenario", "label", "supply_mtpa", "demand_mtpa", "shortfall_mtpa", "lambda", "lambda_buffered", "min_cut"],
@@ -141,8 +143,10 @@ function metrics(net: Network, withInvest = true): Metrics {
     daysLast[im.id] = coverFor(im, l).days;
     daysRat[im.id] = coverFor(im, lam * im.import_demand.value).days;
   }
-  const worstLast = Object.entries(last).sort((a, b) => a[1] - b[1])[0][0];
-  const shortestRat = Object.entries(daysRat).sort((a, b) => a[1] - b[1])[0][0];
+  // ties (several importers at 0%) resolve in data order, not by float noise
+  const r9 = (x: number) => (Number.isFinite(x) ? Math.round(x * 1e9) : Infinity);
+  const worstLast = Object.entries(last).sort((a, b) => r9(a[1]) - r9(b[1]))[0][0];
+  const shortestRat = Object.entries(daysRat).sort((a, b) => r9(a[1]) - r9(b[1]))[0][0];
   const topInv = withInvest ? rankInvestments(net, HZ)[0].id : "";
   const shutOut = Object.entries(last).filter(([, v]) => v < 0.01).map(([k]) => k);
   return { lambda: lam, lambdaBuf: lamB, lambdaFS: lamFS, shutOut, last, daysLast, daysRat, worstLast, shortestRat, topInv };
@@ -178,7 +182,8 @@ csv("robustness.csv",
 // Range of each key metric across one-at-a-time perturbations, with the single most influential estimate.
 function range(get: (m: Metrics) => number) {
   let lo = { v: Infinity, p: "" }, hi = { v: -Infinity, p: "" };
-  for (const r of rob) { const v = get(r.m); if (v < lo.v) lo = { v, p: `${r.path} ×${r.factor}` }; if (v > hi.v) hi = { v, p: `${r.path} ×${r.factor}` }; }
+  const q = (x: number) => (Number.isFinite(x) ? Math.round(x * 1e9) / 1e9 : x); // ignore float noise when naming drivers
+  for (const r of rob) { const v = q(get(r.m)); if (v < lo.v) lo = { v, p: `${r.path} ×${r.factor}` }; if (v > hi.v) hi = { v, p: `${r.path} ×${r.factor}` }; }
   return { lo, hi };
 }
 const flips = (get: (m: Metrics) => string) => {
@@ -194,7 +199,8 @@ L.push("# Findings: Asian LNG chokepoint analysis", "",
   "Allocation views: **outbid** = the importer wins every cargo it can physically reach; **rationed** = every importer gets the same share λ of demand; **last in line** = the importer is served only after every other importer has taken all it can (loses every bidding war).", "");
 
 L.push("## 1. Scenarios (system level)", "", md(["Scenario", "Supply / demand (mtpa)", "Shortfall", "λ (physical)", "λ (with buffers)"],
-  results.map((r) => [r.label, `${f1(r.total)} / ${f1(r.demand)}`, f1(r.shortfall), pct(r.lambda), pct(r.lambdaBuffered)])), "");
+  [...results.map((r) => [r.label, `${f1(r.total)} / ${f1(r.demand)}`, f1(r.shortfall), pct(r.lambda), pct(r.lambdaBuffered)]),
+   ...Object.keys(NET.scenarios).filter(lpOnly).map((k) => [NET.scenarios[k].label, "LP only — see findings_lp.md", "–", "–", "–"])]), "");
 
 L.push("## 2. Hormuz closed, by importer", "", md(
   ["Importer", "Demand", "Hormuz share of 2025 supply", "Outbid", "Rationed", "Last in line", "Days of cover (rationed)", "Days of cover (last in line)", "Unmet now if last (mtpa)"],

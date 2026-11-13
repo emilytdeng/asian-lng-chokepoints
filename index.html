@@ -18,7 +18,16 @@
     </div>
   </header>
 
+  <nav class="tabs wrap" aria-label="Versions of this briefing">
+    <div role="tablist" aria-label="Choose a version" id="tablist">
+      <button role="tab" id="tab-simple" aria-controls="panel-simple" data-tab="simple">Simple version</button>
+      <button role="tab" id="tab-full" aria-controls="panel-full" data-tab="full">Full model</button>
+    </div>
+  </nav>
+
   <main>
+    <div role="tabpanel" id="panel-simple" aria-labelledby="tab-simple" tabindex="-1"></div>
+    <div role="tabpanel" id="panel-full" aria-labelledby="tab-full" tabindex="-1" hidden>
     <section class="hook wrap" id="hook">
       <h1>Close Hormuz.<br />Who runs out of gas first?</h1>
       <p class="lede" id="lede"></p>
@@ -35,7 +44,7 @@
 
     <section class="wrap sandbox" id="sandbox">
       <h2>Sandbox: close a strait, see who goes without</h2>
-      <p class="sub">Click a chokepoint (◆), exporter (●) or pipeline on the chart to close it, or pick a preset. Everything recomputes in your browser.</p>
+      <p class="sub">Click a chokepoint (◆), exporter (●) or pipeline on the map to close it, or pick a preset. Everything recomputes in your browser.</p>
       <div class="sb-grid">
         <div class="sb-map"><div id="sb-map"></div><div class="legend" id="sb-legend"></div></div>
         <aside class="panel" id="panel"></aside>
@@ -45,6 +54,7 @@
 
     <section class="wrap reality" id="reality"></section>
     <section class="wrap method" id="method"></section>
+    </div>
   </main>
 
   <footer class="wrap foot"><p id="foot"></p></footer>

@@ -58,8 +58,8 @@ export function shareChart(host: HTMLElement, ev: Evaluation, highlight: string[
     x: (v) => v,
     order: (a, b) => a.share.priority + a.share.market2026 - b.share.priority - b.share.market2026 || a.share.last - b.share.last,
     row: (r) => ({ lo: r.share.last, hi: r.share.outbid, main: r.share.priority, alt: r.share.rationed, second: r.share.market2026,
-      tip: `${r.name}: market by ability to pay ${pct(r.share.priority)}, market as in 2026 ${pct(r.share.market2026)}, equal rationing ${pct(r.share.rationed)}, range ${pct(r.share.last)} (last in line) to ${pct(r.share.outbid)} (outbids everyone)` }),
-    legend: ["Last in line → outbids everyone", "Market: ability to pay", "Equal rationing", "Market: as in 2026"],
+      tip: `${r.name}: highest bidder first ${pct(r.share.priority)}, as in 2026 ${pct(r.share.market2026)}, everyone shares equally ${pct(r.share.rationed)}, range ${pct(r.share.last)} (worst case) to ${pct(r.share.outbid)} (best case)` }),
+    legend: ["Worst case → best case", "Highest bidder first", "Everyone shares equally", "As in 2026"],
   }, highlight);
 }
 
@@ -68,12 +68,12 @@ const logx = (d: number) => Math.log10(Math.min(CAP, Math.max(1, d))) / Math.log
 export function coverChart(host: HTMLElement, ev: Evaluation, highlight: string[] = []) {
   const d = (c: { days: number; shortfall: number }) => (Number.isFinite(c.days) ? c.days : CAP * 2);
   rangeDots(host, ev, {
-    title: "Days until storage runs dry, Hormuz closed (after fuel switching)",
+    title: "Days until storage runs out, Hormuz closed (after switching some power plants to coal or oil)",
     ticks: [{ v: 1, label: "1 day" }, { v: 10, label: "10" }, { v: 100, label: "100" }, { v: 1000, label: "1,000" }, { v: CAP * 2, label: "no gap" }],
     x: logx,
     order: (a, b) => d(a.cover.priority) - d(b.cover.priority) || d(a.cover.rationed) - d(b.cover.rationed),
     row: (r) => ({ lo: d(r.cover.last), hi: d(r.cover.rationed), main: d(r.cover.priority), alt: d(r.cover.rationed),
-      tip: `${r.name}: market order ${days(r.cover.priority)}, equal rationing ${days(r.cover.rationed)}, last in line ${days(r.cover.last)}. Storage ${fmt(r.cover.priority.storageDraw)} mtpa draw.` }),
-    legend: ["Last in line → equal rationing", "Market: rich buyers first", "Equal rationing"],
+      tip: `${r.name}: highest bidder first ${days(r.cover.priority)}, everyone shares equally ${days(r.cover.rationed)}, worst case ${days(r.cover.last)}. Drawing ${fmt(r.cover.priority.storageDraw)} mtpa from storage.` }),
+    legend: ["Worst case → everyone shares equally", "Highest bidder first", "Everyone shares equally"],
   }, highlight);
 }

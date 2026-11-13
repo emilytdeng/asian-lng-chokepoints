@@ -17,7 +17,10 @@ export interface Solution {
 
 export function solve(net: Network, opts: BuildOptions = {}): Solution {
   const graph = buildGraph(net, opts);
-  const result = edmondsKarp(graph.n, graph.arcs, graph.s, graph.t);
+  // Fill each exporter's 2025 Asian sales before diverted cargoes. Totals, the min cut and allocations are the same
+  // for every maximum flow; this only picks which flow the map draws.
+  const deferred = new Set(graph.meta.map((m, i) => (m.type === "divert" ? i : -1)).filter((i) => i >= 0));
+  const result = edmondsKarp(graph.n, graph.arcs, graph.s, graph.t, deferred);
   const delivered: Record<string, number> = {};
   const arcFlow: Record<string, number> = {};
   let demand = 0;
@@ -28,7 +31,7 @@ export function solve(net: Network, opts: BuildOptions = {}): Solution {
   return { graph, result, total: result.total, demand, cut: minCut(graph, result), delivered, arcFlow };
 }
 
-export interface AllocOptions { scenario?: Scenario; buffers?: boolean }
+export interface AllocOptions { scenario?: Scenario; buffers?: boolean; simple?: boolean }
 
 /** "If it outbids everyone": max deliverable to one importer when it alone is a sink. Returns mtpa. */
 export function outbid(net: Network, importerId: string, o: AllocOptions = {}): number {

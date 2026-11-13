@@ -16,11 +16,11 @@ export const PRIORITY_2026 = ["JPN", "KOR", "TWN", "THA", "IND", "BGD", "CHN", "
 export type View = "priority" | "market2026" | "rationed" | "last" | "outbid";
 export const VIEWS: View[] = ["priority", "market2026", "rationed", "last", "outbid"];
 export const VIEW_LABEL: Record<View, string> = {
-  priority: "Market: ability to pay",
-  market2026: "Market: as in 2026",
-  rationed: "Equal rationing",
-  last: "Last in line",
-  outbid: "Outbids everyone",
+  priority: "Highest bidder first",
+  market2026: "As in 2026",
+  rationed: "Everyone shares equally",
+  last: "Worst case (loses every bid)",
+  outbid: "Best case (wins every bid)",
 };
 
 export type HormuzMode = "open" | "closed" | "pakistan" | "share37";
@@ -31,6 +31,7 @@ export interface State {
   capFactor?: Record<string, number>; // e.g. { PANAMA: 0.13 } for a restricted canal
   fleet?: boolean; // LP: enforce the LNG-carrier fleet constraint
   hormuz?: HormuzMode; // LP modes "pakistan" and "share37"; "closed" is the same as closing the HORMUZ node
+  simple?: boolean; // the Simple tab's model: no buffers, unlimited import terminals, diversion fixed at 20%
 }
 
 export interface ImporterRow {
@@ -91,7 +92,7 @@ function lostBehindHormuz(s: State) {
 /** Instant evaluation with max-flow (no fleet limit, Hormuz fully open or shut). */
 export function evaluate(s: State): Evaluation {
   const scenario = scenarioOf(s);
-  const o = { scenario };
+  const o = { scenario, simple: s.simple };
   const system = solve(NET, o);
   const lambda = rationLambda(NET, o);
   const d = (id: string) => NET.importers.find((i) => i.id === id)!.import_demand.value;
@@ -102,7 +103,7 @@ export function evaluate(s: State): Evaluation {
     last: Object.fromEntries(NET.importers.map((i) => [i.id, Math.max(0, lastInLine(NET, i.id, o))])),
     outbid: Object.fromEntries(NET.importers.map((i) => [i.id, outbid(NET, i.id, o)])),
   };
-  const map = s.focus ? solve(NET, { scenario, demands: { [s.focus]: d(s.focus) } }) : system;
+  const map = s.focus ? solve(NET, { scenario, simple: s.simple, demands: { [s.focus]: d(s.focus) } }) : system;
   return { engine: "max-flow", scenario, map, supply: system.total, demand: system.demand, lambda, hormuzLost: lostBehindHormuz(s), rows: rowsFrom(alloc) };
 }
 
@@ -145,3 +146,6 @@ export async function evaluateLP(s: State): Promise<Evaluation> {
 export const fmt = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : "∞");
 export const pct = (x: number) => `${Math.round(Math.max(0, Math.min(1, x)) * 100)}%`;
 export const days = (c: Cover) => (!Number.isFinite(c.days) ? (c.shortfall < 1e-6 ? "no gap" : "fuel switching covers it") : `${Math.round(c.days)} days`);
+
+/** "mtpa" explained against a familiar scale; Japan's figure comes from the data. */
+export const MTPA_NOTE = `mtpa = million tonnes of LNG a year (Japan uses about ${Math.round(NET.importers.find((i) => i.id === "JPN")!.import_demand.value)})`;

@@ -41,9 +41,21 @@ function residualReach(n: number, g: number[][], A: ResArc[], s: number): boolea
 /**
  * Edmonds–Karp (BFS augmenting paths). Ported from the chokepoint-cut.html prototype.
  * Capacities may be Infinity as long as every s–t path has a finite arc.
+ * `deferred` arcs are withheld in a first phase and released in a second, which steers which maximum flow is
+ * returned without changing its value or the min cut.
  */
-export function edmondsKarp(n: number, arcs: Arc[], s: number, t: number): FlowResult {
+export function edmondsKarp(n: number, arcs: Arc[], s: number, t: number, deferred?: Set<number>): FlowResult {
   const { g, A, ids } = buildResidual(n, arcs);
+  let total = 0;
+  if (deferred?.size) {
+    for (const i of deferred) A[ids[i]].c = 0;
+    total += augment();
+    for (const i of deferred) A[ids[i]].c = arcs[i][2];
+  }
+  total += augment();
+  return { total, flows: ids.map((i) => A[i].f), reach: residualReach(n, g, A, s) };
+
+  function augment(): number {
   let total = 0;
   for (;;) {
     const prev = new Array<number>(n).fill(-1);
@@ -63,7 +75,8 @@ export function edmondsKarp(n: number, arcs: Arc[], s: number, t: number): FlowR
     for (let v = t; v !== s; v = A[prev[v] ^ 1].v) { A[prev[v]].f += b; A[prev[v] ^ 1].f -= b; }
     total += b;
   }
-  return { total, flows: ids.map((i) => A[i].f), reach: residualReach(n, g, A, s) };
+  return total;
+  }
 }
 
 /** Dinic's algorithm. Used as an independent cross-check of edmondsKarp in tests. */
