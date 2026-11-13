@@ -18,44 +18,45 @@
     </div>
   </header>
 
-  <nav class="tabs wrap" aria-label="Versions of this briefing">
-    <div role="tablist" aria-label="Choose a version" id="tablist">
-      <button role="tab" id="tab-simple" aria-controls="panel-simple" data-tab="simple">Simple version</button>
-      <button role="tab" id="tab-full" aria-controls="panel-full" data-tab="full">Full model</button>
-    </div>
-  </nav>
-
   <main>
-    <div role="tabpanel" id="panel-simple" aria-labelledby="tab-simple" tabindex="-1"></div>
-    <div role="tabpanel" id="panel-full" aria-labelledby="tab-full" tabindex="-1" hidden>
-    <section class="hook wrap" id="hook">
-      <h1>Close Hormuz.<br />Who runs out of gas first?</h1>
-      <p class="lede" id="lede"></p>
-      <div class="hook-map" id="hook-map"></div>
-      <p class="note">Schematic chart of 2025 LNG flows to eight Asian importers. Line width shows volume. Diamonds are chokepoints.</p>
-    </section>
-
-    <section class="story" id="story" aria-label="Guided story">
-      <div class="story-graphic"><div id="story-map"></div><div id="story-chart" class="story-chart"></div></div>
-      <div class="story-steps" id="steps"></div>
-    </section>
-
-    <section class="wrap takeaway" id="takeaway"></section>
-
-    <section class="wrap sandbox" id="sandbox">
-      <h2>Sandbox: close a strait, see who goes without</h2>
-      <p class="sub">Click a chokepoint (◆), exporter (●) or pipeline on the map to close it, or pick a preset. Everything recomputes in your browser.</p>
-      <div class="sb-grid">
-        <div class="sb-map"><div id="sb-map"></div><div class="legend" id="sb-legend"></div></div>
-        <aside class="panel" id="panel"></aside>
+    <section class="opening" id="top">
+      <div class="wrap opening-text">
+        <p class="kicker-tag">An interactive explainer</p>
+        <h1>Graph Theory and LNG</h1>
+        <p style="font-size: 1.25rem; font-style: italic; font-weight: 400; line-height: 1.4;">
+          How the max-flow and min-cut problem from computer science and optimization theory can help us think about the Strait of Hormuz
+        </p>
+        <p class="lede" id="lede"></p>
+        <p class="opening-btns"><a class="btn" href="#ch-toy">Start the story ↓</a> <a class="btn ghost" href="#model">Skip to the interactive model</a></p>
       </div>
-      <div class="sb-table" id="sb-table"></div>
+      <div class="wrap"><div class="hook-map" id="hook-map"></div>
+        <p class="note">LNG shipped to eight Asian economies in 2025. Line width shows how much. Diamonds are chokepoints: narrow straits and canals ships must pass through.</p></div>
     </section>
 
-    <section class="wrap reality" id="reality"></section>
-    <section class="wrap method" id="method"></section>
-    </div>
+    <section class="chapter" id="ch-toy" aria-labelledby="h-toy"></section>
+    <section class="chapter" id="ch-algo" aria-labelledby="h-algo"></section>
+    <section class="chapter" id="ch-lng" aria-labelledby="h-lng"></section>
+    <section class="chapter" id="ch-hormuz" aria-labelledby="h-hormuz"></section>
+    <section class="chapter" id="ch-bid" aria-labelledby="h-bid"></section>
+
+    <section class="chapter sandbox" id="model" aria-labelledby="h-model">
+      <div class="wrap">
+        <p class="chap-n">Chapter 7</p>
+        <h2 id="h-model">Try it yourself</h2>
+        <p class="sub">Close any strait (◆), exporter (●) or pipeline, or pick a scenario. Everything recalculates in your browser: watch the lines thicken or thin and the dashed cut move.</p>
+        <div class="sb-grid">
+          <div class="sb-map"><div id="sb-map"></div><div class="legend" id="sb-legend"></div></div>
+          <aside class="panel" id="panel"></aside>
+        </div>
+        <div id="sb-more"><div class="sb-table" id="sb-table"></div></div>
+      </div>
+    </section>
+
+    <section class="chapter method" id="method-ch">
+      <div class="wrap" id="method"></div>
+    </section>
   </main>
+  <a class="to-top" id="to-top" href="#top" aria-label="Back to top">↑ Top</a>
 
   <footer class="wrap foot"><p id="foot"></p></footer>
   <script type="module" src="/src/site/main.ts"></script>

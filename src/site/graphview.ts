@@ -3,6 +3,7 @@ import type { Evaluation, State } from "./compute";
 import { NET, fmt, pct } from "./compute";
 import { exporterSupply } from "../model/graph";
 import type { MapOptions } from "./map";
+import { cutPath } from "./cutline";
 
 const NS = "http://www.w3.org/2000/svg";
 const W = 1000, H = 720;
@@ -26,7 +27,8 @@ const SHORT: Record<string, string> = {
 };
 const R: Record<string, number> = { src: 7, imp: 9, choke: 9, lane: 8, pipe: 6, st: 15 };
 
-type Edge = { g: SVGGElement; track: SVGPathElement; flow: SVGPathElement; cut: SVGPathElement; path: SVGPathElement; title: SVGTitleElement; keys: string[]; label: string };
+type Pt = [number, number];
+type Edge = { g: SVGGElement; track: SVGPathElement; flow: SVGPathElement; cut: SVGPathElement; path: SVGPathElement; title: SVGTitleElement; keys: string[]; label: string; from: string; to: string; pts: Pt[] };
 type Node = { g: SVGGElement; v: SVGTextElement; kind: string };
 
 export class ChartGraph {
@@ -48,6 +50,8 @@ export class ChartGraph {
     this.draw();
   }
   private marker: string;
+  private cutLine!: SVGPathElement;
+  private cutHalo!: SVGPathElement;
 
   private el<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent: Element = this.svg) {
     const e = document.createElementNS(NS, tag);
@@ -75,35 +79,37 @@ export class ChartGraph {
     return `M${p1[0]},${p1[1]} Q${cx},${cy} ${p2[0]},${p2[1]}`;
   }
 
-  private edge(id: string, d: string, keys: string[], label: string, parent: Element) {
+  private edge(id: string, d: string, keys: string[], label: string, parent: Element, from: string, to: string, pts: Pt[] = [POS[from], POS[to]]) {
     const g = this.el("g", { class: "edge gedge" }, parent);
     const track = this.el("path", { d, class: "edge-track", "marker-end": this.marker }, g);
     const flow = this.el("path", { d, class: "edge-flow" }, g);
     const path = this.el("path", { d, class: "edge-path" }, g);
     const cut = this.el("path", { d, class: "edge-cut" }, g);
     const title = this.el("title", {}, g);
-    this.edges.set(id, { g, track, flow, cut, path, title, keys, label });
+    this.edges.set(id, { g, track, flow, cut, path, title, keys, label, from, to, pts });
   }
 
   private draw() {
     const layer = this.el("g", { class: "edges" });
     const nm = (id: string) => id === "__S" ? "Source" : id === "__T" ? "Sink" : SHORT[id] ?? NET.exporters.find((e) => e.id === id)?.name ?? NET.importers.find((i) => i.id === id)?.name ?? id;
-    for (const e of NET.exporters) this.edge(`S-${e.id}`, this.line("__S", e.id), [`supply:${e.id}`, `divert:${e.id}`], `Source → ${nm(e.id)}`, layer);
+    for (const e of NET.exporters) this.edge(`S-${e.id}`, this.line("__S", e.id), [`supply:${e.id}`, `divert:${e.id}`], `Source → ${nm(e.id)}`, layer, "__S", e.id);
     const ids = new Set(NET.links.map((l) => l.id));
     for (const l of NET.links) {
       const two = ids.has(`${l.to}-${l.from}`);
-      this.edge(l.id, this.line(l.from, l.to, two ? 14 : 0), [`link:${l.id}`], `${nm(l.from)} → ${nm(l.to)}`, layer);
+      this.edge(l.id, this.line(l.from, l.to, two ? 14 : 0), [`link:${l.id}`], `${nm(l.from)} → ${nm(l.to)}`, layer, l.from, l.to);
     }
     for (const p of NET.pipelines) {
       if (!POS[p.id]) continue;
       const [x, y] = POS[p.id], [sx, sy] = POS.__S;
       // source → pipeline runs down the left edge and along the bottom
       const d = `M${sx},${sy + R.st + 2} L${sx},${BUS - 12} Q${sx},${BUS} ${sx + 12},${BUS} L${x - 12},${BUS} Q${x},${BUS} ${x},${BUS - 12} L${x},${y + R.pipe + 3}`;
-      this.edge(`S-${p.id}`, d, [`pipeline:${p.id}`], `Source → ${p.name}`, layer);
-      this.edge(`${p.id}-${p.to}`, this.line(p.id, p.to), [`pipeline:${p.id}`], `${p.name} → ${nm(p.to)}`, layer);
+      this.edge(`S-${p.id}`, d, [`pipeline:${p.id}`], `Source → ${p.name}`, layer, "__S", p.id, [[sx, sy], [sx, BUS], [x, BUS], [x, y]]);
+      this.edge(`${p.id}-${p.to}`, this.line(p.id, p.to), [`pipeline:${p.id}`], `${p.name} → ${nm(p.to)}`, layer, p.id, p.to);
     }
-    for (const i of NET.importers) this.edge(`${i.id}-T`, this.line(i.id, "__T"), [`demand:${i.id}`], `${i.name} → Sink (its import needs)`, layer);
+    for (const i of NET.importers) this.edge(`${i.id}-T`, this.line(i.id, "__T"), [`demand:${i.id}`], `${i.name} → Sink (its import needs)`, layer, i.id, "__T");
 
+    this.cutHalo = this.el("path", { class: "g-cuthalo", d: "" });
+    this.cutLine = this.el("path", { class: "g-cutline", d: "" });
     const nl = this.el("g", { class: "nodes" });
     const add = (id: string) => {
       const kind = this.kindOf(id);
@@ -150,6 +156,42 @@ export class ChartGraph {
     g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); } });
   }
 
+  /** Which drawn nodes are on the source side: exact from max-flow, else rebuilt by walking edges that aren't cut. */
+  private sides(ev: Evaluation): Set<string> {
+    const cut = new Set(ev.map.cut.map((c) => `${c.meta.type}:${c.meta.id}`));
+    const closed = new Set(ev.scenario.close ?? []);
+    if (ev.map.reach) {
+      const r = new Set(ev.map.reach);
+      for (const p of NET.pipelines) if (r.has(p.to) && !cut.has(`pipeline:${p.id}`) && !closed.has(p.id)) r.add(p.id);
+      return r;
+    }
+    const r = new Set<string>(["__S"]);
+    const q = ["__S"];
+    while (q.length) {
+      const u = q.shift()!;
+      for (const e of this.edges.values()) {
+        if (e.from !== u || r.has(e.to) || e.keys.some((k) => cut.has(k)) || closed.has(e.to)) continue;
+        if (cut.has(`route:${e.to}`) || cut.has(`regas:${e.to}`)) continue;
+        r.add(e.to); q.push(e.to);
+      }
+    }
+    return r;
+  }
+
+  private drawCut(ev: Evaluation, s: State) {
+    if (this.opts.cut === false || ev.progress || !ev.map.cut.length) { this.cutLine.setAttribute("d", ""); this.cutHalo.setAttribute("d", ""); return; }
+    const r = this.sides(ev);
+    const shown = (id: string) => this.nodes.has(id);
+    const d = cutPath({
+      w: W, h: H,
+      nodes: [...this.nodes.keys()].filter(shown).map((id) => ({ p: POS[id], source: r.has(id) })),
+      edges: [...this.edges.values()].filter((e) => shown(e.from) && shown(e.to) && r.has(e.from) === r.has(e.to) && !(s.focus && e.to === "__T" && e.from !== s.focus))
+        .map((e) => ({ pts: e.pts, source: r.has(e.from) })),
+    });
+    this.cutLine.setAttribute("d", d);
+    this.cutHalo.setAttribute("d", d);
+  }
+
   update(ev: Evaluation, s: State, highlight: string[] = []) {
     const f = ev.map.arcFlow;
     const cutKeys = new Set(ev.map.cut.map((c) => `${c.meta.type}:${c.meta.id}`));
@@ -164,10 +206,12 @@ export class ChartGraph {
     for (const [id, e] of this.edges) {
       const flow = e.keys.reduce((a, k) => a + (f[k] ?? 0), 0);
       e.flow.setAttribute("stroke-width", String(w(flow)));
+      const capOf = id.startsWith("S-") ? cap[id.slice(2)] : id.endsWith("-T") ? NET.importers.find((i) => `${i.id}-T` === id)!.import_demand.value
+        : NET.pipelines.some((p) => p.id === e.from) ? cap[e.from] : undefined; // sea lanes have no limit
+      e.flow.classList.toggle("full", capOf !== undefined && capOf > 1e-6 && flow >= capOf - 1e-6);
       e.path.style.display = e.keys.some((k) => path.has(k)) ? "" : "none";
       // the cut sits on the S→exporter, pipeline and importer→T arcs (links and lanes are unlimited unless closed)
-      const onCut = e.keys.some((k) => cutKeys.has(k)) && !(id.startsWith("S-") && NET.pipelines.some((p) => `S-${p.id}` === id));
-      e.cut.style.display = onCut ? "" : "none";
+      e.cut.style.display = "none";
       const [a, b] = id.includes("-") ? [id.split("-")[0], id.split("-").slice(1).join("-")] : [id, ""];
       const shut = closed.has(a) || closed.has(b) || (a === "S" && closed.has(b));
       e.g.classList.toggle("closed", shut);
@@ -203,6 +247,7 @@ export class ChartGraph {
         n.v.textContent = closed.has(id) || (id === "HORMUZ" && s.hormuz === "closed") ? "closed" : "";
       }
     }
+    this.drawCut(ev, s);
     this.nodes.get("__S")!.v.textContent = this.nodes.get("__T")!.v.textContent = `${fmt(ev.progress ? total : ev.map.total, 0)} mtpa`;
   }
 }

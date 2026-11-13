@@ -1,6 +1,8 @@
 import type { LPSolution } from "../model/lp";
 import { MTPA_NOTE, NET, VIEWS, VIEW_LABEL, days, evaluate, evaluateLP, fmt, name, needsLP, pct, type Evaluation, type HormuzMode, type State, type View } from "./compute";
-import { holdingBack, maxflowCard, openByDefault, sharingCard } from "./explain";
+import { holdingBack } from "./explain";
+import { Stepper } from "./stepper";
+import { traceSolve } from "../model/allocation";
 import { FlowFigure } from "./figure";
 
 const PRESETS: { label: string; key: string }[] = [
@@ -44,6 +46,12 @@ function dualName(d: LPSolution["duals"][number]) {
   return `${m.type} ${"id" in m ? m.id : ""}`;
 }
 
+/** A trace with no steps, used when stepping isn't available. */
+function emptyTrace(e: Evaluation): Parameters<Stepper["load"]> {
+  const tr = traceSolve(NET, { scenario: { label: "none", close: [] }, demands: {} });
+  return [tr.sol, [], e];
+}
+
 export function mountSandbox() {
   const state: State = { closed: new Set(), diversion: NET.meta.diversion.value, focus: null, hormuz: "closed", fleet: false };
   let view: View = "priority";
@@ -54,6 +62,7 @@ export function mountSandbox() {
   const table = document.getElementById("sb-table")!;
   const map = new FlowFigure(document.getElementById("sb-map")!, {
     interactive: true,
+    cut: true,
     view: () => view,
     onToggle: (id) => {
       if (id === "HORMUZ") state.hormuz = state.hormuz === "open" ? "closed" : "open";
@@ -62,31 +71,42 @@ export function mountSandbox() {
     },
   });
   document.getElementById("sb-legend")!.innerHTML =
-    `<span><i class="sw flow"></i>Gas flow (width ∝ mtpa)</span><span><i class="sw cut"></i>Binding constraint (min cut)</span><span><i class="sw closed"></i>Closed</span><span><i class="sw track"></i>Unused route</span>`;
+    `<span><i class="sw flow"></i>Gas flow (thicker = more)</span><span><i class="sw cutline"></i>Min cut: what's holding supply back</span><span><i class="sw closed"></i>Closed</span><span><i class="sw track"></i>Unused route</span>`;
 
   panel.innerHTML = `
-    <div class="explainers" id="panel-explain"></div>
     <div><p class="lbl">Scenario</p><div class="seg" id="presets"></div></div>
-    <div><p class="lbl">Strait of Hormuz</p><div class="seg" id="hz"></div></div>
-    <div><p class="lbl">How gas is shared</p><div class="seg" id="views"></div><p class="note" id="view-help"></p></div>
-    <div><label class="lbl" for="div">Share of Europe's and others' cargoes Asia could outbid them for: <span id="div-v"></span></label>
-      <input type="range" id="div" min="0" max="50" step="5" /></div>
-    <div class="row2">
-      <label class="check"><input type="checkbox" id="fleet" /> Limit by LNG-carrier fleet</label>
-      <span class="engine" id="engine"></span>
-    </div>
-    <div><label class="lbl" for="focus">Map shows flows for</label>
-      <select id="focus"><option value="">All importers</option>${NET.importers.map((i) => `<option value="${i.id}">${i.name} alone (outbids everyone)</option>`).join("")}</select></div>
+    <div><p class="lbl">How the shortage is shared</p><div class="seg" id="views"></div><p class="note" id="view-help"></p></div>
     <div class="headline" id="headline"></div>
-    <div><p class="lbl">What one more unit is worth</p><ul class="cut" id="duals"><li class="muted">Computing…</li></ul>
-      <p class="note">How much the equal share would rise if this limit grew by one million tonnes a year. Only the limits in the min cut are worth anything.</p></div>
-    <div><p class="lbl">What's holding supply back (the min cut)</p><ul class="cut" id="cut"></ul></div>`;
-  const pe = panel.querySelector("#panel-explain")!;
-  const open = openByDefault();
-  const cardA = maxflowCard(open);
-  const now = document.createElement("p");
-  now.className = "rightnow";
-  pe.append(cardA, now, sharingCard(open, false));
+    <div class="holding" id="holding" aria-live="polite"></div>
+    <div><p class="lbl">Who goes without</p><div class="bars" id="sb-bars"></div></div>`;
+  const more = document.getElementById("sb-more")!;
+  more.insertAdjacentHTML("afterbegin", `
+    <details class="more" id="more"><summary>More options <span class="muted">Hormuz partly open, ships, storage, the step-by-step algorithm and more</span></summary>
+      <div class="more-grid">
+        <div><p class="lbl">Strait of Hormuz</p><div class="seg" id="hz"></div></div>
+        <div><label class="lbl" for="div">Share of Europe's and others' cargoes Asia could outbid them for: <span id="div-v"></span></label>
+          <input type="range" id="div" min="0" max="50" step="5" /></div>
+        <div class="row2"><label class="check"><input type="checkbox" id="fleet" /> Limit by the number of LNG tankers</label><span class="engine" id="engine"></span></div>
+        <div><label class="lbl" for="focus">Map shows flows for</label>
+          <select id="focus"><option value="">All importers</option>${NET.importers.map((i) => `<option value="${i.id}">${i.name} alone (outbids everyone)</option>`).join("")}</select></div>
+      </div>
+      <div id="sb-step"></div>
+      <div class="more-grid">
+        <div><p class="lbl">The min cut, in detail</p><ul class="cut" id="cut"></ul></div>
+        <div><p class="lbl">What one more unit is worth</p><ul class="cut" id="duals"><li class="muted">Computing…</li></ul>
+          <p class="note">How many percentage points the equal share would rise if this limit grew by 1 mtpa. Economists call these shadow prices. Only limits in the min cut are worth anything.</p></div>
+      </div>
+    </details>`);
+  let ev0: Evaluation | null = null;
+  const stepper = new Stepper(more.querySelector<HTMLElement>("#sb-step")!, (f) => {
+    if (!ev0) return;
+    const st = { ...state, closed: new Set(ev0.scenario.close ?? []) };
+    map.update(f ? { ...ev0, map: { arcFlow: f.arcFlow, cut: [], total: f.total }, progress: { path: f.path, delivered: f.delivered } } : ev0, st);
+  });
+  more.querySelector("#more")!.appendChild(table);
+  const stepNote = document.createElement("p");
+  stepNote.className = "note";
+  more.querySelector("#sb-step")!.appendChild(stepNote);
 
   const seg = (box: Element, items: { key: string; label: string }[], onClick: (k: string) => void) => {
     for (const it of items) {
@@ -96,7 +116,7 @@ export function mountSandbox() {
       box.appendChild(b);
     }
   };
-  const presetsBox = panel.querySelector("#presets")!, hzBox = panel.querySelector("#hz")!, viewsBox = panel.querySelector("#views")!;
+  const presetsBox = panel.querySelector("#presets")!, hzBox = more.querySelector("#hz")!, viewsBox = panel.querySelector("#views")!;
   seg(presetsBox, PRESETS.map((p) => ({ key: p.key, label: p.label })), (k) => {
     preset = k;
     const sc = NET.scenarios[k];
@@ -109,22 +129,25 @@ export function mountSandbox() {
   });
   seg(hzBox, HORMUZ_MODES.map((h) => ({ key: h.mode, label: h.label })), (k) => { state.hormuz = k as HormuzMode; preset = ""; render(); });
   seg(viewsBox, VIEWS.map((v) => ({ key: v, label: VIEW_LABEL[v] })), (k) => { view = k as View; render(); });
-  const div = panel.querySelector<HTMLInputElement>("#div")!;
+  const div = more.querySelector<HTMLInputElement>("#div")!;
   div.value = String(Math.round(state.diversion * 100));
   div.oninput = () => { state.diversion = Number(div.value) / 100; render(); };
-  const focus = panel.querySelector<HTMLSelectElement>("#focus")!;
+  const focus = more.querySelector<HTMLSelectElement>("#focus")!;
   focus.onchange = () => { state.focus = focus.value || null; render(); };
-  const fleetBox = panel.querySelector<HTMLInputElement>("#fleet")!;
+  const fleetBox = more.querySelector<HTMLInputElement>("#fleet")!;
   fleetBox.onchange = () => { state.fleet = fleetBox.checked; preset = ""; render(); };
 
   function draw(ev: Evaluation) {
-    map.update(ev, { ...state, closed: new Set(ev.scenario.close ?? []) });
+    if (ev.engine === "max-flow" || !ev0 || stepper.atEnd) map.update(ev, { ...state, closed: new Set(ev.scenario.close ?? []) });
     const pressed = (box: Element, k: string) => box.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String((b as HTMLElement).dataset.k === k)));
     pressed(presetsBox, preset); pressed(hzBox, state.hormuz ?? "open"); pressed(viewsBox, view);
     panel.querySelector("#view-help")!.textContent = VIEW_HELP[view];
-    panel.querySelector("#div-v")!.textContent = pct(state.diversion);
-    panel.querySelector("#engine")!.textContent = ev.engine === "LP" ? "Calculated with an optimization solver (needed for ships and partial openings)" : "Calculated with max-flow";
-    now.innerHTML = `<b>Right now:</b> ${holdingBack(ev).sentence}`;
+    more.querySelector("#div-v")!.textContent = pct(state.diversion);
+    more.querySelector("#engine")!.textContent = ev.engine === "LP" ? "Calculated with an optimization solver (needed for ships and partial openings)" : "Calculated with max-flow";
+    const hb = holdingBack(ev);
+    panel.querySelector("#holding")!.innerHTML = `<p class="lbl">What's holding supply back</p><p class="hb-s">${hb.sentence}</p>`;
+    const bars = [...ev.rows].sort((a, b) => a.share[view] - b.share[view] || a.name.localeCompare(b.name));
+    panel.querySelector("#sb-bars")!.innerHTML = bars.map((r) => { const sh = r.share[view]; return `<div class="bar-row${sh < 0.5 ? " low" : ""}"><span class="bar-name">${r.name}</span><span class="bar-track"><span class="bar-fill" style="width:${(100 * sh).toFixed(1)}%"></span></span><span class="bar-val">${pct(sh)}</span></div>`; }).join("");
 
     const gap = ev.demand - ev.supply;
     const out = ev.rows.filter((r) => r.share[view] < 0.01).map((r) => r.name);
@@ -145,7 +168,7 @@ export function mountSandbox() {
       `<li class="${c.label === "route bottleneck" ? "route" : ""}"><span>${name(c.meta.id)}${c.closed ? " (closed)" : ""} <em>${CUT_HELP[c.label] ?? c.label}</em></span><span>${fmt(cap)}</span></li>`);
     if (met.length) rows.push(`<li><span>Fully supplied: ${met.join(", ")}</span><span></span></li>`);
     if (ev.engine === "max-flow") rows.push(`<li class="sum"><span>Cut capacity = max flow</span><span>${fmt(ev.map.total)}</span></li>`);
-    panel.querySelector("#cut")!.innerHTML = rows.join("");
+    more.querySelector("#cut")!.innerHTML = rows.join("");
 
     // shadow prices
     if (ev.duals) {
@@ -157,7 +180,7 @@ export function mountSandbox() {
       }
       const items = [...groups.entries()].sort((a, b) => +b[0] - +a[0]).map(([v, ns]) =>
         `<li><span>${[...ns].join(", ")}</span><span>+${v} points</span></li>`);
-      panel.querySelector("#duals")!.innerHTML = items.length ? items.join("") : `<li><span>Nothing binds: every importer is fully supplied.</span><span>0</span></li>`;
+      more.querySelector("#duals")!.innerHTML = items.length ? items.join("") : `<li><span>Nothing binds: every importer is fully supplied.</span><span>0</span></li>`;
     }
 
     table.innerHTML = `
@@ -175,19 +198,31 @@ export function mountSandbox() {
 
   function render() {
     const my = ++token;
-    if (!needsLP(state)) draw(evaluate(state));
-    else panel.querySelector("#engine")!.textContent = "Solving the linear program…";
-    if (!needsLP(state)) panel.querySelector("#duals")!.innerHTML = `<li class="muted"><span>Computing…</span></li>`;
+    if (!needsLP(state)) {
+      const e = evaluate(state);
+      ev0 = e;
+      if (!state.focus) {
+        const tr = traceSolve(NET, { scenario: e.scenario });
+        stepper.load(tr.sol, tr.steps, e);
+        stepNote.textContent = "";
+      } else { stepper.load(...emptyTrace(e)); stepNote.textContent = "Step-by-step works for all importers together. Set the map back to All importers to use it."; }
+      draw(e);
+    } else {
+      ev0 = null;
+      stepNote.textContent = "Step-by-step works only with max-flow. Turn off the tanker limit and set Hormuz to open or closed to use it.";
+      more.querySelector("#engine")!.textContent = "Solving the linear program…";
+    }
+    if (!needsLP(state)) more.querySelector("#duals")!.innerHTML = `<li class="muted"><span>Computing…</span></li>`;
     evaluateLP(state).then((ev) => { if (my === token) draw(ev); }).catch((e) => {
       if (my !== token) return;
-      panel.querySelector("#duals")!.innerHTML = `<li class="muted"><span>Unavailable: ${String(e).slice(0, 80)}</span></li>`;
+      more.querySelector("#duals")!.innerHTML = `<li class="muted"><span>Unavailable: ${String(e).slice(0, 80)}</span></li>`;
       if (needsLP(state)) {
         // never leave another scenario's max-flow numbers on screen for a scenario only the solver can represent
-        panel.querySelector("#engine")!.textContent = "The optimization solver could not run in this browser, so this scenario can't be shown.";
+        more.querySelector("#engine")!.textContent = "The optimization solver could not run in this browser, so this scenario can't be shown.";
         panel.querySelector("#headline")!.innerHTML = `<p class="note">This scenario needs the optimization solver, which didn't load. Try another browser, or pick a scenario with Hormuz open or closed.</p>`;
-        panel.querySelector("#cut")!.innerHTML = "";
+        more.querySelector("#cut")!.innerHTML = "";
         table.innerHTML = "";
-      } else panel.querySelector("#engine")!.textContent = "Calculated with max-flow (the optimization solver didn't load)";
+      } else more.querySelector("#engine")!.textContent = "Calculated with max-flow (the optimization solver didn't load)";
     });
   }
   render();

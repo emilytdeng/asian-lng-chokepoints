@@ -53,6 +53,7 @@ export class Stepper {
   }
 
   get last() { return this.frames.length - 1; }
+  get atEnd() { return this.k >= this.last; }
 
   /** New scenario: rebuild the frames and jump to the finished result. */
   load(sol: Solution, steps: AugmentStep[], ev: Evaluation) {

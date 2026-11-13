@@ -47,7 +47,8 @@ export interface ImporterRow {
 export interface Evaluation {
   engine: "max-flow" | "LP";
   scenario: Scenario;
-  map: Pick<Solution, "arcFlow" | "cut" | "total">; // what the map draws: system or focus importer alone
+  map: Pick<Solution, "arcFlow" | "cut" | "total"> & { reach?: Set<string> }; // what the map draws: system or focus importer alone
+  // reach: display ids (exporters, routes, importers, "__S", "__T") on the source side of the min cut (max-flow only)
   supply: number;
   demand: number;
   lambda: number;
@@ -92,6 +93,16 @@ function lostBehindHormuz(s: State) {
   return NET.exporters.filter((e) => e.id === "QAT" || e.id === "UAE").reduce((a, e) => a + (s.closed.has(e.id) ? 0 : exporterSupply(e, s.diversion)), 0);
 }
 
+/** Display ids on the source side of the cut. A split node (route or importer) counts by its "out" half. */
+export function reachIds(sol: Solution): Set<string> {
+  const out = new Set<string>();
+  sol.graph.nodeName.forEach((k, i) => {
+    if (!sol.result.reach[i] || k.endsWith(":in")) return;
+    out.add(k.replace(/:out$/, ""));
+  });
+  return out;
+}
+
 /** Instant evaluation with max-flow (no fleet limit, Hormuz fully open or shut). */
 export function evaluate(s: State): Evaluation {
   const scenario = scenarioOf(s);
@@ -106,7 +117,8 @@ export function evaluate(s: State): Evaluation {
     last: Object.fromEntries(NET.importers.map((i) => [i.id, Math.max(0, lastInLine(NET, i.id, o))])),
     outbid: Object.fromEntries(NET.importers.map((i) => [i.id, outbid(NET, i.id, o)])),
   };
-  const map = s.focus ? solve(NET, { scenario, simple: s.simple, demands: { [s.focus]: d(s.focus) } }) : system;
+  const sol = s.focus ? solve(NET, { scenario, simple: s.simple, demands: { [s.focus]: d(s.focus) } }) : system;
+  const map = { arcFlow: sol.arcFlow, cut: sol.cut, total: sol.total, reach: reachIds(sol) };
   return { engine: "max-flow", scenario, map, supply: system.total, demand: system.demand, lambda, hormuzLost: lostBehindHormuz(s), rows: rowsFrom(alloc) };
 }
 

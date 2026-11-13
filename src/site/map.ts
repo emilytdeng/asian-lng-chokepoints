@@ -5,6 +5,7 @@ import type { Evaluation, State, View } from "./compute";
 import { NET, fmt, name, pct } from "./compute";
 
 const NS = "http://www.w3.org/2000/svg";
+type Pt = [number, number];
 const W = 1000, H = 640;
 
 /** Display positions [lon, lat]. Distant exporters sit at the chart margin with a note on where they really are. */
@@ -38,6 +39,8 @@ const SKIP = new Set(["MALACCA-IO", "PACIFIC-MALACCA", "LOMBOK-IO", "PACIFIC-LOM
 
 export interface MapOptions {
   interactive: boolean;
+  /** draw the min cut (dashed red marks) */
+  cut?: boolean;
   onToggle?: (id: string) => void;
   view?: () => View;
 }
@@ -45,9 +48,10 @@ export interface MapOptions {
 export class ChartMap {
   svg: SVGSVGElement;
   private proj = geoMercator();
-  private edges = new Map<string, { g: SVGGElement; track: SVGPathElement; flow: SVGPathElement; cut: SVGPathElement; path: SVGPathElement; id: string; reverse?: string }>();
+  private edges = new Map<string, { g: SVGGElement; track: SVGPathElement; flow: SVGPathElement; cut: SVGPathElement; path: SVGPathElement; q: [Pt, Pt, Pt]; from: string; to: string; id: string; reverse?: string }>();
+  private cutLayer!: SVGGElement;
   private nodes = new Map<string, { g: SVGGElement; v: SVGTextElement }>();
-  private pipes = new Map<string, { g: SVGGElement; flow: SVGPathElement; track: SVGPathElement; path: SVGPathElement }>();
+  private pipes = new Map<string, { g: SVGGElement; flow: SVGPathElement; track: SVGPathElement; path: SVGPathElement; q: [Pt, Pt, Pt] }>();
 
   constructor(host: HTMLElement, private opts: MapOptions) {
     this.svg = document.createElementNS(NS, "svg");
@@ -67,7 +71,7 @@ export class ChartMap {
     parent.appendChild(e);
     return e;
   }
-  private p(id: string): [number, number] {
+  private p(id: string): Pt {
     const ll = DISPLAY[id] ?? (NET.exporters.find((e) => e.id === id)?.lonlat ?? NET.importers.find((i) => i.id === id)?.lonlat ?? NET.routes.find((r) => r.id === id)?.lonlat) as [number, number];
     return this.proj(ll)!;
   }
@@ -89,15 +93,31 @@ export class ChartMap {
     }
   }
 
-  private curve(a: [number, number], b: [number, number], bend?: [number, number]) {
-    const c = bend ? this.proj(bend)! : [(a[0] + b[0]) / 2 + (b[1] - a[1]) * 0.12, (a[1] + b[1]) / 2 - (b[0] - a[0]) * 0.12];
+  private ctrl(a: Pt, b: Pt, bend?: [number, number]): Pt {
+    return bend ? this.proj(bend)! as Pt : [(a[0] + b[0]) / 2 + (b[1] - a[1]) * 0.12, (a[1] + b[1]) / 2 - (b[0] - a[0]) * 0.12];
+  }
+  private curve(a: Pt, b: Pt, bend?: [number, number]) {
+    const c = this.ctrl(a, b, bend);
     return `M${a[0]},${a[1]} Q${c[0]},${c[1]} ${b[0]},${b[1]}`;
+  }
+  /** A short dashed slash across a quadratic curve at parameter t. */
+  private slash(q: [Pt, Pt, Pt], t: number) {
+    const [a, c, b] = q, u = 1 - t;
+    const x = u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], y = u * u * a[1] + 2 * u * t * c[1] + t * t * b[1];
+    const tx = 2 * u * (c[0] - a[0]) + 2 * t * (b[0] - c[0]), ty = 2 * u * (c[1] - a[1]) + 2 * t * (b[1] - c[1]);
+    const L = Math.hypot(tx, ty) || 1, nx = -ty / L * 11, ny = tx / L * 11;
+    this.el("line", { x1: x - nx, y1: y - ny, x2: x + nx, y2: y + ny, class: "cut-mark" }, this.cutLayer);
+  }
+  private ring(id: string) {
+    const [x, y] = this.p(id);
+    this.el("circle", { cx: x, cy: y, r: NET.importers.some((i) => i.id === id) ? 13 : 11, class: "cut-ring" }, this.cutLayer);
   }
 
   private drawNetwork() {
     const layer = this.el("g", { class: "edges" });
     for (const l of NET.links) {
       if (SKIP.has(l.id)) continue;
+      const q: [Pt, Pt, Pt] = [this.p(l.from), this.ctrl(this.p(l.from), this.p(l.to), BEND[l.id]), this.p(l.to)];
       const d = this.curve(this.p(l.from), this.p(l.to), BEND[l.id]);
       const g = this.el("g", { class: "edge" }, layer);
       const track = this.el("path", { d, class: "edge-track" }, g);
@@ -105,19 +125,20 @@ export class ChartMap {
       const path = this.el("path", { d, class: "edge-path" }, g);
       const cut = this.el("path", { d, class: "edge-cut" }, g);
       const rev = `${l.to}-${l.from}`;
-      this.edges.set(l.id, { g, track, flow, cut, path, id: l.id, reverse: NET.links.some((x) => x.id === rev) ? rev : undefined });
+      this.edges.set(l.id, { g, track, flow, cut, path, q, from: l.from, to: l.to, id: l.id, reverse: NET.links.some((x) => x.id === rev) ? rev : undefined });
     }
     for (const pl of NET.pipelines) {
-      const a = this.proj(PIPE_FROM[pl.id])!, b = this.p(pl.to);
+      const a = this.proj(PIPE_FROM[pl.id])! as Pt, b = this.p(pl.to);
       const g = this.el("g", { class: "pipe" }, layer);
       const track = this.el("path", { d: this.curve(a, b), class: "pipe-track" }, g);
       const flow = this.el("path", { d: this.curve(a, b), class: "pipe-flow" }, g);
       const path = this.el("path", { d: this.curve(a, b), class: "edge-path" }, g);
       const t = this.el("text", { x: a[0], y: a[1] - 7, class: "pipe-label", "text-anchor": "middle" }, g);
       t.textContent = pl.name.replace(" (not built)", "");
-      this.pipes.set(pl.id, { g, track, flow, path });
+      this.pipes.set(pl.id, { g, track, flow, path, q: [a, this.ctrl(a, b), b] });
       if (this.opts.interactive) this.clickable(g, pl.id, `${pl.name}: click to shut or reopen`);
     }
+    this.cutLayer = this.el("g", { class: "cut-marks" });
     const nl = this.el("g", { class: "nodes" });
     const add = (id: string, kind: string, label: string) => {
       const [x, y] = this.p(id);
@@ -148,6 +169,25 @@ export class ChartMap {
     g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); } });
   }
 
+  /** Min cut as dashed red marks: a ring round an exporter selling all it can or an importer fully supplied, a slash across a full pipeline or a closed sea lane. */
+  private drawCut(ev: Evaluation) {
+    this.cutLayer.innerHTML = "";
+    if (!this.opts.cut || ev.progress) return;
+    const ringed = new Set<string>();
+    for (const c of ev.map.cut) {
+      const m = c.meta;
+      if (m.type === "supply" || m.type === "divert" || m.type === "demand" || m.type === "regas" || m.type === "storage" || m.type === "fuelswitch") {
+        if (!ringed.has(m.id) && this.nodes.has(m.id)) { ringed.add(m.id); this.ring(m.id); }
+      } else if (m.type === "pipeline") {
+        const p = this.pipes.get(m.id); if (p) this.slash(p.q, 0.55);
+      } else if (m.type === "route") {
+        for (const e of this.edges.values()) if (e.to === m.id) this.slash(e.q, 0.8); else if (e.reverse && e.from === m.id) this.slash(e.q, 0.2);
+      } else if (m.type === "link") {
+        const e = this.edges.get(m.id) ?? [...this.edges.values()].find((x) => x.reverse === m.id); if (e) this.slash(e.q, 0.5);
+      }
+    }
+  }
+
   update(ev: Evaluation, s: State, highlight: string[] = []) {
     const f = ev.map.arcFlow;
     const cutIds = new Set(ev.map.cut.map((c) => `${c.meta.type}:${c.meta.id}`));
@@ -159,8 +199,7 @@ export class ChartMap {
       const l = NET.links.find((x) => x.id === id)!;
       const closed = s.closed.has(l.from) || s.closed.has(l.to);
       e.g.classList.toggle("closed", closed);
-      const onCut = cutIds.has(`link:${id}`);
-      e.cut.style.display = onCut ? "" : "none";
+      e.cut.style.display = "none";
       e.path.style.display = path.has(`link:${id}`) || (e.reverse && path.has(`link:${e.reverse}`)) ? "" : "none";
     }
     for (const [id, p] of this.pipes) {
@@ -190,6 +229,7 @@ export class ChartMap {
         n.v.textContent = s.closed.has(id) ? "closed" : "";
       }
     }
+    this.drawCut(ev);
   }
 }
 
