@@ -1,0 +1,8 @@
+scenario,label,supply_mtpa,demand_mtpa,shortfall_mtpa,lambda,lambda_buffered,min_cut
+baseline,Baseline (2025),314.22,314.22,0,1,1,
+hormuz,Hormuz closed,277.46,314.22,36.76,0.883,1,OMN: exporter at capacity; USA: exporter at capacity; RUS_ARC: exporter at capacity; AUS: exporter at capacity; BRN: exporter at capacity; IDN: exporter at capacity; MYS: exporter at capacity; PNG: exporter at capacity; RUS_SAK: exporter at capacity; OTH_ATL: exporter at capacity; OTH_PAC: exporter at capacity; HORMUZ (closed): route bottleneck; POS: pipeline at capacity; CAC: pipeline at capacity; MYC: pipeline at capacity; MYT: pipeline at capacity
+redsea,Red Sea closed,314.22,314.22,0,1,1,BAB_SUEZ (closed): route bottleneck
+malacca,Malacca closed,314.22,314.22,0,1,1,MALACCA (closed): route bottleneck
+panama,Panama restricted,314.22,314.22,0,1,1,
+russia,Russian LNG sanctioned,314.22,314.22,0,1,1,RUS_ARC (closed): exporter at capacity; RUS_SAK (closed): exporter at capacity
+hormuz_redsea,Hormuz + Red Sea closed,277.46,314.22,36.76,0.883,1,OMN: exporter at capacity; USA: exporter at capacity; RUS_ARC: exporter at capacity; AUS: exporter at capacity; BRN: exporter at capacity; IDN: exporter at capacity; MYS: exporter at capacity; PNG: exporter at capacity; RUS_SAK: exporter at capacity; OTH_ATL: exporter at capacity; OTH_PAC: exporter at capacity; HORMUZ (closed): route bottleneck; POS: pipeline at capacity; CAC: pipeline at capacity; MYC: pipeline at capacity; MYT: pipeline at capacity

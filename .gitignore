@@ -1,0 +1,7 @@
+node_modules
+dist
+.DS_Store
+.claude/
+# working files kept out of the public repo
+claude-code-prompt.md
+chokepoint-cut.html

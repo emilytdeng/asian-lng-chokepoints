@@ -1,0 +1,1583 @@
+{
+  "meta": {
+    "title": "Asian LNG supply network, 2025 baseline",
+    "baseline_year": 2025,
+    "unit": "mtpa",
+    "bcm_per_mtpa": 1.36,
+    "diversion": {
+      "value": 0.2,
+      "unit": "share",
+      "source_url": "estimate",
+      "year": 2025,
+      "is_estimate": true,
+      "note": "Share of each exporter's non-Asian (mainly European) cargoes that Asian buyers can bid away in a crisis. No direct source; varied 0-50% in robustness checks. Chosen by the author with the user (stage 2).",
+      "range": [
+        0.0,
+        0.5
+      ]
+    },
+    "horizon_days": {
+      "value": 90,
+      "unit": "days",
+      "source_url": "estimate",
+      "year": 2025,
+      "is_estimate": true,
+      "note": "Crisis length used to convert storage inventory into a sustainable withdrawal rate in buffered λ (inventory × 365 / 90). Varied in robustness checks."
+    },
+    "lng_t_per_m3": 0.45,
+    "source_notes": {
+      "GIIGNL": "GIIGNL Annual Report 2026 data were read from the public PDF copy at https://www.worldlngsummit.com/media/5stjrkng/2026-giignl-annual-report.pdf (giignl.org gates downloads to members). Page references refer to that PDF.",
+      "EI": "Energy Institute Statistical Review of World Energy 2026 data workbook (EI-Stats-Review-ALL-data.xlsx), sheets 'Gas trade 2025 - pipeline', 'Gas - LNG imports bcm', 'Gas inputs - Elec generation'. Used for China's pipeline imports and as a cross-check on GIIGNL LNG imports (agree within ~1% except Korea, ~5% lower in EI) and on fuel-switching scale."
+    },
+    "notes": [
+      "Gas is pooled and fungible: any cargo can serve any importer reachable by a path. Contracts, prices and destination clauses are not modeled.",
+      "Rates are annualised (mtpa). A closure is assumed to last long enough that annual rates are meaningful; storage converts to days of cover."
+    ]
+  },
+  "exporters": [
+    {
+      "id": "QAT",
+      "name": "Qatar",
+      "lonlat": [
+        51.53,
+        25.9
+      ],
+      "note": "Ras Laffan; all exports except to Kuwait transit Hormuz (IEA).",
+      "capacity": {
+        "value": 77.0,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 63.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 3.4, CHN 20.2, KOR 7.3, IND 11.6, TWN 7.8, THA 2.1, PAK 6.6, BGD 4.2."
+      },
+      "deliveries_2025": {
+        "JPN": 3.4,
+        "CHN": 20.2,
+        "KOR": 7.3,
+        "IND": 11.6,
+        "TWN": 7.8,
+        "THA": 2.1,
+        "PAK": 6.6,
+        "BGD": 4.2
+      },
+      "total_exports": {
+        "value": 80.5,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025'). Includes ~5 Mt to Kuwait that does not transit Hormuz (IEA)."
+      }
+    },
+    {
+      "id": "UAE",
+      "name": "UAE",
+      "lonlat": [
+        52.6,
+        25.15
+      ],
+      "note": "Das Island (ADNOC); inside the Gulf, transits Hormuz.",
+      "capacity": {
+        "value": 5.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 4.9,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 0.8, CHN 0.4, KOR 0.2, IND 3.2, TWN 0.2, THA 0.1."
+      },
+      "deliveries_2025": {
+        "JPN": 0.8,
+        "CHN": 0.4,
+        "KOR": 0.2,
+        "IND": 3.2,
+        "TWN": 0.2,
+        "THA": 0.1
+      },
+      "total_exports": {
+        "value": 5.1,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "OMN",
+      "name": "Oman",
+      "lonlat": [
+        59.05,
+        22.6
+      ],
+      "note": "Qalhat, outside the Strait of Hormuz. Not in the original exporter list; added because it is 10.5 Mt of Asian supply that does NOT transit Hormuz.",
+      "capacity": {
+        "value": 11.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 10.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 3.0, CHN 1.4, KOR 2.1, IND 2.1, TWN 1.1, THA 0.7."
+      },
+      "deliveries_2025": {
+        "JPN": 3.0,
+        "CHN": 1.4,
+        "KOR": 2.1,
+        "IND": 2.1,
+        "TWN": 1.1,
+        "THA": 0.7
+      },
+      "total_exports": {
+        "value": 11.5,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "USA",
+      "name": "United States",
+      "lonlat": [
+        -93.3,
+        29.7
+      ],
+      "note": "US Gulf Coast. Reaches Asia via Panama, the Cape, or Suez/Bab el-Mandeb.",
+      "capacity": {
+        "value": 115.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 17.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 4.7, CHN 0.3, KOR 4.5, IND 3.0, TWN 2.5, THA 1.2, BGD 1.2."
+      },
+      "deliveries_2025": {
+        "JPN": 4.7,
+        "CHN": 0.3,
+        "KOR": 4.5,
+        "IND": 3.0,
+        "TWN": 2.5,
+        "THA": 1.2,
+        "BGD": 1.2
+      },
+      "total_exports": {
+        "value": 109.1,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "RUS_ARC",
+      "name": "Russia (Arctic)",
+      "lonlat": [
+        72.0,
+        71.3
+      ],
+      "note": "Yamal LNG + Arctic LNG 2 (GIIGNL 'Russia Europe'). Reaches Asia via the Northern Sea Route (summer), Suez or the Cape.",
+      "capacity": {
+        "value": 26.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 5.1,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: CHN 5.1. Arctic (Russia Europe) deliveries to JPN/KOR/IND/TWN set to 0: the PDF row omits blank cells and the 0.1-0.7 Mt Atlantic cells in those rows could belong to Russia Europe or to other Atlantic sellers; they are counted under OTH_ATL."
+      },
+      "deliveries_2025": {
+        "CHN": 5.1
+      },
+      "total_exports": {
+        "value": 20.9,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "AUS",
+      "name": "Australia",
+      "lonlat": [
+        116.8,
+        -20.6
+      ],
+      "note": "NW Shelf, Gorgon, Wheatstone, Ichthys, Prelude and the Curtis Island projects.",
+      "capacity": {
+        "value": 85.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 73.3,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 26.2, CHN 21.2, KOR 15.4, IND 0.5, TWN 7.8, THA 2.0, BGD 0.2."
+      },
+      "deliveries_2025": {
+        "JPN": 26.2,
+        "CHN": 21.2,
+        "KOR": 15.4,
+        "IND": 0.5,
+        "TWN": 7.8,
+        "THA": 2.0,
+        "BGD": 0.2
+      },
+      "total_exports": {
+        "value": 78.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "BRN",
+      "name": "Brunei",
+      "lonlat": [
+        114.2,
+        4.6
+      ],
+      "note": "Brunei LNG, Lumut.",
+      "capacity": {
+        "value": 7.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 5.0,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 2.7, CHN 0.4, KOR 0.9, TWN 0.7, THA 0.2, BGD 0.1. BGD 0.1 Mt and THA 0.2 Mt Pacific cells assigned to Brunei by column order; could be Indonesia/Malaysia."
+      },
+      "deliveries_2025": {
+        "JPN": 2.7,
+        "CHN": 0.4,
+        "KOR": 0.9,
+        "TWN": 0.7,
+        "THA": 0.2,
+        "BGD": 0.1
+      },
+      "total_exports": {
+        "value": 5.0,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "IDN",
+      "name": "Indonesia",
+      "lonlat": [
+        117.5,
+        0.1
+      ],
+      "note": "Bontang, Tangguh, DSLNG.",
+      "capacity": {
+        "value": 24.9,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 10.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 3.8, CHN 3.7, KOR 2.1, TWN 0.4, THA 0.2."
+      },
+      "deliveries_2025": {
+        "JPN": 3.8,
+        "CHN": 3.7,
+        "KOR": 2.1,
+        "TWN": 0.4,
+        "THA": 0.2
+      },
+      "total_exports": {
+        "value": 15.9,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "MYS",
+      "name": "Malaysia",
+      "lonlat": [
+        113.0,
+        3.2
+      ],
+      "note": "Bintulu MLNG + PFLNG floaters.",
+      "capacity": {
+        "value": 32.0,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 26.6,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 9.6, CHN 7.2, KOR 8.0, TWN 0.1, THA 1.6, BGD 0.1. TWN 0.1 and BGD 0.1 cells assigned by column order. GIIGNL's Malaysia commentary (KOR 13%) conflicts with the matrix (KOR 8.0 Mt) and Korea commentary (8.0 Mt); matrix used."
+      },
+      "deliveries_2025": {
+        "JPN": 9.6,
+        "CHN": 7.2,
+        "KOR": 8.0,
+        "TWN": 0.1,
+        "THA": 1.6,
+        "BGD": 0.1
+      },
+      "total_exports": {
+        "value": 27.3,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "PNG",
+      "name": "Papua New Guinea",
+      "lonlat": [
+        147.0,
+        -9.4
+      ],
+      "note": "PNG LNG, Port Moresby.",
+      "capacity": {
+        "value": 8.3,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 8.7,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 3.5, CHN 2.4, KOR 0.8, TWN 1.8, THA 0.2."
+      },
+      "deliveries_2025": {
+        "JPN": 3.5,
+        "CHN": 2.4,
+        "KOR": 0.8,
+        "TWN": 1.8,
+        "THA": 0.2
+      },
+      "total_exports": {
+        "value": 8.7,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "RUS_SAK",
+      "name": "Russia (Sakhalin)",
+      "lonlat": [
+        143.2,
+        46.6
+      ],
+      "note": "Sakhalin-2, Prigorodnoye (GIIGNL 'Russia Asia').",
+      "capacity": {
+        "value": 10.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 9.9,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 5.7, CHN 2.4, KOR 1.7, TWN 0.1."
+      },
+      "deliveries_2025": {
+        "JPN": 5.7,
+        "CHN": 2.4,
+        "KOR": 1.7,
+        "TWN": 0.1
+      },
+      "total_exports": {
+        "value": 9.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "OTH_ATL",
+      "name": "Other Atlantic & E. Africa",
+      "lonlat": [
+        3.0,
+        4.5
+      ],
+      "note": "Aggregate of Algeria, Angola, Cameroon, Congo, Egypt, Eq. Guinea, Mauritania, Mexico, Nigeria, Norway, Trinidad & Tobago and Mozambique. Needed so 2025 Asian imports balance.",
+      "capacity": {
+        "value": 98.1,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge."
+      },
+      "asia_deliveries": {
+        "value": 15.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 1.1, CHN 2.0, KOR 3.6, IND 4.8, TWN 0.6, THA 2.2, PAK 0.1, BGD 0.8."
+      },
+      "deliveries_2025": {
+        "JPN": 1.1,
+        "CHN": 2.0,
+        "KOR": 3.6,
+        "IND": 4.8,
+        "TWN": 0.6,
+        "THA": 2.2,
+        "PAK": 0.1,
+        "BGD": 0.8
+      },
+      "total_exports": {
+        "value": 49.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    },
+    {
+      "id": "OTH_PAC",
+      "name": "Other Pacific",
+      "lonlat": [
+        -129.0,
+        54.0
+      ],
+      "note": "Aggregate of LNG Canada and Peru LNG.",
+      "capacity": {
+        "value": 18.75,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "Nameplate liquefaction capacity, end-2025 (GIIGNL liquefaction tables). Reference only; not the model's supply edge. Peru LNG (4.45) added from public project data."
+      },
+      "asia_deliveries": {
+        "value": 3.9,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 deliveries to the 8 modeled importers, GIIGNL trade matrix: JPN 1.2, CHN 0.6, KOR 1.8, TWN 0.3."
+      },
+      "deliveries_2025": {
+        "JPN": 1.2,
+        "CHN": 0.6,
+        "KOR": 1.8,
+        "TWN": 0.3
+      },
+      "total_exports": {
+        "value": 5.5,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "HORMUZ",
+      "name": "Strait of Hormuz",
+      "kind": "chokepoint",
+      "lonlat": [
+        56.4,
+        26.6
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    },
+    {
+      "id": "BAB_SUEZ",
+      "name": "Suez / Bab el-Mandeb",
+      "kind": "chokepoint",
+      "lonlat": [
+        43.4,
+        12.6
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    },
+    {
+      "id": "CAPE",
+      "name": "Cape of Good Hope",
+      "kind": "chokepoint",
+      "lonlat": [
+        18.5,
+        -35.0
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    },
+    {
+      "id": "PANAMA",
+      "name": "Panama Canal",
+      "kind": "chokepoint",
+      "lonlat": [
+        -79.7,
+        9.1
+      ],
+      "capacity": {
+        "value": 28.579,
+        "unit": "mtpa",
+        "source_url": "https://datamarnews.com/noticias/panama-canal-at-top-capacity-as-iran-war-triggers-more-lng-vessel-traffic-chief-says/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One LNG transit slot per day (Canal administrator quoted by DataMar, March 2026) × a 174,000 m3 carrier (~0.078 Mt). The ACP gives LNG carriers advance booking access from Jan 2026 but publishes no LNG slot count (https://pancanal.com/en/panama-canal-announces-enhanced-long-term-slot-allocation-program-lotsa-2-0/). Pre-drought peak was ~26 transits/month; 1H25 averaged ~4/month (S&P Global)."
+      },
+      "note": ""
+    },
+    {
+      "id": "MALACCA",
+      "name": "Strait of Malacca",
+      "kind": "chokepoint",
+      "lonlat": [
+        100.8,
+        2.6
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    },
+    {
+      "id": "LOMBOK",
+      "name": "Lombok / Makassar",
+      "kind": "chokepoint",
+      "lonlat": [
+        115.7,
+        -8.8
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    },
+    {
+      "id": "IO",
+      "name": "Arabian Sea & Indian Ocean",
+      "kind": "lane",
+      "lonlat": [
+        66.0,
+        12.0
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    },
+    {
+      "id": "PACIFIC",
+      "name": "East Asian seas & Pacific",
+      "kind": "lane",
+      "lonlat": [
+        130.0,
+        22.0
+      ],
+      "capacity": null,
+      "note": "No physical throughput limit for LNG at 2025 volumes: modeled as unconstrained unless closed."
+    }
+  ],
+  "links": [
+    {
+      "id": "QAT-HORMUZ",
+      "from": "QAT",
+      "to": "HORMUZ",
+      "capacity": null
+    },
+    {
+      "id": "UAE-HORMUZ",
+      "from": "UAE",
+      "to": "HORMUZ",
+      "capacity": null
+    },
+    {
+      "id": "HORMUZ-IO",
+      "from": "HORMUZ",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "OMN-IO",
+      "from": "OMN",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "USA-PANAMA",
+      "from": "USA",
+      "to": "PANAMA",
+      "capacity": null
+    },
+    {
+      "id": "PANAMA-PACIFIC",
+      "from": "PANAMA",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "USA-CAPE",
+      "from": "USA",
+      "to": "CAPE",
+      "capacity": null
+    },
+    {
+      "id": "USA-BAB_SUEZ",
+      "from": "USA",
+      "to": "BAB_SUEZ",
+      "capacity": null
+    },
+    {
+      "id": "RUS_ARC-CAPE",
+      "from": "RUS_ARC",
+      "to": "CAPE",
+      "capacity": null
+    },
+    {
+      "id": "RUS_ARC-BAB_SUEZ",
+      "from": "RUS_ARC",
+      "to": "BAB_SUEZ",
+      "capacity": null
+    },
+    {
+      "id": "RUS_ARC-PACIFIC",
+      "from": "RUS_ARC",
+      "to": "PACIFIC",
+      "capacity": {
+        "value": 3.0,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "Northern Sea Route, summer-only. Arctic LNG 2 delivered 1.3 Mt (all to China) in 2025, plus some Yamal summer cargoes; averaged over a year ~3 mtpa."
+      }
+    },
+    {
+      "id": "OTH_ATL-CAPE",
+      "from": "OTH_ATL",
+      "to": "CAPE",
+      "capacity": null
+    },
+    {
+      "id": "OTH_ATL-BAB_SUEZ",
+      "from": "OTH_ATL",
+      "to": "BAB_SUEZ",
+      "capacity": null
+    },
+    {
+      "id": "OTH_ATL-IO",
+      "from": "OTH_ATL",
+      "to": "IO",
+      "capacity": {
+        "value": 3.6,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "East African (Mozambique Coral South, 3.6 Mt in 2025) cargoes enter the Indian Ocean directly, without the Cape or Suez."
+      }
+    },
+    {
+      "id": "CAPE-IO",
+      "from": "CAPE",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "BAB_SUEZ-IO",
+      "from": "BAB_SUEZ",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "IO-IND",
+      "from": "IO",
+      "to": "IND",
+      "capacity": null
+    },
+    {
+      "id": "IO-PAK",
+      "from": "IO",
+      "to": "PAK",
+      "capacity": null
+    },
+    {
+      "id": "IO-BGD",
+      "from": "IO",
+      "to": "BGD",
+      "capacity": null
+    },
+    {
+      "id": "IO-MALACCA",
+      "from": "IO",
+      "to": "MALACCA",
+      "capacity": null
+    },
+    {
+      "id": "MALACCA-IO",
+      "from": "MALACCA",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "IO-LOMBOK",
+      "from": "IO",
+      "to": "LOMBOK",
+      "capacity": null
+    },
+    {
+      "id": "LOMBOK-IO",
+      "from": "LOMBOK",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "MALACCA-PACIFIC",
+      "from": "MALACCA",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-MALACCA",
+      "from": "PACIFIC",
+      "to": "MALACCA",
+      "capacity": null
+    },
+    {
+      "id": "LOMBOK-PACIFIC",
+      "from": "LOMBOK",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-LOMBOK",
+      "from": "PACIFIC",
+      "to": "LOMBOK",
+      "capacity": null
+    },
+    {
+      "id": "AUS-PACIFIC",
+      "from": "AUS",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "AUS-IO",
+      "from": "AUS",
+      "to": "IO",
+      "capacity": null
+    },
+    {
+      "id": "BRN-PACIFIC",
+      "from": "BRN",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "IDN-PACIFIC",
+      "from": "IDN",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "MYS-PACIFIC",
+      "from": "MYS",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "PNG-PACIFIC",
+      "from": "PNG",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "RUS_SAK-PACIFIC",
+      "from": "RUS_SAK",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "OTH_PAC-PACIFIC",
+      "from": "OTH_PAC",
+      "to": "PACIFIC",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-JPN",
+      "from": "PACIFIC",
+      "to": "JPN",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-KOR",
+      "from": "PACIFIC",
+      "to": "KOR",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-TWN",
+      "from": "PACIFIC",
+      "to": "TWN",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-CHN",
+      "from": "PACIFIC",
+      "to": "CHN",
+      "capacity": null
+    },
+    {
+      "id": "PACIFIC-THA",
+      "from": "PACIFIC",
+      "to": "THA",
+      "capacity": null
+    }
+  ],
+  "pipelines": [
+    {
+      "id": "POS",
+      "name": "Power of Siberia",
+      "to": "CHN",
+      "capacity": {
+        "value": 27.0,
+        "unit": "mtpa",
+        "source_url": "https://www.energyinst.org/statistical-review/resources-and-data-downloads",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "36.7 bcm/yr. Modeled capacity = 2025 flow. EI Statistical Review 2026, 'Gas trade 2025 - pipeline': Russia → China 36.7 bcm. Other estimates are higher (Kpler 39.2, TASS ~38.8); the pipe is at or near its 38 bcm design, so little headroom."
+      },
+      "design_capacity": {
+        "value": 27.941,
+        "unit": "mtpa",
+        "source_url": "https://www.gem.wiki/Power_of_Siberia_Gas_Pipeline",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "38 bcm/yr design capacity (Global Energy Monitor, Global Gas Infrastructure Tracker). Reference only."
+      }
+    },
+    {
+      "id": "CAC",
+      "name": "Central Asia–China",
+      "to": "CHN",
+      "capacity": {
+        "value": 26.963,
+        "unit": "mtpa",
+        "source_url": "https://www.energyinst.org/statistical-review/resources-and-data-downloads",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "36.7 bcm/yr. Modeled capacity = 2025 flow. EI 2026: Turkmenistan 30.3 + Kazakhstan 4.9 + Uzbekistan 1.5 bcm into China (Kpler implies ~36.7, consistent). Supply-limited, not pipe-limited: Lines A-C can carry 55 bcm but Central Asian producers are diverting gas home; Line D (30 bcm) is still proposed."
+      },
+      "design_capacity": {
+        "value": 40.441,
+        "unit": "mtpa",
+        "source_url": "https://www.gem.wiki/Central_Asia%E2%80%93China_Gas_Pipeline",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "55 bcm/yr design capacity (Global Energy Monitor, Global Gas Infrastructure Tracker). Reference only."
+      }
+    },
+    {
+      "id": "MYC",
+      "name": "Myanmar–China",
+      "to": "CHN",
+      "capacity": {
+        "value": 3.25,
+        "unit": "mtpa",
+        "source_url": "https://www.energyinst.org/statistical-review/resources-and-data-downloads",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "4.4 bcm/yr. Modeled capacity = 2025 flow. EI 2026: Myanmar → China 4.4 bcm (Kpler 4.8). Limited by Shwe field output, not by the pipe."
+      },
+      "design_capacity": {
+        "value": 8.824,
+        "unit": "mtpa",
+        "source_url": "https://www.gem.wiki/Sino-Myanmar_Gas_Pipeline",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "12 bcm/yr design capacity (Global Energy Monitor, Global Gas Infrastructure Tracker). Reference only."
+      }
+    },
+    {
+      "id": "MYT",
+      "name": "Myanmar–Thailand (Yadana/Zawtika)",
+      "to": "THA",
+      "capacity": {
+        "value": 3.207,
+        "unit": "mtpa",
+        "source_url": "https://www.eppo.go.th/wp-content/uploads/2026/04/T03_01_01.xls",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "4.4 bcm/yr. Modeled capacity = 2025 flow. EPPO Table 3.1-1, 2025 average imports: Yadana 174 + Yetagun 28 + Zawtika 220 = 422 MMSCFD (1,000 Btu/scf). EI 2026 cross-check: 4.2 bcm. Fields are depleting."
+      }
+    },
+    {
+      "id": "POS2",
+      "name": "Power of Siberia 2 (not built)",
+      "to": "CHN",
+      "capacity": {
+        "value": 0.0,
+        "unit": "mtpa",
+        "source_url": "https://www.gem.wiki/Power_of_Siberia_2_Gas_Pipeline",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "0.0 bcm/yr. Modeled capacity = 2025 flow. Proposed (GEM: 2030 start). Legally binding construction agreement signed Sept 2025, but route and price unresolved. Modeled at zero so the investment ranking can test building it."
+      },
+      "design_capacity": {
+        "value": 36.765,
+        "unit": "mtpa",
+        "source_url": "https://www.gem.wiki/Power_of_Siberia_2_Gas_Pipeline",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "50 bcm/yr design capacity (Global Energy Monitor, Global Gas Infrastructure Tracker). Reference only."
+      }
+    }
+  ],
+  "importers": [
+    {
+      "id": "JPN",
+      "name": "Japan",
+      "lonlat": [
+        139.7,
+        35.5
+      ],
+      "regas": {
+        "value": 221.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 65.7,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 65.7 Mt (GIIGNL trade matrix, gross of reloads). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 88.5 bcm of 2025 LNG imports (≈65.1 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 4.0,
+          "unit": "Mt",
+          "source_url": "https://www.bairdmaritime.com/shipping/tankers/gas/japans-lng-inventories-grow-no-emergency-supply-requests-reported",
+          "year": 2026,
+          "is_estimate": false,
+          "note": "National LNG inventories 'just under four million tonnes' (METI statement reported by Reuters, week to 8 Mar 2026). METI's own weekly series covers power utilities only: 2.20 Mt on 1 Mar 2026 (https://www.enecho.meti.go.jp/category/electricity_and_gas/electricity_measures/pdf/denryoku_LNG_stock.pdf). City-gas stocks make up the rest."
+        },
+        "max_withdrawal": {
+          "value": 221.2,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 2.0,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: lifting operational restrictions on coal plants saves ~0.5 Mt LNG/yr; Kashiwazaki-Kariwa 6 (1.36 GW) entering commercial operation mid-April 2026 ≈ 1.36 × 0.8 × 8,760 h ≈ 9.5 TWh ≈ 1.2 Mt. Sum ~1.7, rounded to 2. Oil-fired backup excluded because oil is also short in a Hormuz closure. (Was 3.0 before source upgrade.) Scale check: EI 2026 gas-fired generation 308.8 TWh ≈ 39 Mt LNG-eq of power-sector gas burn, so this is ~5% of it."
+      }
+    },
+    {
+      "id": "CHN",
+      "name": "China",
+      "lonlat": [
+        121.5,
+        31.2
+      ],
+      "regas": {
+        "value": 173.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 124.513,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 67.3 Mt (GIIGNL trade matrix, gross of reloads) + pipeline imports 57.2 Mt-eq (77.8 bcm; EI 2026, see pipelines). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 90.8 bcm of 2025 LNG imports (≈66.8 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 18.634,
+          "unit": "Mt",
+          "source_url": "https://www.energypolicy.columbia.edu/asias-gas-shock-playbook-coal-curtailment-and-competing-for-lng/",
+          "year": 2026,
+          "is_estimate": true,
+          "note": "Underground storage 16.8 bcm at end-Feb 2026 (CGEP) = 12.4 Mt, consistent with IGU's 19.8 bcm working-gas capacity (Oct 2025); plus LNG tanks at an assumed 50% fill (27.9 M m3 × 0.45 t/m3 × 50% = 6.3 Mt)."
+        },
+        "max_withdrawal": {
+          "value": 60.0,
+          "unit": "mtpa",
+          "source_url": "estimate",
+          "year": 2025,
+          "is_estimate": true,
+          "note": "Peak underground-storage withdrawal. No national figure is published (IGU reports capacity, not deliverability); facility data such as Wen23 (39 mcm/d for 4 bcm working gas, ~1% of working gas per day) scaled to China's 19.8 bcm gives ~0.2 bcm/d. Estimate 60 mtpa ≈ 0.22 bcm/d."
+        },
+        "enters": "out"
+      },
+      "fuel_switch": {
+        "value": 15.0,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: China's LNG imports fell 30% y-o-y in March 2026 and its 60-65 bcm regional switching estimate explicitly includes China; CGEP: Guangdong cut gas burn to 56-70% of its 2025 rate. Estimate ~20 bcm/yr (15 Mt) nationally. Scale check: EI 2026 gas-fired generation 337.6 TWh ≈ 43 Mt LNG-eq of power-sector gas burn, so this is ~35% of it."
+      }
+    },
+    {
+      "id": "KOR",
+      "name": "South Korea",
+      "lonlat": [
+        126.6,
+        37.4
+      ],
+      "regas": {
+        "value": 156.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 48.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 48.4 Mt (GIIGNL trade matrix, gross of reloads). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 63.1 bcm of 2025 LNG imports (≈46.4 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 3.357,
+          "unit": "Mt",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": true,
+          "note": "No published inventory. LNG tank capacity 14,920,000 m3 (sum of terminals in GIIGNL 2026) × 0.45 t/m3 × assumed 50% average fill."
+        },
+        "max_withdrawal": {
+          "value": 156.4,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 3.0,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: easing coal-generation restrictions, Kori-3 restart (~0.95 GW ≈ 0.8 Mt/yr), Saeul-3 (1.4 GW) from mid-2026 (≈0.6 Mt in-year); CGEP adds deferral of 1.5 GW of coal retirements (≈1.0 Mt at 60% load). Sum ~2.4-2.7, rounded to 3. (Was 4.0 before source upgrade.) Scale check: EI 2026 gas-fired generation 173.7 TWh ≈ 22 Mt LNG-eq of power-sector gas burn, so this is ~14% of it."
+      }
+    },
+    {
+      "id": "IND",
+      "name": "India",
+      "lonlat": [
+        72.6,
+        21.7
+      ],
+      "regas": {
+        "value": 52.7,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 25.2,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 25.2 Mt (GIIGNL trade matrix, gross of reloads). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 35.4 bcm of 2025 LNG imports (≈26.0 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 0.86,
+          "unit": "Mt",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": true,
+          "note": "No published inventory. LNG tank capacity 3,822,000 m3 (sum of terminals in GIIGNL 2026) × 0.45 t/m3 × assumed 50% average fill."
+        },
+        "max_withdrawal": {
+          "value": 52.7,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 2.0,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: Natural Gas (Supply Regulation) Order 2026 cut industrial deliveries 10-30%, 'prompting fuel switching among industrial users to naphtha, fuel oil and diesel'; coal plants ordered to full output (CGEP). The curtailment itself is demand loss, not switching; switching share estimated at 2 Mt. Scale check: EI 2026 gas-fired generation 47.8 TWh ≈ 6 Mt LNG-eq of power-sector gas burn, so this is ~33% of it."
+      }
+    },
+    {
+      "id": "TWN",
+      "name": "Taiwan",
+      "lonlat": [
+        120.3,
+        23.0
+      ],
+      "regas": {
+        "value": 23.5,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "GIIGNL nominal send-out is 23.0 MTPA, but Taiwan imported 23.5 Mt in 2025, so achievable throughput is at least 23.5. Set to 2025 imports so the baseline is not regas-constrained. Robustness range is bounded below by the published nameplate.",
+        "range": [
+          23.0,
+          29.375
+        ]
+      },
+      "import_demand": {
+        "value": 23.4,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 23.4 Mt (GIIGNL trade matrix, gross of reloads). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 31.8 bcm of 2025 LNG imports (≈23.4 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 0.7,
+          "unit": "Mt",
+          "source_url": "https://www.energypolicy.columbia.edu/asias-gas-shock-playbook-coal-curtailment-and-competing-for-lng/",
+          "year": 2026,
+          "is_estimate": false,
+          "note": "CGEP: Taiwan holds 11 days of storage, 0.7 Mt."
+        },
+        "max_withdrawal": {
+          "value": 23.5,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 1.0,
+        "unit": "mtpa",
+        "source_url": "https://www.energypolicy.columbia.edu/asias-gas-shock-playbook-coal-curtailment-and-competing-for-lng/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "CGEP: restart of a 1 GW retired coal plant: 1 GW × 80% ≈ 7 TWh ≈ 0.9 Mt LNG. Nuclear restarts (1.9 GW) take longer than a crisis horizon. Scale check: EI 2026 gas-fired generation 138.2 TWh ≈ 17 Mt LNG-eq of power-sector gas burn, so this is ~6% of it."
+      }
+    },
+    {
+      "id": "THA",
+      "name": "Thailand",
+      "lonlat": [
+        101.0,
+        12.7
+      ],
+      "regas": {
+        "value": 19.0,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 13.707,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 10.5 Mt (GIIGNL trade matrix, gross of reloads) + pipeline imports 3.2 Mt-eq (4.4 bcm; EPPO, see pipelines). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 14.3 bcm of 2025 LNG imports (≈10.5 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 0.257,
+          "unit": "Mt",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": true,
+          "note": "No published inventory. LNG tank capacity 1,140,000 m3 (sum of terminals in GIIGNL 2026) × 0.45 t/m3 × assumed 50% average fill."
+        },
+        "max_withdrawal": {
+          "value": 19.0,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 1.5,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: the Energy Regulatory Commission ordered generators to raise the coal share and EGAT to restart two Mae Moh units (0.6 GW ≈ 0.6 Mt/yr); the remainder is higher loading of existing coal (BLCP, Gheco-One) and dual-fuel oil firing. Scale check: EI 2026 gas-fired generation 123.3 TWh ≈ 16 Mt LNG-eq of power-sector gas burn, so this is ~10% of it."
+      }
+    },
+    {
+      "id": "PAK",
+      "name": "Pakistan",
+      "lonlat": [
+        67.3,
+        24.8
+      ],
+      "regas": {
+        "value": 9.8,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 6.7,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 6.7 Mt (GIIGNL trade matrix, gross of reloads). Demand that must be met by imports. Cross-check: EI Statistical Review 2026 reports 9.1 bcm of 2025 LNG imports (≈6.7 Mt)."
+      },
+      "storage": {
+        "inventory": {
+          "value": 0.072,
+          "unit": "Mt",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": true,
+          "note": "No published inventory. LNG tank capacity 320,900 m3 (sum of terminals in GIIGNL 2026) × 0.45 t/m3 × assumed 50% average fill."
+        },
+        "max_withdrawal": {
+          "value": 9.8,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 2.0,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: Qatar = 98% of Pakistan's LNG; gas burn in power already falling (-6% y-o-y Q4 2025). RLNG-fired power can shift partly to furnace oil and Thar coal; IEA factsheet: gas = 25% of the power mix (2024)."
+      }
+    },
+    {
+      "id": "BGD",
+      "name": "Bangladesh",
+      "lonlat": [
+        91.9,
+        21.6
+      ],
+      "regas": {
+        "value": 7.5,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "Nominal send-out capacity, sum of terminals at end-2025 (GIIGNL regas tables)."
+      },
+      "import_demand": {
+        "value": 6.6,
+        "unit": "mtpa",
+        "source_url": "https://www.giignl.org/annual-report/2026",
+        "year": 2025,
+        "is_estimate": false,
+        "note": "2025 LNG imports by source 6.6 Mt (GIIGNL trade matrix, gross of reloads). Demand that must be met by imports. EI 2026 does not report Bangladesh separately."
+      },
+      "storage": {
+        "inventory": {
+          "value": 0.062,
+          "unit": "Mt",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": true,
+          "note": "No published inventory. LNG tank capacity 276,000 m3 (sum of terminals in GIIGNL 2026) × 0.45 t/m3 × assumed 50% average fill."
+        },
+        "max_withdrawal": {
+          "value": 7.5,
+          "unit": "mtpa",
+          "source_url": "https://www.giignl.org/annual-report/2026",
+          "year": 2025,
+          "is_estimate": false,
+          "note": "Tank LNG is sent out through the regas vaporizers, so withdrawal is limited by regas capacity (and shares it with arriving cargoes)."
+        },
+        "enters": "in"
+      },
+      "fuel_switch": {
+        "value": 1.5,
+        "unit": "mtpa",
+        "source_url": "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "IEA GMR Q2-2026: supplies to power plants and fertiliser producers reduced from March 2026. Oil-fired peakers can replace part of gas power; IEA factsheet: gas = 50% of the power mix (2024)."
+      }
+    }
+  ],
+  "investments": [
+    {
+      "id": "PAK_REGAS",
+      "label": "Pakistan: +5 mtpa regas (third FSRU)",
+      "changes": [
+        {
+          "target": "importers.PAK.regas",
+          "delta": 5.0
+        }
+      ]
+    },
+    {
+      "id": "BGD_REGAS",
+      "label": "Bangladesh: +4.5 mtpa regas (land-based terminal)",
+      "changes": [
+        {
+          "target": "importers.BGD.regas",
+          "delta": 4.5
+        }
+      ]
+    },
+    {
+      "id": "TWN_STORAGE",
+      "label": "Taiwan: double LNG storage (+0.7 Mt)",
+      "changes": [
+        {
+          "target": "importers.TWN.storage.inventory",
+          "delta": 0.7
+        }
+      ]
+    },
+    {
+      "id": "JPN_STORAGE",
+      "label": "Japan: +2 Mt strategic LNG stock",
+      "changes": [
+        {
+          "target": "importers.JPN.storage.inventory",
+          "delta": 2.0
+        }
+      ]
+    },
+    {
+      "id": "KOR_STORAGE",
+      "label": "South Korea: +1.5 Mt strategic LNG stock",
+      "changes": [
+        {
+          "target": "importers.KOR.storage.inventory",
+          "delta": 1.5
+        }
+      ]
+    },
+    {
+      "id": "IND_STORAGE",
+      "label": "India: +1 Mt strategic LNG stock",
+      "changes": [
+        {
+          "target": "importers.IND.storage.inventory",
+          "delta": 1.0
+        }
+      ]
+    },
+    {
+      "id": "TWN_COAL",
+      "label": "Taiwan: +1 mtpa coal reserve fleet",
+      "changes": [
+        {
+          "target": "importers.TWN.fuel_switch",
+          "delta": 1.0
+        }
+      ]
+    },
+    {
+      "id": "POS_EXP",
+      "label": "Power of Siberia expansion (+6 bcm)",
+      "changes": [
+        {
+          "target": "pipelines.POS.capacity",
+          "delta": 4.412
+        }
+      ]
+    },
+    {
+      "id": "POS2",
+      "label": "Build Power of Siberia 2 (50 bcm)",
+      "changes": [
+        {
+          "target": "pipelines.POS2.capacity",
+          "delta": 36.765
+        }
+      ]
+    },
+    {
+      "id": "USA_LNG",
+      "label": "+10 mtpa new US LNG capacity contracted to Asia",
+      "changes": [
+        {
+          "target": "exporters.USA.asia_deliveries",
+          "delta": 10.0
+        },
+        {
+          "target": "exporters.USA.total_exports",
+          "delta": 10.0
+        }
+      ]
+    }
+  ],
+  "scenarios": {
+    "baseline": {
+      "label": "Baseline (2025)"
+    },
+    "hormuz": {
+      "label": "Hormuz closed",
+      "close": [
+        "HORMUZ"
+      ]
+    },
+    "redsea": {
+      "label": "Red Sea closed",
+      "close": [
+        "BAB_SUEZ"
+      ]
+    },
+    "malacca": {
+      "label": "Malacca closed",
+      "close": [
+        "MALACCA"
+      ]
+    },
+    "panama": {
+      "label": "Panama restricted",
+      "cap_factor": {
+        "PANAMA": 0.13150684931506848
+      },
+      "note": "4 LNG transits/month, the 1H25 drought-era average (S&P Global)."
+    },
+    "russia": {
+      "label": "Russian LNG sanctioned",
+      "close": [
+        "RUS_ARC",
+        "RUS_SAK"
+      ]
+    },
+    "hormuz_redsea": {
+      "label": "Hormuz + Red Sea closed",
+      "close": [
+        "HORMUZ",
+        "BAB_SUEZ"
+      ]
+    }
+  }
+}

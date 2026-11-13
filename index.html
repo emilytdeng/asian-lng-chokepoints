@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Close Hormuz: Asia's LNG</title>
+  <meta name="description" content="If an LNG chokepoint closes, how much gas can each Asian importer still get, how long can it hold out, and what investment helps most? A flow-network model of Asian LNG supply." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 L20 16 L16 30 L12 16 Z' fill='%230086a0'/%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2313283b' stroke-width='2'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <p class="kicker">Geoeconomics of Asian Energy Security · Briefing</p>
+      <button class="theme" id="theme" type="button" aria-label="Switch light or dark chart">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hook wrap" id="hook">
+      <h1>Close Hormuz.<br />Who runs out of gas first?</h1>
+      <p class="lede" id="lede"></p>
+      <div class="hook-map" id="hook-map"></div>
+      <p class="note">Schematic chart of 2025 LNG flows to eight Asian importers. Line width shows volume. Diamonds are chokepoints.</p>
+    </section>
+
+    <section class="story" id="story" aria-label="Guided story">
+      <div class="story-graphic"><div id="story-map"></div><div id="story-chart" class="story-chart"></div></div>
+      <div class="story-steps" id="steps"></div>
+    </section>
+
+    <section class="wrap takeaway" id="takeaway"></section>
+
+    <section class="wrap sandbox" id="sandbox">
+      <h2>Sandbox: close a strait, see who goes without</h2>
+      <p class="sub">Click a chokepoint (◆), exporter (●) or pipeline on the chart to close it, or pick a preset. Everything recomputes in your browser.</p>
+      <div class="sb-grid">
+        <div class="sb-map"><div id="sb-map"></div><div class="legend" id="sb-legend"></div></div>
+        <aside class="panel" id="panel"></aside>
+      </div>
+      <div class="sb-table" id="sb-table"></div>
+    </section>
+
+    <section class="wrap reality" id="reality"></section>
+    <section class="wrap method" id="method"></section>
+  </main>
+
+  <footer class="wrap foot"><p id="foot"></p></footer>
+  <script type="module" src="/src/site/main.ts"></script>
+</body>
+</html>

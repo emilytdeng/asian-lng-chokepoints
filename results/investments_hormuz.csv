@@ -1,0 +1,11 @@
+rank,id,label,lambda,d_lambda,lambda_buffered,d_lambda_buffered,min_days,d_min_days
+1,POS2,Build Power of Siberia 2 (50 bcm),1,0.117,1,0,inf,inf
+2,USA_LNG,+10 mtpa new US LNG capacity contracted to Asia,0.9148,0.0318,1,0,257.3477,110.2991
+3,POS_EXP,Power of Siberia expansion (+6 bcm),0.8971,0.014,1,0,181.3395,34.291
+4,TWN_STORAGE,Taiwan: double LNG storage (+0.7 Mt),0.883,0,1,0,256.7657,109.7171
+5,TWN_COAL,Taiwan: +1 mtpa coal reserve fleet,0.883,0,1,0,256.7657,109.7171
+6,PAK_REGAS,Pakistan: +5 mtpa regas (third FSRU),0.883,0,1,0,147.0485,0
+7,BGD_REGAS,Bangladesh: +4.5 mtpa regas (land-based terminal),0.883,0,1,0,147.0485,0
+8,JPN_STORAGE,Japan: +2 Mt strategic LNG stock,0.883,0,1,0,147.0485,0
+9,KOR_STORAGE,South Korea: +1.5 Mt strategic LNG stock,0.883,0,1,0,147.0485,0
+10,IND_STORAGE,India: +1 Mt strategic LNG stock,0.883,0,1,0,147.0485,0
