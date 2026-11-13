@@ -36,7 +36,9 @@ document.getElementById("lede")!.innerHTML =
   `Shut it, and roughly <b>${fmt(Z.hormuzLost, 0)} million tonnes a year</b> of LNG is stranded in the Gulf. ` +
   `This briefing models Asia's LNG supply as a network of pipes and sea lanes to ask three questions: how much gas can each importer still physically get, how long can it hold out, and what single investment would help most?`;
 const hookMap = new ChartMap(document.getElementById("hook-map")!, { interactive: false });
-hookMap.update(B, base);
+// Draw 2025 as it was: with no diversion, every exporter ships exactly its 2025 Asian deliveries.
+const as2025: State = { ...base, diversion: 0 };
+hookMap.update(evaluate(as2025), as2025);
 
 // ---------------------------------------------------------------- story
 const steps: { title: string; html: string; state: State; chart?: "share" | "cover"; hl?: string[] }[] = [
