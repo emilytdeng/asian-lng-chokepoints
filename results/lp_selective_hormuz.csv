@@ -1,0 +1,6 @@
+scenario,lambda,market_JPN,market_KOR,market_TWN,market_CHN,market_THA,market_IND,market_BGD,market_PAK
+Hormuz closed,88%,100%,100%,100%,100%,100%,7%,0%,0%
+Open only for Pakistan-bound cargoes (May 2026 arrangement),90%,100%,100%,100%,100%,100%,7%,0%,100%
+Open only for UAE cargoes,90%,100%,100%,100%,100%,100%,27%,0%,0%
+"Open only for cargoes to China, India and Pakistan",100%,100%,100%,100%,100%,100%,100%,100%,100%
+Open at 37% of normal (2026 average),97%,100%,100%,100%,100%,100%,100%,46%,0%

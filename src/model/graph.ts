@@ -3,7 +3,8 @@ import { type Arc } from "./maxflow";
 
 /** What each arc in the flow graph represents. Drives min-cut labelling and the UI. */
 export type ArcMeta =
-  | { type: "supply"; id: string } // S → exporter (liquefaction)
+  | { type: "supply"; id: string } // S → exporter: its 2025 deliveries to the modeled importers
+  | { type: "divert"; id: string } // S → exporter: cargoes diverted from non-Asian (mainly European) buyers
   | { type: "route"; id: string } // route_in → route_out (chokepoint throughput)
   | { type: "link"; id: string; from: string; to: string } // exporter/route → route/importer_in
   | { type: "pipeline"; id: string; to: string } // S → importer_out
@@ -59,7 +60,11 @@ export function buildGraph(net: Network, opts: BuildOptions = {}): FlowGraph {
   function bad(id: string): never { throw new Error(`unknown node id in link: ${id}`); }
 
   const div = sc?.diversion ?? net.meta.diversion.value;
-  for (const e of net.exporters) push(s, add(e.id), capFor(e.id, exporterSupply(e, div), sc), { type: "supply", id: e.id });
+  for (const e of net.exporters) {
+    const base = e.asia_deliveries.value, extra = exporterSupply(e, div) - base;
+    push(s, add(e.id), capFor(e.id, base, sc), { type: "supply", id: e.id });
+    push(s, add(e.id), capFor(e.id, extra, sc), { type: "divert", id: e.id });
+  }
   for (const r of net.routes) push(add(r.id + ":in"), add(r.id + ":out"), capFor(r.id, r.capacity?.value, sc), { type: "route", id: r.id });
   for (const l of net.links) push(tail(l.from), head(l.to), capFor(l.id, l.capacity?.value, sc), { type: "link", id: l.id, from: l.from, to: l.to });
   for (const p of net.pipelines) {

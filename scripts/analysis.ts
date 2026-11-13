@@ -148,7 +148,8 @@ function metrics(net: Network, withInvest = true): Metrics {
   return { lambda: lam, lambdaBuf: lamB, lambdaFS: lamFS, shutOut, last, daysLast, daysRat, worstLast, shortestRat, topInv };
 }
 const m0 = metrics(NET);
-const ests = datums(NET, true).map(([p]) => p);
+// Voyage times and fleet slack only enter the LP fleet constraint (see analysis_lp.ts), so they are left out here.
+const ests = datums(NET, true).map(([p]) => p).filter((p) => !/voyage_days|fleet_slack/.test(p));
 const rob: { path: string; factor: number; m: Metrics }[] = [];
 for (const p of ests) for (const f of [0.75, 1.25]) rob.push({ path: p, factor: f, m: metrics(withScaled(p, f)) });
 const divSweep = [0, 0.1, 0.2, 0.3, 0.5].map((d) => {
@@ -226,7 +227,7 @@ L.push(`**H2. China's pipelines buffer it.** Pipelines cover ${pct(pipeShare.CHN
 L.push(`**H3. Taiwan's storage makes it the most fragile.** Days of cover under rationing: ${[...hz.importers].sort((a, b) => a.coverRationed.days - b.coverRationed.days).map((i) => `${i.name} ${f0(i.coverRationed.days)}`).join(", ")}. If last in line: ${[...hz.importers].sort((a, b) => a.coverLast.days - b.coverLast.days).map((i) => `${i.name} ${f0(i.coverLast.days)}`).join(", ")}.`, "");
 
 L.push("## 6. Robustness", "",
-  `One-at-a-time: each of the ${ests.length} estimated values scaled ×0.75 and ×1.25 (${rob.length} runs), plus a diversion sweep (0-50%) and two joint stress cases. Hormuz closed throughout.`, "");
+  `One-at-a-time: each of the ${ests.length} estimated values that affect max-flow scaled ×0.75 and ×1.25 (${rob.length} runs), plus a diversion sweep (0-50%) and two joint stress cases. Hormuz closed throughout.`, "");
 const r1 = range((m) => m.lambda), r2 = range((m) => m.lambdaBuf);
 L.push(md(["Metric", "Central", "Low (driver)", "High (driver)"], [
   ["λ physical", pct(m0.lambda), `${pct(r1.lo.v)} (${r1.lo.p})`, `${pct(r1.hi.v)} (${r1.hi.p})`],

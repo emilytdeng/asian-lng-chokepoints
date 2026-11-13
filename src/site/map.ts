@@ -31,6 +31,7 @@ const BEND: Record<string, [number, number]> = {
   "PACIFIC-THA": [112, 12], "PACIFIC-CHN": [128, 26], "PACIFIC-JPN": [142, 28], "PACIFIC-KOR": [130, 30],
   "MALACCA-PACIFIC": [112, 10], "PACIFIC-MALACCA": [115, 8], "LOMBOK-PACIFIC": [126, 2], "PACIFIC-LOMBOK": [124, -4],
   "PANAMA-PACIFIC": [160, 16], "OTH_PAC-PACIFIC": [160, 30],
+  "CAPE-MALACCA": [70, -30], "MALACCA-THA": [100, 8],
 };
 // Links drawn once per pair (the reverse direction shares the curve).
 const SKIP = new Set(["MALACCA-IO", "PACIFIC-MALACCA", "LOMBOK-IO", "PACIFIC-LOMBOK", "USA-PANAMA"]);
@@ -168,7 +169,7 @@ export class ChartMap {
     for (const [id, n] of this.nodes) {
       const isImp = NET.importers.some((i) => i.id === id);
       n.g.classList.toggle("closed", s.closed.has(id));
-      n.g.classList.toggle("oncut", cutIds.has(`route:${id}`) || cutIds.has(`supply:${id}`));
+      n.g.classList.toggle("oncut", cutIds.has(`route:${id}`) || cutIds.has(`supply:${id}`) || cutIds.has(`divert:${id}`));
       n.g.classList.toggle("hl", highlight.includes(id));
       n.g.classList.toggle("dim", !!s.focus && isImp && id !== s.focus);
       if (isImp) {
@@ -177,7 +178,7 @@ export class ChartMap {
         n.v.textContent = sh < 0.995 || this.opts.interactive ? `${pct(sh)} of demand` : "";
         n.g.classList.toggle("short", sh < 0.995);
       } else if (NET.exporters.some((e) => e.id === id) && !MARGIN_NOTE[id]) {
-        n.v.textContent = s.closed.has(id) ? "embargoed" : `${fmt(f[`supply:${id}`] ?? 0)} mtpa`;
+        n.v.textContent = s.closed.has(id) ? "embargoed" : `${fmt((f[`supply:${id}`] ?? 0) + (f[`divert:${id}`] ?? 0))} mtpa`;
       } else if (NET.routes.some((r) => r.id === id && r.kind === "chokepoint") && !MARGIN_NOTE[id]) {
         n.v.textContent = s.closed.has(id) ? "closed" : "";
       }

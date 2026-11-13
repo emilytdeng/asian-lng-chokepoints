@@ -18,6 +18,8 @@ export interface Exporter {
   total_exports: Datum; // 2025 total LNG exports, mtpa
   /** Breakdown of asia_deliveries by importer id (Mt, 2025, GIIGNL trade matrix). Same source as asia_deliveries. */
   deliveries_2025?: Record<string, number>;
+  /** One-way laden voyage to this exporter's other (non-modeled) buyers, days: ship-time a diverted cargo frees. LP fleet constraint. */
+  other_voyage_days?: Datum;
   lonlat?: [number, number];
 }
 
@@ -77,6 +79,10 @@ export interface Scenario {
   cap_factor?: Record<string, number>; // multiply a route/link/exporter/pipeline capacity, e.g. Panama 0.5
   diversion?: number; // override meta.diversion for this scenario
   horizon_days?: number; // override meta.horizon_days
+  /** LP only: enforce the LNG-carrier fleet constraint. */
+  fleet?: boolean;
+  /** LP only: selective passage through Hormuz. Gulf cargoes pass only if origin AND destination are allowed. */
+  hormuz?: { origins?: string[]; destinations?: string[]; share?: number };
 }
 
 export interface Network {
@@ -88,6 +94,8 @@ export interface Network {
     diversion: Datum;
     /** Crisis length (days) used to turn storage inventory into a sustainable rate in buffered λ. */
     horizon_days: Datum;
+    /** Spare LNG-carrier capacity beyond the ship-time the 2025 Asian trade needed (share). LP fleet constraint. */
+    fleet_slack?: Datum;
     [k: string]: unknown;
   };
   exporters: Exporter[];

@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "analysis": "tsx scripts/analysis.ts"
+    "analysis": "tsx scripts/analysis.ts && tsx scripts/analysis_lp.ts"
   },
   "devDependencies": {
     "@types/d3-geo": "^3.1.0",
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
+    "highs": "^1.8.0",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   }

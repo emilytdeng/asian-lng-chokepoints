@@ -20,7 +20,7 @@ describe("data/network.json", () => {
       n++;
       expect(typeof d.value, p).toBe("number");
       expect(Number.isFinite(d.value), p).toBe(true);
-      expect(d.value, p).toBeGreaterThanOrEqual(0);
+      if (!p.startsWith("validation_2026")) expect(d.value, p).toBeGreaterThanOrEqual(0); // observed changes can be negative
       expect(d.unit, p).toBeTruthy();
       expect(d.source_url, p).toMatch(/^(https:\/\/|estimate$)/);
       expect(typeof d.is_estimate, p).toBe("boolean");

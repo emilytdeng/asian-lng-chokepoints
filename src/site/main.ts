@@ -1,9 +1,13 @@
 import "./style.css";
+import wasmUrl from "highs/runtime?url";
+import { configureHighs } from "../model/lp";
 import { coverChart, shareChart } from "./charts";
 import { NET, evaluate, fmt, pct, type State } from "./compute";
 import { ChartMap } from "./map";
 import { renderMethod, renderReality } from "./sources";
 import { mountSandbox } from "./sandbox";
+
+configureHighs({ locateFile: () => wasmUrl });
 
 // ---------------------------------------------------------------- theme
 const root = document.documentElement;
@@ -44,11 +48,12 @@ const steps: { title: string; html: string; state: State; chart?: "share" | "cov
       <p class="robust">Robustness: the gap stays between 9% and 14% of demand when any estimated input moves ±25%. The main driver is how many European cargoes Asia can bid away.</p>`,
   },
   {
-    title: "Who goes without depends on who pays",
-    state: hz, chart: "share", hl: ["PAK", "BGD", "IND"],
-    html: `<p>If every importer took an equal cut, each would still get <b>${pct(Z.lambda)}</b> of its demand. Markets don't ration equally. Buyers who can pay most are served first.</p>
-      <p>Served in that order, the ${fmt(gap, 0)} mtpa gap is almost exactly South Asia's entire import demand (${fmt(southAsia, 0)} mtpa). <b>Pakistan gets ${pct(row("PAK").share.priority)}, Bangladesh ${pct(row("BGD").share.priority)}, India ${pct(row("IND").share.priority)}.</b> Their tanks run dry in ${Math.round(row("BGD").cover.priority.days)} to ${Math.round(row("IND").cover.priority.days)} days.</p>
-      <p>The physics doesn't doom South Asia. Its position in the bidding queue does: Hormuz carried ${pct(row("PAK").exposure)} of Pakistan's and ${pct(row("IND").exposure)} of India's 2025 supply, and any importer smaller than the gap can be priced out entirely.</p>`,
+    title: "Who goes without depends on who pays, and who doesn't have to",
+    state: hz, chart: "share", hl: ["PAK", "CHN"],
+    html: `<p>If every importer took an equal cut, each would still get <b>${pct(Z.lambda)}</b> of its demand. Markets don't ration equally. Two market cases bracket what happens.</p>
+      <p><b>By ability to pay</b>, the prediction made before the 2026 evidence: the ${fmt(gap, 0)} mtpa gap is almost exactly South Asia's whole import demand (${fmt(southAsia, 0)} mtpa). Pakistan gets ${pct(row("PAK").share.priority)}, Bangladesh ${pct(row("BGD").share.priority)}, India ${pct(row("IND").share.priority)}.</p>
+      <p><b>As it played out in 2026</b>: China, with pipelines, storage and coal to fall back on, stepped back and resold cargoes, while India and Thailand bought more. Served that way, China keeps ${pct(row("CHN").share.market2026)} and everyone else is whole except Pakistan, at ${pct(row("PAK").share.market2026)}.</p>
+      <p>The gap lands on buyers who can't pay and buyers who don't have to. Pakistan is shut out in both cases: Hormuz carried ${pct(row("PAK").exposure)} of its 2025 LNG, and any importer smaller than the gap can be priced out entirely.</p>`,
   },
   {
     title: "Taiwan is the fragile rich buyer; China has a cushion",
@@ -62,8 +67,14 @@ steps.forEach((s, i) => {
   const d = document.createElement("article");
   d.className = "step";
   d.dataset.i = String(i);
-  d.innerHTML = `<p class="step-n">${i + 1} / ${steps.length}</p><h3>${s.title}</h3>${s.html}`;
+  d.innerHTML = `<p class="step-n">${i + 1} / ${steps.length}</p><h3>${s.title}</h3><div class="step-inline"></div>${s.html}`;
   stepsHost.appendChild(d);
+  // Narrow screens: each step carries its own graphic (CSS hides the sticky one).
+  const inline = d.querySelector<HTMLElement>(".step-inline")!;
+  const ev = s.state === hz ? Z : evaluate(s.state);
+  if (s.chart === "share") shareChart(inline, ev, s.hl);
+  else if (s.chart === "cover") coverChart(inline, ev, s.hl);
+  else new ChartMap(inline, { interactive: false }).update(ev, s.state, s.hl);
 });
 const storyMap = new ChartMap(document.getElementById("story-map")!, { interactive: false });
 const storyChart = document.getElementById("story-chart")!;
@@ -95,10 +106,10 @@ document.getElementById("takeaway")!.innerHTML = `
     <div class="card"><p class="big">Not more terminals<br />in South Asia</p><p>A third FSRU for Pakistan or a new Bangladeshi terminal changes nothing in a Hormuz closure. Their problem is getting cargoes, not landing them.</p></div>
     <div class="card"><p class="big">Storage buys time,<br />for its owner only</p><p>Doubling Taiwan's LNG storage adds about 150 days of cover under equal rationing, but only 11 if Taiwan is outbid. Storage is insurance for the country that builds it, not for the region.</p></div>
   </div>
-  <p class="note">The single largest gain comes from building Power of Siberia 2 (50 bcm), because it is the largest project. Ranking projects fairly needs costs, which the next version adds through the model's shadow prices.</p>`;
+  <p class="note">The linear program's shadow prices confirm this. With Hormuz closed, one more mtpa from any non-Gulf exporter, any pipeline, or a partly reopened Hormuz is worth the same 0.32 points of every importer's share; regas and storage are worth nothing. The biggest single gain therefore comes from the biggest project (Power of Siberia 2, 50 bcm, +12 points). Choosing between projects is a question of cost and lead time, not of geography.</p>`;
 
 // ---------------------------------------------------------------- sandbox, reality, method
 mountSandbox();
-renderReality(document.getElementById("reality")!, Z);
+renderReality(document.getElementById("reality")!);
 renderMethod(document.getElementById("method")!);
 document.getElementById("foot")!.innerHTML = `Final project, The Geoeconomics of Asian Energy Security, Schwarzman College, Tsinghua University, 2026. Model, data and code: every number is sourced in <code>data/network.json</code>.`;

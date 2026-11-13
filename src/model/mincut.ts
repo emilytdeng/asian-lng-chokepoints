@@ -19,7 +19,7 @@ export interface CutEdge {
 
 export function labelFor(m: ArcMeta): CutLabel {
   switch (m.type) {
-    case "supply": return "exporter at capacity";
+    case "supply": case "divert": return "exporter at capacity";
     case "route": case "link": return "route bottleneck";
     case "demand": return "importer fully supplied";
     case "regas": return "regas bottleneck";

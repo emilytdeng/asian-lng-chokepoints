@@ -193,3 +193,21 @@ details { margin-top: 16px; } summary { cursor: pointer; color: var(--flow); }
   .story-graphic.has-chart #story-map { display: none; }
   .story-chart { max-height: none; }
 }
+.row2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; cursor: pointer; }
+.check input { accent-color: var(--flow); width: 16px; height: 16px; }
+.engine { font: 11px var(--mono); color: var(--muted); }
+.lg.dot2 { width: 10px; height: 10px; border-radius: 50%; background: var(--cut); }
+.rd-dot2 { fill: var(--cut); stroke: var(--panel); stroke-width: 2; }
+
+/* Story: sticky graphic on wide screens; graphics inside each step on narrow screens */
+.step-inline { display: none; }
+@media (max-width: 880px) {
+  .story-graphic { display: none; }
+  .story-steps { padding: 0; }
+  .step { opacity: 1; margin-bottom: 20px; border-left-color: var(--flow); }
+  .step-inline { display: block; margin: 4px 0 14px; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; background: var(--panel); }
+  .step-inline .rd { padding: 10px 12px; }
+}
+.reality-t td { white-space: nowrap; }
+.facts .big { font: 600 2rem/1 var(--mono); color: var(--cut); }

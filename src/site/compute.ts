@@ -2,26 +2,35 @@ import raw from "../../data/network.json";
 import { lastInLine, outbid, priorityAllocation, rationLambda, solve, type Solution } from "../model/allocation";
 import { coverFor, type Cover } from "../model/cover";
 import { exporterSupply } from "../model/graph";
+import { lpFleetNeeded, lpLambda, lpLastInLine, lpOutbid, lpPriority, lpSolve, type LPSolution } from "../model/lp";
+import { labelFor, type CutEdge } from "../model/mincut";
 import type { Network, Scenario } from "../model/types";
 
 export const NET = raw as unknown as Network;
 
-/** Main-case market order (user decision): high-income buyers first, low-income last. */
+/** Market order 1 (decided before the 2026 evidence): by ability to pay, high-income buyers first. */
 export const PRIORITY = ["JPN", "KOR", "TWN", "CHN", "THA", "IND", "BGD", "PAK"];
+/** Market order 2 (calibrated to 2026): China, which has pipelines, storage and coal, steps back; Pakistan is priced out last. */
+export const PRIORITY_2026 = ["JPN", "KOR", "TWN", "THA", "IND", "BGD", "CHN", "PAK"];
 
-export type View = "priority" | "rationed" | "last" | "outbid";
+export type View = "priority" | "market2026" | "rationed" | "last" | "outbid";
+export const VIEWS: View[] = ["priority", "market2026", "rationed", "last", "outbid"];
 export const VIEW_LABEL: Record<View, string> = {
-  priority: "Market (rich buyers first)",
+  priority: "Market: ability to pay",
+  market2026: "Market: as in 2026",
   rationed: "Equal rationing",
   last: "Last in line",
   outbid: "Outbids everyone",
 };
 
+export type HormuzMode = "open" | "closed" | "pakistan" | "share37";
 export interface State {
   closed: Set<string>; // route, exporter or pipeline ids
   diversion: number; // 0..1
   focus: string | null; // importer id for the map, or null = all
   capFactor?: Record<string, number>; // e.g. { PANAMA: 0.13 } for a restricted canal
+  fleet?: boolean; // LP: enforce the LNG-carrier fleet constraint
+  hormuz?: HormuzMode; // LP modes "pakistan" and "share37"; "closed" is the same as closing the HORMUZ node
 }
 
 export interface ImporterRow {
@@ -35,14 +44,17 @@ export interface ImporterRow {
 }
 
 export interface Evaluation {
+  engine: "max-flow" | "LP";
   scenario: Scenario;
-  system: Solution; // all importers, LNG + pipeline
-  map: Solution; // what the map draws: system or focus importer alone
+  map: Pick<Solution, "arcFlow" | "cut" | "total">; // what the map draws: system or focus importer alone
   supply: number;
   demand: number;
   lambda: number;
-  hormuzLost: number; // mtpa of Asian-available supply that sits behind Hormuz (0 when Hormuz is open)
+  hormuzLost: number;
   rows: ImporterRow[];
+  /** LP only: shadow prices from the equal-rationing LP, λ per mtpa. */
+  duals?: LPSolution["duals"];
+  fleet?: { needed: number; available: number; binds: boolean };
 }
 
 export const name = (id: string) =>
@@ -52,31 +64,82 @@ export const exposure = Object.fromEntries(NET.importers.map((im) => [im.id,
   NET.exporters.filter((e) => e.id === "QAT" || e.id === "UAE").reduce((a, e) => a + (e.deliveries_2025?.[im.id] ?? 0), 0) / im.import_demand.value]));
 
 export function scenarioOf(s: State): Scenario {
-  return { label: "custom", close: [...s.closed], diversion: s.diversion, cap_factor: s.capFactor };
+  const close = new Set(s.closed);
+  if (s.hormuz === "closed") close.add("HORMUZ");
+  const sc: Scenario = { label: "custom", close: [...close], diversion: s.diversion, cap_factor: s.capFactor, fleet: s.fleet };
+  if (s.hormuz === "pakistan") { close.delete("HORMUZ"); sc.close = [...close]; sc.hormuz = { destinations: ["PAK"] }; }
+  if (s.hormuz === "share37") { close.delete("HORMUZ"); sc.close = [...close]; sc.hormuz = { share: 0.37 }; }
+  return sc;
+}
+/** Whether this state needs the LP (fleet limit or selective/partial Hormuz). */
+export const needsLP = (s: State) => !!s.fleet || s.hormuz === "pakistan" || s.hormuz === "share37";
+
+function rowsFrom(alloc: Record<View, Record<string, number>>): ImporterRow[] {
+  return NET.importers.map((im) => {
+    const d = im.import_demand.value;
+    const a = Object.fromEntries(VIEWS.map((v) => [v, alloc[v][im.id]])) as Record<View, number>;
+    const share = Object.fromEntries(VIEWS.map((v) => [v, d > 0 ? Math.min(1, Math.max(0, a[v]) / d) : 1])) as Record<View, number>;
+    const cover = Object.fromEntries(VIEWS.map((v) => [v, coverFor(im, Math.max(0, a[v]))])) as Record<View, Cover>;
+    return { id: im.id, name: im.name, demand: d, exposure: exposure[im.id], alloc: a, share, cover };
+  });
+}
+function lostBehindHormuz(s: State) {
+  if (!(s.hormuz === "closed" || s.closed.has("HORMUZ"))) return 0;
+  return NET.exporters.filter((e) => e.id === "QAT" || e.id === "UAE").reduce((a, e) => a + (s.closed.has(e.id) ? 0 : exporterSupply(e, s.diversion)), 0);
 }
 
+/** Instant evaluation with max-flow (no fleet limit, Hormuz fully open or shut). */
 export function evaluate(s: State): Evaluation {
   const scenario = scenarioOf(s);
   const o = { scenario };
   const system = solve(NET, o);
   const lambda = rationLambda(NET, o);
-  const prio = priorityAllocation(NET, PRIORITY, o);
-  const rows: ImporterRow[] = NET.importers.map((im) => {
-    const d = im.import_demand.value;
-    const alloc: Record<View, number> = {
-      priority: prio[im.id],
-      rationed: lambda * d,
-      last: Math.max(0, lastInLine(NET, im.id, o)),
-      outbid: outbid(NET, im.id, o),
-    };
-    const share = Object.fromEntries(Object.entries(alloc).map(([k, v]) => [k, d > 0 ? Math.min(1, v / d) : 1])) as Record<View, number>;
-    const cover = Object.fromEntries(Object.entries(alloc).map(([k, v]) => [k, coverFor(im, v)])) as Record<View, Cover>;
-    return { id: im.id, name: im.name, demand: d, exposure: exposure[im.id], alloc, share, cover };
-  });
-  const map = s.focus ? solve(NET, { scenario, demands: { [s.focus]: NET.importers.find((i) => i.id === s.focus)!.import_demand.value } }) : system;
-  const hormuzClosed = s.closed.has("HORMUZ");
-  const hormuzLost = hormuzClosed ? NET.exporters.filter((e) => e.id === "QAT" || e.id === "UAE").reduce((a, e) => a + (s.closed.has(e.id) ? 0 : exporterSupply(e, s.diversion)), 0) : 0;
-  return { scenario, system, map, supply: system.total, demand: system.demand, lambda, hormuzLost, rows };
+  const d = (id: string) => NET.importers.find((i) => i.id === id)!.import_demand.value;
+  const alloc: Record<View, Record<string, number>> = {
+    priority: priorityAllocation(NET, PRIORITY, o),
+    market2026: priorityAllocation(NET, PRIORITY_2026, o),
+    rationed: Object.fromEntries(NET.importers.map((i) => [i.id, lambda * i.import_demand.value])),
+    last: Object.fromEntries(NET.importers.map((i) => [i.id, Math.max(0, lastInLine(NET, i.id, o))])),
+    outbid: Object.fromEntries(NET.importers.map((i) => [i.id, outbid(NET, i.id, o)])),
+  };
+  const map = s.focus ? solve(NET, { scenario, demands: { [s.focus]: d(s.focus) } }) : system;
+  return { engine: "max-flow", scenario, map, supply: system.total, demand: system.demand, lambda, hormuzLost: lostBehindHormuz(s), rows: rowsFrom(alloc) };
+}
+
+/** Full LP evaluation: fleet limit, selective/partial Hormuz, and shadow prices. */
+export async function evaluateLP(s: State): Promise<Evaluation> {
+  const scenario = scenarioOf(s);
+  const o = { scenario };
+  const d = (id: string) => NET.importers.find((i) => i.id === id)!.import_demand.value;
+  const system = await lpSolve(NET, o);
+  const lam = await lpLambda(NET, o);
+  const alloc: Record<View, Record<string, number>> = {
+    priority: await lpPriority(NET, PRIORITY, o),
+    market2026: await lpPriority(NET, PRIORITY_2026, o),
+    rationed: Object.fromEntries(NET.importers.map((i) => [i.id, lam.lambda! * i.import_demand.value])),
+    last: {}, outbid: {},
+  };
+  for (const im of NET.importers) {
+    alloc.last[im.id] = await lpLastInLine(NET, im.id, o);
+    alloc.outbid[im.id] = await lpOutbid(NET, im.id, o);
+  }
+  const mapSol = s.focus ? await lpSolve(NET, { scenario, demands: { [s.focus]: d(s.focus) } }) : system;
+  // binding constraints of the map's problem stand in for the min cut
+  const mapLam = s.focus ? mapSol : lam;
+  const closed = new Set(scenario.close ?? []);
+  const cut: CutEdge[] = (s.focus ? mapSol.duals : mapLam.duals).map((x, i) => ({
+    index: i, meta: x.meta, capacity: x.capacity, closed: "id" in x.meta && closed.has(x.meta.id), label: labelFor(x.meta),
+  }));
+  let fleet: Evaluation["fleet"];
+  if (s.fleet) {
+    const need = await lpFleetNeeded(NET, { scenario: { ...scenario, fleet: false } });
+    fleet = { needed: need.needed, available: need.capacity, binds: lam.lambda! < need.lambda - 1e-6 };
+  }
+  return {
+    engine: "LP", scenario, map: { arcFlow: mapSol.arcFlow, cut, total: mapSol.total }, supply: system.total,
+    demand: NET.importers.reduce((a, i) => a + i.import_demand.value, 0), lambda: lam.lambda!, hormuzLost: lostBehindHormuz(s),
+    rows: rowsFrom(alloc), duals: lam.duals, fleet,
+  };
 }
 
 export const fmt = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : "∞");

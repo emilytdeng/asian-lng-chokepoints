@@ -24,6 +24,14 @@
       "is_estimate": true,
       "note": "Crisis length used to convert storage inventory into a sustainable withdrawal rate in buffered λ (inventory × 365 / 90). Varied in robustness checks."
     },
+    "fleet_slack": {
+      "value": 0.1,
+      "unit": "share",
+      "source_url": "https://www.giignl.org/annual-report/2026",
+      "year": 2025,
+      "is_estimate": true,
+      "note": "Spare LNG-carrier capacity beyond the least ship-time the 2025 Asian trade needed. GIIGNL: 899 vessels at end-2025, a record orderbook and weak 2025 freight rates (S&P Global) point to surplus ships; 10% is an estimate, varied in robustness checks."
+    },
     "lng_t_per_m3": 0.45,
     "source_notes": {
       "GIIGNL": "GIIGNL Annual Report 2026 data were read from the public PDF copy at https://www.worldlngsummit.com/media/5stjrkng/2026-giignl-annual-report.pdf (giignl.org gates downloads to members). Page references refer to that PDF.",
@@ -76,6 +84,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025'). Includes ~5 Mt to Kuwait that does not transit Hormuz (IEA)."
+      },
+      "other_voyage_days": {
+        "value": 10,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -117,6 +133,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -158,6 +182,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 10,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -200,6 +232,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 12,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -236,6 +276,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 6,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -278,6 +326,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -319,6 +375,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -359,6 +423,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -400,6 +472,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -440,6 +520,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 6,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -479,6 +567,14 @@
         "year": 2025,
         "is_estimate": false,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -522,6 +618,14 @@
         "year": 2025,
         "is_estimate": true,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 7,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     },
     {
@@ -561,6 +665,14 @@
         "year": 2025,
         "is_estimate": true,
         "note": "2025 total LNG exports (GIIGNL 'Source of LNG imports in 2025')."
+      },
+      "other_voyage_days": {
+        "value": 12,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade."
       }
     }
   ],
@@ -666,61 +778,141 @@
       "id": "QAT-HORMUZ",
       "from": "QAT",
       "to": "HORMUZ",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 0.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "UAE-HORMUZ",
       "from": "UAE",
       "to": "HORMUZ",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 0.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "HORMUZ-IO",
       "from": "HORMUZ",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 1.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "OMN-IO",
       "from": "OMN",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 0.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "USA-PANAMA",
       "from": "USA",
       "to": "PANAMA",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PANAMA-PACIFIC",
       "from": "PANAMA",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 15,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "USA-CAPE",
       "from": "USA",
       "to": "CAPE",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 17,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "USA-BAB_SUEZ",
       "from": "USA",
       "to": "BAB_SUEZ",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 18,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "RUS_ARC-CAPE",
       "from": "RUS_ARC",
       "to": "CAPE",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 20,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "RUS_ARC-BAB_SUEZ",
       "from": "RUS_ARC",
       "to": "BAB_SUEZ",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 16,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "RUS_ARC-PACIFIC",
@@ -733,19 +925,43 @@
         "year": 2025,
         "is_estimate": true,
         "note": "Northern Sea Route, summer-only. Arctic LNG 2 delivered 1.3 Mt (all to China) in 2025, plus some Yamal summer cargoes; averaged over a year ~3 mtpa."
+      },
+      "voyage_days": {
+        "value": 18,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
       }
     },
     {
       "id": "OTH_ATL-CAPE",
       "from": "OTH_ATL",
       "to": "CAPE",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 6,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "OTH_ATL-BAB_SUEZ",
       "from": "OTH_ATL",
       "to": "BAB_SUEZ",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 6,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "OTH_ATL-IO",
@@ -758,163 +974,407 @@
         "year": 2025,
         "is_estimate": false,
         "note": "East African (Mozambique Coral South, 3.6 Mt in 2025) cargoes enter the Indian Ocean directly, without the Cape or Suez."
+      },
+      "voyage_days": {
+        "value": 7,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
       }
     },
     {
       "id": "CAPE-IO",
       "from": "CAPE",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 10,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "BAB_SUEZ-IO",
       "from": "BAB_SUEZ",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "IO-IND",
       "from": "IO",
       "to": "IND",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 1,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "IO-PAK",
       "from": "IO",
       "to": "PAK",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 1,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "IO-BGD",
       "from": "IO",
       "to": "BGD",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 6,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "IO-MALACCA",
       "from": "IO",
       "to": "MALACCA",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 6.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "MALACCA-IO",
       "from": "MALACCA",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 6.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "IO-LOMBOK",
       "from": "IO",
       "to": "LOMBOK",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 9,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "LOMBOK-IO",
       "from": "LOMBOK",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 9,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "MALACCA-PACIFIC",
       "from": "MALACCA",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 4,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-MALACCA",
       "from": "PACIFIC",
       "to": "MALACCA",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 4,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "LOMBOK-PACIFIC",
       "from": "LOMBOK",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 4,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-LOMBOK",
       "from": "PACIFIC",
       "to": "LOMBOK",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 4,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "AUS-PACIFIC",
       "from": "AUS",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "AUS-IO",
       "from": "AUS",
       "to": "IO",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 7,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "BRN-PACIFIC",
       "from": "BRN",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "IDN-PACIFIC",
       "from": "IDN",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "MYS-PACIFIC",
       "from": "MYS",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PNG-PACIFIC",
       "from": "PNG",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "RUS_SAK-PACIFIC",
       "from": "RUS_SAK",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 0.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "OTH_PAC-PACIFIC",
       "from": "OTH_PAC",
       "to": "PACIFIC",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 10,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-JPN",
       "from": "PACIFIC",
       "to": "JPN",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-KOR",
       "from": "PACIFIC",
       "to": "KOR",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 2.5,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-TWN",
       "from": "PACIFIC",
       "to": "TWN",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 1,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-CHN",
       "from": "PACIFIC",
       "to": "CHN",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 2,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     },
     {
       "id": "PACIFIC-THA",
       "from": "PACIFIC",
       "to": "THA",
-      "capacity": null
+      "capacity": null,
+      "voyage_days": {
+        "value": 3,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
+    },
+    {
+      "id": "CAPE-MALACCA",
+      "from": "CAPE",
+      "to": "MALACCA",
+      "capacity": null,
+      "voyage_days": {
+        "value": 13,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
+    },
+    {
+      "id": "MALACCA-THA",
+      "from": "MALACCA",
+      "to": "THA",
+      "capacity": null,
+      "voyage_days": {
+        "value": 2,
+        "unit": "days",
+        "source_url": "https://sea-distances.org/",
+        "year": 2025,
+        "is_estimate": true,
+        "note": "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks)."
+      }
     }
   ],
   "pipelines": [
@@ -1578,6 +2038,193 @@
         "HORMUZ",
         "BAB_SUEZ"
       ]
+    },
+    "hormuz_pakistan": {
+      "label": "Hormuz open only for Pakistan-bound cargoes",
+      "hormuz": {
+        "destinations": [
+          "PAK"
+        ]
+      },
+      "note": "May 2026: Iran approved Qatari LNG cargoes bound for Pakistan (Reuters via RFE/RL, Fortune)."
+    },
+    "hormuz_2026": {
+      "label": "2026 as it happened (Hormuz at 37%)",
+      "hormuz": {
+        "share": 0.37
+      },
+      "fleet": true,
+      "note": "IEA Global Gas Security Review 2026: Qatar and UAE delivered LNG fell 63% y-o-y in January-October 2026. Hormuz throughput set to 37% of normal Gulf supply."
     }
-  }
+  },
+  "validation_2026": [
+    {
+      "id": "gulf_supply",
+      "importer": null,
+      "metric": "Qatar + UAE delivered LNG, change y-o-y",
+      "period": "Jan-Oct 2026",
+      "value": {
+        "value": -63,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "About -62 bcm; 'the largest ever LNG supply shock'. LNG vessel traffic through Hormuz ceased in March; 27 laden vessels exited in September vs ~95 a month in 2025."
+      }
+    },
+    {
+      "id": "global_supply",
+      "importer": null,
+      "metric": "Global LNG supply, change y-o-y",
+      "period": "Jan-Oct 2026",
+      "value": {
+        "value": -2,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "Net shortfall ~11 bcm: new non-Gulf liquefaction offset most of the Gulf loss (non-Gulf output +18% in Mar-Jun, IEA GMR Q3-2026)."
+      }
+    },
+    {
+      "id": "asia",
+      "importer": null,
+      "metric": "Asian LNG imports, change y-o-y",
+      "period": "Jan-Oct 2026",
+      "value": {
+        "value": -1.8,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "About -5.5 bcm. Europe -6% (-9 bcm); Middle East -40%."
+      }
+    },
+    {
+      "id": "CHN",
+      "importer": "CHN",
+      "metric": "LNG imports, change y-o-y",
+      "period": "Jan-Oct 2026",
+      "value": {
+        "value": -10,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "About -7 bcm: 'the largest single balancing market'. Weak demand, domestic output and storage withdrawals eased pressure; record cargo resales."
+      }
+    },
+    {
+      "id": "PAK",
+      "importer": "PAK",
+      "metric": "LNG imports, change y-o-y",
+      "period": "Jan-Oct 2026",
+      "value": {
+        "value": -56,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "About -4.5 bcm, second-largest fall in Asia; more than -70% in March-September. Gas-fired power -25%, coal-fired +35%, urea output -7%."
+      }
+    },
+    {
+      "id": "BGD",
+      "importer": "BGD",
+      "metric": "LNG imports, change y-o-y",
+      "period": "Mar-Sep 2026",
+      "value": {
+        "value": -10,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "Gas demand -7% in Q1-Q3; gas-fired power -12%, coal +25% (Mar-Aug). Spot purchases at high prices kept cargoes coming."
+      }
+    },
+    {
+      "id": "IND",
+      "importer": "IND",
+      "metric": "LNG imports, change y-o-y",
+      "period": "Jan-Sep 2026",
+      "value": {
+        "value": 10,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "About +2.6 bcm: North American imports doubled to 6.1 bcm and African to 9.4 bcm while Qatari volumes fell 72%; Oman became the main Middle East source. Demand -3% after sharp cuts in Mar-May; city gas protected."
+      }
+    },
+    {
+      "id": "THA",
+      "importer": "THA",
+      "metric": "LNG imports, change y-o-y",
+      "period": "Q1-Q3 2026",
+      "value": {
+        "value": 30,
+        "unit": "%",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "About +3.5 bcm, from the US and Australia; Hormuz LNG was only ~7% of Thai gas supply."
+      }
+    },
+    {
+      "id": "JKS",
+      "importer": null,
+      "metric": "Japan, Korea and Singapore LNG imports, combined change",
+      "period": "Jan-Oct 2026",
+      "value": {
+        "value": -5,
+        "unit": "bcm",
+        "source_url": "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "Japan's gas demand -3.5% in H1 (coal and renewables up); Korea's demand +3% in H1 with more US LNG."
+      }
+    },
+    {
+      "id": "TWN",
+      "importer": "TWN",
+      "metric": "Qatari cargoes delivered to Taiwan",
+      "period": "Apr-May 2026",
+      "value": {
+        "value": 0,
+        "unit": "cargoes",
+        "source_url": "https://www.spglobal.com/energy/en/news-research/latest-news/lng/052926-taiwans-cpc-turns-to-spot-market-diversifies-lng-supply-amid-middle-east-conflict",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "CPC became Northeast Asia's most active spot buyer (1-2 spot cargoes a week); spot share expected to rise to 60-65% from ~30%. Storage was about 12 days when the war began."
+      }
+    },
+    {
+      "id": "PAK_pass",
+      "importer": "PAK",
+      "metric": "Qatari LNG cargoes allowed through Hormuz for Pakistan",
+      "period": "May 2026",
+      "value": {
+        "value": 2,
+        "unit": "cargoes",
+        "source_url": "https://www.globalsecurity.org/wmd/library/news/iran/2026/05/iran-260512-rferl05.htm",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "Iran approved Qatari cargoes bound for Port Qasim under an arrangement with Pakistan (Reuters, via RFE/RL; also Fortune). Selective passage by destination."
+      }
+    },
+    {
+      "id": "QAT_damage",
+      "importer": null,
+      "metric": "Qatari LNG export capacity knocked out by strikes on Ras Laffan",
+      "period": "from March 2026",
+      "value": {
+        "value": 17,
+        "unit": "%",
+        "source_url": "https://www.gisreportsonline.com/r/gas-markets-hormuz-shock/",
+        "year": 2026,
+        "is_estimate": false,
+        "note": "Iranian strikes took about 17% of Qatar's export capacity offline, potentially for several years (GIS Reports, July 2026)."
+      }
+    }
+  ]
 }

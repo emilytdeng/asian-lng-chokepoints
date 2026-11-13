@@ -1,0 +1,10 @@
+scenario,ship_time_vs_2025,share_of_fleet,lambda_no_fleet,lambda_fleet,fleet
+Baseline (2025),+0%,77%,100%,100%,enough ships
+Hormuz closed,−5%,73%,88%,88%,enough ships
+Red Sea closed,−0%,77%,100%,100%,enough ships
+Malacca closed,+7%,83%,100%,100%,enough ships
+Panama restricted,+2%,79%,100%,100%,enough ships
+Russian LNG sanctioned,+8%,84%,100%,100%,enough ships
+Hormuz + Red Sea closed,+4%,80%,88%,88%,enough ships
+Hormuz open only for Pakistan-bound cargoes,−1%,76%,90%,90%,enough ships
+2026 as it happened (Hormuz at 37%),+11%,85%,97%,97%,enough ships

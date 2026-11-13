@@ -15,6 +15,8 @@ Allocation views: **outbid** = the importer wins every cargo it can physically r
 | Panama restricted | 314.2 / 314.2 | 0.0 | 100% | 100% |
 | Russian LNG sanctioned | 314.2 / 314.2 | 0.0 | 100% | 100% |
 | Hormuz + Red Sea closed | 277.5 / 314.2 | 36.8 | 88% | 100% |
+| Hormuz open only for Pakistan-bound cargoes | 314.2 / 314.2 | 0.0 | 100% | 100% |
+| 2026 as it happened (Hormuz at 37%) | 314.2 / 314.2 | 0.0 | 100% | 100% |
 
 ## 2. Hormuz closed, by importer
 
@@ -31,7 +33,7 @@ Allocation views: **outbid** = the importer wins every cargo it can physically r
 
 Days of cover = storage inventory ÷ storage draw needed after fuel switching. ∞ = fuel switching alone covers the gap. 'Unmet now' = gap left even with fuel switching and storage at full rate.
 
-Min cut (Hormuz closed, all importers): OMN — exporter at capacity, 10.6; USA — exporter at capacity, 35.7; RUS_ARC — exporter at capacity, 8.3; AUS — exporter at capacity, 74.4; BRN — exporter at capacity, 5.0; IDN — exporter at capacity, 11.3; MYS — exporter at capacity, 26.7; PNG — exporter at capacity, 8.7; RUS_SAK — exporter at capacity, 9.9; OTH_ATL — exporter at capacity, 22.1; OTH_PAC — exporter at capacity, 4.2; HORMUZ (closed) — route bottleneck, 0.0; POS — pipeline at capacity, 27.0; CAC — pipeline at capacity, 27.0; MYC — pipeline at capacity, 3.3; MYT — pipeline at capacity, 3.2.
+Min cut (Hormuz closed, all importers): OMN — exporter at capacity, 10.4; OMN — exporter at capacity, 0.2; USA — exporter at capacity, 17.4; USA — exporter at capacity, 18.3; RUS_ARC — exporter at capacity, 5.1; RUS_ARC — exporter at capacity, 3.2; AUS — exporter at capacity, 73.3; AUS — exporter at capacity, 1.1; BRN — exporter at capacity, 5.0; IDN — exporter at capacity, 10.2; IDN — exporter at capacity, 1.1; MYS — exporter at capacity, 26.6; MYS — exporter at capacity, 0.1; PNG — exporter at capacity, 8.7; RUS_SAK — exporter at capacity, 9.9; OTH_ATL — exporter at capacity, 15.2; OTH_ATL — exporter at capacity, 6.9; OTH_PAC — exporter at capacity, 3.9; OTH_PAC — exporter at capacity, 0.3; HORMUZ (closed) — route bottleneck, 0.0; POS — pipeline at capacity, 27.0; CAC — pipeline at capacity, 27.0; MYC — pipeline at capacity, 3.3; MYT — pipeline at capacity, 3.2.
 
 ### Market allocation (illustrative priority order)
 
@@ -66,10 +68,10 @@ Without China's fuel switching and storage, λ with buffers (90 days) is 100%: C
 | Closed | Shortfall (mtpa) | λ | Worst hit if last in line |
 |---|---|---|---|
 | Strait of Hormuz | 36.8 | 88% | India (0%) |
-| Panama Canal | 0.0 | 100% | Japan (100%) |
-| Suez / Bab el-Mandeb | 0.0 | 100% | Japan (100%) |
 | Cape of Good Hope | 0.0 | 100% | Japan (100%) |
 | Strait of Malacca | 0.0 | 100% | Japan (100%) |
+| Suez / Bab el-Mandeb | 0.0 | 100% | Japan (100%) |
+| Panama Canal | 0.0 | 100% | Japan (100%) |
 | Lombok / Makassar | 0.0 | 100% | Japan (100%) |
 
 ## 4. Best single investment (Hormuz closed)
@@ -108,7 +110,7 @@ Investments differ in size and cost; this ranks physical effect per project as s
 
 ## 5. Hypotheses (Hormuz closed)
 
-**H1. South Asian importers are hit hardest and lose a bidding war.** Hormuz share of 2025 supply: Pakistan 99%, Bangladesh 64%, India 59%; vs Japan 6%, South Korea 15%, Taiwan 34%, China 17%, Thailand 16%. Last-in-line shares, worst first: Taiwan 0%, India 0%, Pakistan 0%, Bangladesh 0%, Thailand 23%, South Korea 24%, Japan 44%, China 70%. Outbid shares: JPN 100%, CHN 100%, KOR 100%, IND 100%, TWN 100%, THA 100%, PAK 100%, BGD 100%.
+**H1. South Asian importers are hit hardest and lose a bidding war.** Hormuz share of 2025 supply: Pakistan 99%, Bangladesh 64%, India 59%; vs Japan 6%, South Korea 15%, Taiwan 34%, China 17%, Thailand 16%. Last-in-line shares, worst first: India 0%, Taiwan 0%, Pakistan 0%, Bangladesh 0%, Thailand 23%, South Korea 24%, Japan 44%, China 70%. Outbid shares: JPN 100%, CHN 100%, KOR 100%, IND 100%, TWN 100%, THA 100%, PAK 100%, BGD 100%.
 
 **H2. China's pipelines buffer it.** Pipelines cover 46% of China's import demand. China last in line: 70%; Japan 44%, Korea 24%, Taiwan 0%.
 
@@ -116,7 +118,7 @@ Investments differ in size and cost; this ranks physical effect per project as s
 
 ## 6. Robustness
 
-One-at-a-time: each of the 29 estimated values scaled ×0.75 and ×1.25 (58 runs), plus a diversion sweep (0-50%) and two joint stress cases. Hormuz closed throughout.
+One-at-a-time: each of the 29 estimated values that affect max-flow scaled ×0.75 and ×1.25 (58 runs), plus a diversion sweep (0-50%) and two joint stress cases. Hormuz closed throughout.
 
 | Metric | Central | Low (driver) | High (driver) |
 |---|---|---|---|
@@ -126,11 +128,11 @@ One-at-a-time: each of the 29 estimated values scaled ×0.75 and ×1.25 (58 runs
 | JPN last-in-line share | 44% | 32% (meta.diversion ×0.75) | 56% (meta.diversion ×1.25) |
 | CHN last-in-line share | 70% | 64% (meta.diversion ×0.75) | 77% (meta.diversion ×1.25) |
 | KOR last-in-line share | 24% | 8% (meta.diversion ×0.75) | 40% (meta.diversion ×1.25) |
-| IND last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (exporters[RUS_ARC].asia_deliveries ×1.25) |
-| TWN last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×0.75) |
-| THA last-in-line share | 23% | 23% (exporters[OTH_PAC].asia_deliveries ×0.75) | 23% (routes[PANAMA].capacity ×1.25) |
-| PAK last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.horizon_days ×0.75) |
-| BGD last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.horizon_days ×0.75) |
+| IND last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×1.25) |
+| TWN last-in-line share | 0% | 0% (exporters[OTH_PAC].asia_deliveries ×0.75) | 0% (meta.diversion ×0.75) |
+| THA last-in-line share | 23% | 23% (meta.diversion ×0.75) | 23% (routes[PANAMA].capacity ×1.25) |
+| PAK last-in-line share | 0% | 0% (meta.diversion ×0.75) | 0% (meta.diversion ×1.25) |
+| BGD last-in-line share | 0% | 0% (routes[PANAMA].capacity ×0.75) | 0% (meta.horizon_days ×0.75) |
 | JPN days (rationed) | 257 | 199 (meta.diversion ×0.75) | 361 (meta.diversion ×1.25) |
 | CHN days (rationed) | ∞ | 2051 (importers[CHN].fuel_switch ×0.75) | ∞ (meta.diversion ×1.25) |
 | KOR days (rationed) | 460 | 317 (meta.diversion ×0.75) | 842 (meta.diversion ×1.25) |

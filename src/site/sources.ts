@@ -1,13 +1,13 @@
 import type { Datum } from "../model/types";
-import { NET, fmt, pct, type Evaluation } from "./compute";
+import { NET, fmt, pct } from "./compute";
 
-const IEA_GMR = "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf";
+const IEA_GMR_Q2 = "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf";
 const CGEP = "https://www.energypolicy.columbia.edu/asias-gas-shock-playbook-coal-curtailment-and-competing-for-lng/";
 
 const TITLES: Record<string, string> = {
   "https://www.giignl.org/annual-report/2026": "GIIGNL, Annual Report 2026 (2025 trade matrix, regas and liquefaction capacity)",
   "https://iea.blob.core.windows.net/assets/c8248eba-8689-46d9-ae4b-b858b59c0f1c/StraitofHormuz2026-Factsheet.pdf": "IEA, Strait of Hormuz Factsheet, February 2026",
-  [IEA_GMR]: "IEA, Gas Market Report Q2-2026",
+  [IEA_GMR_Q2]: "IEA, Gas Market Report Q2-2026",
   "https://www.energyinst.org/statistical-review/resources-and-data-downloads": "Energy Institute, Statistical Review of World Energy 2026 (data workbook)",
   "https://www.kpler.com/blog/china-gas-supply-strength-caps-lng-demand-growth": "Kpler, China gas supply strength caps LNG demand growth (Jan 2026)",
   [CGEP]: "Columbia CGEP, Asia's Gas Shock Playbook (Corbeau, Apr 2026)",
@@ -18,6 +18,11 @@ const TITLES: Record<string, string> = {
   "https://www.gem.wiki/Power_of_Siberia_Gas_Pipeline": "Global Energy Monitor, Power of Siberia Gas Pipeline",
   "https://www.gem.wiki/Power_of_Siberia_2_Gas_Pipeline": "Global Energy Monitor, Power of Siberia 2 Gas Pipeline",
   "https://www.gem.wiki/Sino-Myanmar_Gas_Pipeline": "Global Energy Monitor, Sino-Myanmar Gas Pipeline",
+  "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf": "IEA, Global Gas Security Review 2026 (incl. Gas Market Report Q4-2026)",
+  "https://www.spglobal.com/energy/en/news-research/latest-news/lng/052926-taiwans-cpc-turns-to-spot-market-diversifies-lng-supply-amid-middle-east-conflict": "S&P Global, Taiwan's CPC turns to spot market (May 2026)",
+  "https://www.globalsecurity.org/wmd/library/news/iran/2026/05/iran-260512-rferl05.htm": "RFE/RL (Reuters), Second Qatari LNG tanker crosses Hormuz (May 2026)",
+  "https://www.gisreportsonline.com/r/gas-markets-hormuz-shock/": "GIS Reports, Global gas markets after the Hormuz shock (Nakhle, Jul 2026)",
+  "https://sea-distances.org/": "Sea-distances.org, port-to-port distances (voyage-time basis)",
 };
 
 function* datums(x: unknown, path = ""): Generator<[string, Datum]> {
@@ -29,31 +34,60 @@ function* datums(x: unknown, path = ""): Generator<[string, Datum]> {
 }
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
-export function renderReality(host: HTMLElement, z: Evaluation) {
-  const r = (id: string) => z.rows.find((x) => x.id === id)!;
-  const rows: [string, string, string, string][] = [
-    ["Pakistan", `${pct(r("PAK").share.priority)} of demand (range ${pct(r("PAK").share.last)}–${pct(r("PAK").share.outbid)})`, "LNG imports fell 67% year on year in March; four-day working week, fertiliser cuts.", "Direction right; the model is harsher (0% vs about a third of normal imports in March)."],
-    ["Bangladesh", `${pct(r("BGD").share.priority)} (range ${pct(r("BGD").share.last)}–${pct(r("BGD").share.outbid)})`, "LNG imports fell only 10% in March; a $370m subsidy request; five of six fertiliser plants shut.", "Model too harsh: subsidised spot buying kept cargoes coming."],
-    ["India", `${pct(r("IND").share.priority)} (range ${pct(r("IND").share.last)}–${pct(r("IND").share.outbid)})`, "Emergency gas order: households in full, fertiliser ~95%, other industry ~80%; deliveries to some sectors cut 10–30%.", "Model too harsh: India bid for spot cargoes and rationed at home."],
-    ["China", `${pct(r("CHN").share.priority)} (last in line ${pct(r("CHN").share.last)})`, "LNG imports fell 30% in March, to a multi-year low; 8–10 cargoes resold to other buyers.", "Consistent: China leaned on pipelines, storage and coal and released LNG."],
-    ["Japan, Korea", `${pct(r("JPN").share.priority)}, ${pct(r("KOR").share.priority)}`, "Coal-plant limits lifted; Korean nuclear restarts. Only 6% of Japan's LNG came via Hormuz.", "Consistent."],
-    ["Asia overall", `gap ${pct((z.demand - z.supply) / z.demand)} of import demand`, "LNG imports down 6% year on year in March, the first month of closure.", "Smaller than modeled so far: cargoes already at sea, and demand fell."],
-  ];
+const sgn = (x: number) => `${x > 0.5 ? "+" : x < -0.5 ? "−" : "±"}${Math.abs(Math.round(x))}%`;
+
+export async function renderReality(host: HTMLElement) {
+  const V = (NET as any).validation_2026 as { id: string; importer: string | null; metric: string; period: string; value: Datum }[];
+  const v = (id: string) => V.find((x) => x.id === id)!;
+  const link = (d: Datum, t: string) => `<a href="${esc(d.source_url)}">${t}</a>`;
   host.innerHTML = `
-    <h2>What actually happened in 2026 <span class="tag">Preliminary</span></h2>
-    <p class="sub">The Strait of Hormuz was effectively closed from 28 February 2026. Below, the model's Hormuz-closed scenario sits beside the first month of evidence. A full validation using Lloyd's List, S&amp;P Global and Kpler reporting is in progress.</p>
-    <div class="tablewrap"><table class="reality-t">
-      <thead><tr><th scope="col">Importer</th><th scope="col">Model: market order</th><th scope="col">March 2026</th><th scope="col">Verdict</th></tr></thead>
-      <tbody>${rows.map((x) => `<tr><th scope="row">${x[0]}</th><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td></tr>`).join("")}</tbody>
-    </table></div>
-    <h3>What the model misses</h3>
+    <h2>What actually happened in 2026</h2>
+    <p class="sub">The Strait of Hormuz was effectively closed from 28 February 2026. LNG traffic stopped in March and recovered only partly. By September, 27 laden LNG carriers left the Gulf, against about 95 a month in 2025. Iranian strikes also knocked out about ${v("QAT_damage").value.value}% of Qatar's export capacity, possibly for years.</p>
+    <div class="cards facts">
+      <div class="card"><p class="big">${v("gulf_supply").value.value}%</p><p>Qatar and UAE LNG deliveries, Jan–Oct, year on year. ${link(v("gulf_supply").value, "IEA")}</p></div>
+      <div class="card"><p class="big">${v("global_supply").value.value}%</p><p>Global LNG supply. New non-Gulf liquefaction made up most of the loss. ${link(v("global_supply").value, "IEA")}</p></div>
+      <div class="card"><p class="big">${v("asia").value.value}%</p><p>Asia's LNG imports. Europe's fell 6%. ${link(v("asia").value, "IEA")}</p></div>
+    </div>
+    <div id="val-table"><p class="note">Solving the 2026 scenario…</p></div>
+    <h3>What the model got right</h3>
     <ul class="misses">
-      <li><b>Demand destruction.</b> The model treats 2025 imports as fixed needs. In practice India, Pakistan and Bangladesh cut fertiliser and industrial gas use, and high prices cut demand across Asia.</li>
-      <li><b>Contracts and subsidies.</b> Gas is pooled and goes to the highest bidder in the market view. Real cargoes follow long-term contracts, and governments subsidised purchases (Bangladesh).</li>
-      <li><b>Selective passage.</b> The model treats Hormuz as fully open or fully shut. It cannot yet represent a blockade that lets some exporters' cargoes through; the next version adds origin-tagged flows.</li>
-      <li><b>Time.</b> Rates are annual. Cargoes already at sea cushioned the first weeks.</li>
+      <li><b>The size of Asia's loss, once Hormuz is partly open.</b> At the 37% of normal Gulf supply that got through, equal rationing leaves every importer with <span id="lam26">…</span> of its needs. Asia's LNG imports actually fell ${Math.abs(v("asia").value.value)}%.</li>
+      <li><b>Pakistan is the most exposed buyer.</b> Its LNG imports fell ${Math.abs(v("PAK").value.value)}% (more than 70% in March–September). Pakistan is shut out in both market cases, and its last-in-line share is zero in 62 of 63 sensitivity runs.</li>
+      <li><b>Selective passage.</b> In May Iran approved ${v("PAK_pass").value.value} Qatari cargoes bound for Pakistan (${link(v("PAK_pass").value, "Reuters via RFE/RL")}). The model's Pakistan-only passage scenario lets Pakistan be fully supplied from Qatar while nobody else gets Gulf gas.</li>
+      <li><b>Ships were not the constraint.</b> The model finds closures change the ship-time needed by −5% to +11%, within spare fleet capacity, even with no spare ships assumed and every voyage 25% longer. Supply, not shipping, limited Asia.</li>
     </ul>
-    <p class="note">Sources: <a href="${IEA_GMR}">IEA Gas Market Report Q2-2026</a>; <a href="${CGEP}">Columbia CGEP, April 2026</a>.</p>`;
+    <h3>What the model missed</h3>
+    <ul class="misses">
+      <li><b>Who stepped back.</b> The ability-to-pay order put India at 7%. India's imports actually rose ${v("IND").value.value}%, with US, African and Omani cargoes replacing Qatar. China, with pipelines, storage and coal, absorbed the largest cut (${v("CHN").value.value}%) and resold cargoes. Willingness to pay depends on alternatives as much as on income.</li>
+      <li><b>New supply.</b> The model is fixed at 2025 capacity. In March–June 2026 new US and other non-Gulf liquefaction lifted non-Gulf output by about 18%.</li>
+      <li><b>Demand destruction.</b> The model treats 2025 import needs as fixed. The IEA expects Asian gas demand to fall about 1.5% in 2026; Pakistan's gas-fired power fell more than 25% (March–September) and Bangladesh's 12% (March–August), replaced largely by coal.</li>
+      <li><b>Contracts and subsidies.</b> Bangladesh kept buying spot cargoes with government support; its imports fell only ${Math.abs(v("BGD").value.value)}%.</li>
+    </ul>
+    <p class="note">Sources: ${link(v("asia").value, "IEA Global Gas Security Review 2026 (incl. Gas Market Report Q4-2026)")}; ${link(v("TWN").value, "S&amp;P Global on Taiwan's CPC")}; ${link(v("QAT_damage").value, "GIS Reports on Ras Laffan")}; ${link(v("PAK_pass").value, "RFE/RL (Reuters)")}.</p>`;
+
+  // model side: the "2026 as it happened" scenario, solved with the LP
+  try {
+    const { evaluateLP, VIEW_LABEL } = await import("./compute");
+    const ev = await evaluateLP({ closed: new Set(), diversion: NET.meta.diversion.value, focus: null, hormuz: "share37", fleet: true });
+    host.querySelector("#lam26")!.textContent = pct(ev.lambda);
+    const ids = ["CHN", "IND", "THA", "BGD", "PAK", "TWN"];
+    const rows = ids.map((id) => {
+      const r = ev.rows.find((x) => x.id === id)!;
+      const o = V.find((x) => x.importer === id)!;
+      const obs = o.value.unit === "%" ? `${sgn(o.value.value)} <span class="muted">(${o.period})</span>` : `${o.value.value} ${o.value.unit} <span class="muted">(${o.period})</span>`;
+      return `<tr><th scope="row">${r.name}</th><td>${obs}</td><td>${sgn(100 * (r.share.priority - 1))}</td><td>${sgn(100 * (r.share.market2026 - 1))}</td><td>${sgn(100 * (r.share.rationed - 1))}</td></tr>`;
+    });
+    const notes = ids.map((id) => { const o = V.find((x) => x.importer === id)!; return `<li><b>${NET.importers.find((i) => i.id === id)!.name}.</b> ${esc(o.value.note)}</li>`; }).join("");
+    host.querySelector("#val-table")!.innerHTML = `
+      <h3>Model vs what happened, by importer</h3>
+      <p class="note">Model: Hormuz at 37% of normal Gulf supply (the 2026 average), fleet limit on. Model change is against 2025 import needs; observed change is LNG imports year on year (IEA; Taiwan from S&amp;P Global).</p>
+      <div class="tablewrap"><table class="reality-t">
+        <thead><tr><th scope="col">Importer</th><th scope="col">Observed</th><th scope="col">${VIEW_LABEL.priority}</th><th scope="col">${VIEW_LABEL.market2026}</th><th scope="col">${VIEW_LABEL.rationed}</th></tr></thead>
+        <tbody>${rows.join("")}</tbody></table></div>
+      <details><summary>What happened in each country</summary><ul class="misses">${notes}</ul></details>`;
+  } catch (e) {
+    host.querySelector("#val-table")!.innerHTML = `<p class="note">The LP solver could not run in this browser (${esc(String(e)).slice(0, 80)}).</p>`;
+  }
 }
 
 export function renderMethod(host: HTMLElement) {
@@ -68,6 +102,7 @@ export function renderMethod(host: HTMLElement) {
         <h3>How the model works</h3>
         <p>Asian LNG supply is a flow network. A super-source feeds ${NET.exporters.length} exporter nodes. Each can supply its 2025 deliveries to these importers plus ${pct(NET.meta.diversion.value)} of the cargoes it sent elsewhere, mainly to Europe, which Asian buyers could bid away. Cargoes travel through ${NET.routes.filter((r) => r.kind === "chokepoint").length} chokepoint nodes (Hormuz, Suez/Bab el-Mandeb, the Cape, Panama, Malacca, Lombok) to ${NET.importers.length} importers. Each importer is split into an arrival node and a delivery node joined by its regasification capacity. China's and Thailand's pipelines feed delivery nodes directly. Each importer's 2025 import demand flows to a super-sink.</p>
         <p><b>Max-flow</b> (Edmonds–Karp) gives the most gas the network can deliver. The <b>min cut</b>, read from the residual graph, names the binding constraints. Four allocation views split that gas: equal rationing (binary search for the largest common share λ), served in market order, last in line, and outbids everyone. <b>Days of cover</b> = storage inventory ÷ the withdrawal still needed after fuel switching. Units are million tonnes per annum of LNG (1 Mt = ${NET.meta.bcm_per_mtpa} bcm).</p>
+        <p><b>Linear program.</b> The same network is also solved as an LP with HiGHS (compiled to WebAssembly). With no extras it reproduces max-flow exactly; the tests check this. It adds three things. A <b>fleet constraint</b> limits Σ flow × round-trip voyage days to the ship-time the 2025 trade needed plus ${pct(NET.meta.fleet_slack?.value ?? 0)} spare. <b>Origin- and destination-tagged Gulf flows</b> (multi-commodity) let a scenario pass only some cargoes through Hormuz. <b>Shadow prices</b> on every capacity give the value of one more mtpa there, generalising the min cut and ranking investments.</p>
       </div>
       <div>
         <h3>Key assumptions and limits</h3>
@@ -75,9 +110,9 @@ export function renderMethod(host: HTMLElement) {
           <li><b>Pooled, fungible gas.</b> Any cargo can serve any importer it can physically reach. No prices, contracts or destination clauses.</li>
           <li><b>Static annual rates</b> from the 2025 baseline; no seasonality or ships already at sea.</li>
           <li><b>Diversion of ${pct(NET.meta.diversion.value)}</b> of non-Asian cargoes is an assumption, varied 0–50% in the robustness checks. It is the most influential input.</li>
-          <li><b>Market order</b> (Japan, Korea, Taiwan, China, Thailand, India, Bangladesh, Pakistan) is an assumed ranking by ability to pay. It is shown beside its best and worst cases.</li>
           <li><b>Fuel switching</b> capacities are estimates built from announced 2026 measures. Fuel switching is used before storage.</li>
-          <li><b>Voyage time is ignored</b>, so rerouting around a closed strait is free. Fleet limits come in the next version.</li>
+          <li><b>Voyage times</b> are estimated from port-to-port sea distances at about 18 knots. They matter only for the fleet constraint, which never binds in the tested cases.</li>
+          <li><b>Two market orders</b> are assumptions: ability to pay (set before the 2026 evidence) and the order seen in 2026 (China steps back, Pakistan last). The second is fitted to the outcome it is compared with.</li>
         </ul>
       </div>
     </div>

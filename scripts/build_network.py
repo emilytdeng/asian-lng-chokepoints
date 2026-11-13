@@ -226,7 +226,37 @@ LINKS = [
     link("BRN", "PACIFIC"), link("IDN", "PACIFIC"), link("MYS", "PACIFIC"), link("PNG", "PACIFIC"),
     link("RUS_SAK", "PACIFIC"), link("OTH_PAC", "PACIFIC"),
     link("PACIFIC", "JPN"), link("PACIFIC", "KOR"), link("PACIFIC", "TWN"), link("PACIFIC", "CHN"), link("PACIFIC", "THA"),
+    # Direct lanes added in stage 6 so voyage times are not inflated by the Arabian Sea hub (no capacity effect).
+    link("CAPE", "MALACCA"), link("MALACCA", "THA"),
 ]
+
+# ---------------------------------------------------------------- voyage times (stage 6, LP fleet constraint)
+# One-way laden days per link at ~18 knots (~430 nm/day), chosen so that path sums match port-to-port sea distances
+# (sea-distances.org style great-circle-on-water routes). Round trip = 2× (ballast return). Checks against full voyages:
+#   Ras Laffan–Tokyo ≈ 6,500 nm ≈ 15 d: 0.5+1.5+6.5+4+3 = 15.5 · Ras Laffan–Dahej ≈ 1,300 nm ≈ 3 d: 0.5+1.5+1 = 3
+#   Sabine Pass–Tokyo via Panama ≈ 9,200 nm ≈ 21 d: 3+15+3 = 21 · via Cape ≈ 14,500 nm ≈ 34 d: 17+13+4+3 = 37
+#   Sabine Pass–Dahej via Suez ≈ 9,300 nm ≈ 22 d: 18+3+1 = 22 · NW Shelf–Tokyo ≈ 3,700 nm ≈ 9 d: 5+3 = 8
+#   Bonny–Dahej via Cape ≈ 7,800 nm ≈ 18 d: 6+10+1 = 17 · Yamal–Shanghai via NSR (summer) ≈ 20 d: 18+2 = 20
+SEA = "https://sea-distances.org/"
+DAYS = {
+    "QAT-HORMUZ": 0.5, "UAE-HORMUZ": 0.5, "HORMUZ-IO": 1.5, "OMN-IO": 0.5,
+    "USA-PANAMA": 3, "PANAMA-PACIFIC": 15, "USA-CAPE": 17, "USA-BAB_SUEZ": 18,
+    "RUS_ARC-CAPE": 20, "RUS_ARC-BAB_SUEZ": 16, "RUS_ARC-PACIFIC": 18,
+    "OTH_ATL-CAPE": 6, "OTH_ATL-BAB_SUEZ": 6, "OTH_ATL-IO": 7,
+    "CAPE-IO": 10, "CAPE-MALACCA": 13, "BAB_SUEZ-IO": 3,
+    "IO-IND": 1, "IO-PAK": 1, "IO-BGD": 6,
+    "IO-MALACCA": 6.5, "MALACCA-IO": 6.5, "IO-LOMBOK": 9, "LOMBOK-IO": 9,
+    "MALACCA-PACIFIC": 4, "PACIFIC-MALACCA": 4, "LOMBOK-PACIFIC": 4, "PACIFIC-LOMBOK": 4, "MALACCA-THA": 2,
+    "AUS-PACIFIC": 5, "AUS-IO": 7, "BRN-PACIFIC": 3, "IDN-PACIFIC": 3, "MYS-PACIFIC": 3, "PNG-PACIFIC": 3.5,
+    "RUS_SAK-PACIFIC": 0.5, "OTH_PAC-PACIFIC": 10,
+    "PACIFIC-JPN": 3, "PACIFIC-KOR": 2.5, "PACIFIC-TWN": 1, "PACIFIC-CHN": 2, "PACIFIC-THA": 3,
+}
+for l in LINKS:
+    l["voyage_days"] = D(DAYS[l["id"]], "days", SEA, "One-way laden days for this leg at ~18 knots, set so that leg sums match port-to-port sea distances (see build_network.py for the checks).", est=True)
+# One-way laden days to the exporter's typical non-modeled buyers: the ship-time a diverted cargo frees when it goes
+# to Asia instead. Atlantic and Gulf sellers' other buyers are mostly in Europe (Qatar also Kuwait); Pacific sellers'
+# other buyers are mostly nearby (Singapore, Malaysia, Vietnam, the Philippines, domestic).
+OTHER_DAYS = {"QAT": 10, "UAE": 3, "OMN": 10, "USA": 12, "RUS_ARC": 6, "OTH_ATL": 7, "AUS": 5, "BRN": 3, "IDN": 3, "MYS": 3, "PNG": 6, "RUS_SAK": 3, "OTH_PAC": 12}
 
 INVESTMENTS = [
     ("PAK_REGAS", "Pakistan: +5 mtpa regas (third FSRU)", [("importers.PAK.regas", 5.0)]),
@@ -241,6 +271,31 @@ INVESTMENTS = [
     ("USA_LNG", "+10 mtpa new US LNG capacity contracted to Asia", [("exporters.USA.asia_deliveries", 10.0), ("exporters.USA.total_exports", 10.0)]),
 ]
 
+# ---------------------------------------------------------------- 2026 outcomes (validation, stage 6)
+GGSR = "https://www.iea.org/files/42bb838f-d20d-4815-8554-32146033967d/GlobalGasSecurityReview2026.pdf"
+GMR_Q3 = "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary"
+SP_TWN = "https://www.spglobal.com/energy/en/news-research/latest-news/lng/052926-taiwans-cpc-turns-to-spot-market-diversifies-lng-supply-amid-middle-east-conflict"
+RFERL_PAK = "https://www.globalsecurity.org/wmd/library/news/iran/2026/05/iran-260512-rferl05.htm"
+FORTUNE_PAK = "https://fortune.com/2026/05/10/qatar-first-lng-shipment-hormuz-strait-iran-war-pakistan/"
+GIS_QAT = "https://www.gisreportsonline.com/r/gas-markets-hormuz-shock/"
+CNBC_KPLER = "https://www.cnbc.com/2026/03/03/strait-of-hormuz-closure-which-countries-will-be-hit-the-most.html"
+CHANNELS_LSEG = "https://www.channelstv.com/2026/04/23/asia-slashes-lng-imports-from-nigeria-others-as-closure-of-strait-cuts-off-cargoes/"
+VALIDATION = [
+    # id, importer (or region), metric, value, unit, period, url, note
+    ("gulf_supply", None, "Qatar + UAE delivered LNG, change y-o-y", -63, "%", "Jan-Oct 2026", GGSR, "About -62 bcm; 'the largest ever LNG supply shock'. LNG vessel traffic through Hormuz ceased in March; 27 laden vessels exited in September vs ~95 a month in 2025."),
+    ("global_supply", None, "Global LNG supply, change y-o-y", -2, "%", "Jan-Oct 2026", GGSR, "Net shortfall ~11 bcm: new non-Gulf liquefaction offset most of the Gulf loss (non-Gulf output +18% in Mar-Jun, IEA GMR Q3-2026)."),
+    ("asia", None, "Asian LNG imports, change y-o-y", -1.8, "%", "Jan-Oct 2026", GGSR, "About -5.5 bcm. Europe -6% (-9 bcm); Middle East -40%."),
+    ("CHN", "CHN", "LNG imports, change y-o-y", -10, "%", "Jan-Oct 2026", GGSR, "About -7 bcm: 'the largest single balancing market'. Weak demand, domestic output and storage withdrawals eased pressure; record cargo resales."),
+    ("PAK", "PAK", "LNG imports, change y-o-y", -56, "%", "Jan-Oct 2026", GGSR, "About -4.5 bcm, second-largest fall in Asia; more than -70% in March-September. Gas-fired power -25%, coal-fired +35%, urea output -7%."),
+    ("BGD", "BGD", "LNG imports, change y-o-y", -10, "%", "Mar-Sep 2026", GGSR, "Gas demand -7% in Q1-Q3; gas-fired power -12%, coal +25% (Mar-Aug). Spot purchases at high prices kept cargoes coming."),
+    ("IND", "IND", "LNG imports, change y-o-y", 10, "%", "Jan-Sep 2026", GGSR, "About +2.6 bcm: North American imports doubled to 6.1 bcm and African to 9.4 bcm while Qatari volumes fell 72%; Oman became the main Middle East source. Demand -3% after sharp cuts in Mar-May; city gas protected."),
+    ("THA", "THA", "LNG imports, change y-o-y", 30, "%", "Q1-Q3 2026", GGSR, "About +3.5 bcm, from the US and Australia; Hormuz LNG was only ~7% of Thai gas supply."),
+    ("JKS", None, "Japan, Korea and Singapore LNG imports, combined change", -5, "bcm", "Jan-Oct 2026", GGSR, "Japan's gas demand -3.5% in H1 (coal and renewables up); Korea's demand +3% in H1 with more US LNG."),
+    ("TWN", "TWN", "Qatari cargoes delivered to Taiwan", 0, "cargoes", "Apr-May 2026", SP_TWN, "CPC became Northeast Asia's most active spot buyer (1-2 spot cargoes a week); spot share expected to rise to 60-65% from ~30%. Storage was about 12 days when the war began."),
+    ("PAK_pass", "PAK", "Qatari LNG cargoes allowed through Hormuz for Pakistan", 2, "cargoes", "May 2026", RFERL_PAK, "Iran approved Qatari cargoes bound for Port Qasim under an arrangement with Pakistan (Reuters, via RFE/RL; also Fortune). Selective passage by destination."),
+    ("QAT_damage", None, "Qatari LNG export capacity knocked out by strikes on Ras Laffan", 17, "%", "from March 2026", GIS_QAT, "Iranian strikes took about 17% of Qatar's export capacity offline, potentially for several years (GIS Reports, July 2026)."),
+]
+
 SCENARIOS = {
     "baseline": {"label": "Baseline (2025)"},
     "hormuz": {"label": "Hormuz closed", "close": ["HORMUZ"]},
@@ -249,6 +304,8 @@ SCENARIOS = {
     "panama": {"label": "Panama restricted", "cap_factor": {"PANAMA": 4 * 12 / 365}, "note": "4 LNG transits/month, the 1H25 drought-era average (S&P Global)."},
     "russia": {"label": "Russian LNG sanctioned", "close": ["RUS_ARC", "RUS_SAK"]},
     "hormuz_redsea": {"label": "Hormuz + Red Sea closed", "close": ["HORMUZ", "BAB_SUEZ"]},
+    "hormuz_pakistan": {"label": "Hormuz open only for Pakistan-bound cargoes", "hormuz": {"destinations": ["PAK"]}, "note": "May 2026: Iran approved Qatari LNG cargoes bound for Pakistan (Reuters via RFE/RL, Fortune)."},
+    "hormuz_2026": {"label": "2026 as it happened (Hormuz at 37%)", "hormuz": {"share": 0.37}, "fleet": True, "note": "IEA Global Gas Security Review 2026: Qatar and UAE delivered LNG fell 63% y-o-y in January-October 2026. Hormuz throughput set to 37% of normal Gulf supply."},
 }
 
 net = {
@@ -257,6 +314,7 @@ net = {
         "baseline_year": 2025, "unit": "mtpa", "bcm_per_mtpa": BCM_PER_MT,
         "diversion": {**D(0.2, "share", EST, "Share of each exporter's non-Asian (mainly European) cargoes that Asian buyers can bid away in a crisis. No direct source; varied 0-50% in robustness checks. Chosen by the author with the user (stage 2).", est=True), "range": [0.0, 0.5]},
         "horizon_days": D(90, "days", EST, "Crisis length used to convert storage inventory into a sustainable withdrawal rate in buffered λ (inventory × 365 / 90). Varied in robustness checks.", est=True),
+        "fleet_slack": D(0.10, "share", GIIGNL, "Spare LNG-carrier capacity beyond the least ship-time the 2025 Asian trade needed. GIIGNL: 899 vessels at end-2025, a record orderbook and weak 2025 freight rates (S&P Global) point to surplus ships; 10% is an estimate, varied in robustness checks.", est=True),
         "lng_t_per_m3": LNG_T_PER_M3,
         "source_notes": {
             "GIIGNL": "GIIGNL Annual Report 2026 data were read from the public PDF copy at " + GIIGNL_PDF + " (giignl.org gates downloads to members). Page references refer to that PDF.",
@@ -267,7 +325,7 @@ net = {
             "Rates are annualised (mtpa). A closure is assumed to last long enough that annual rates are meaningful; storage converts to days of cover.",
         ],
     },
-    "exporters": [exporter(*e) for e in EXPORTERS],
+    "exporters": [{**exporter(*e), "other_voyage_days": D(OTHER_DAYS[e[0]], "days", SEA, "One-way laden days to this exporter's typical non-modeled buyers (Europe for Atlantic and Gulf sellers, nearby Southeast Asian buyers for Pacific sellers): the ship-time a diverted cargo frees for the Asian trade.", est=True)} for e in EXPORTERS],
     "routes": [
         {"id": r, "name": n, "kind": k, "lonlat": ll,
          "capacity": cap, "note": NULLCAP if cap is None else ""}
@@ -283,6 +341,11 @@ net = {
     "importers": [importer(i) for i in IMPORTERS],
     "investments": [{"id": i, "label": l, "changes": [{"target": t, "delta": round(d, 3)} for t, d in ch]} for i, l, ch in INVESTMENTS],
     "scenarios": SCENARIOS,
+    "validation_2026": [
+        {"id": vid, "importer": imp, "metric": metric, "period": period,
+         "value": D(val, unit, url, note, year=2026)}
+        for vid, imp, metric, val, unit, period, url, note in VALIDATION
+    ],
 }
 
 out = pathlib.Path(__file__).resolve().parent.parent / "data" / "network.json"
