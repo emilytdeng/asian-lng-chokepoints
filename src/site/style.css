@@ -188,7 +188,8 @@ details { margin-top: 16px; } summary { cursor: pointer; color: var(--flow); }
 
 /* phones: maps scroll sideways inside their frame instead of shrinking labels to nothing */
 @media (max-width: 700px) {
-  .hook-map, .sb-map > div:first-child { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .hook-map, .fig-map, .fig-graph { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-map .chart-map, .fig-graph .chart-map { min-width: 680px; }
   .hook-map .chart-map, #sb-map .chart-map { min-width: 680px; }
   .story-graphic.has-chart #story-map { display: none; }
   .story-chart { max-height: none; }
@@ -389,3 +390,44 @@ details.explainer[open] > summary::after { content: "−"; }
   .tabs [role="tab"] { padding: 11px 10px 9px; font-size: .88rem; }
 }
 @media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
+
+/* ---------------------------------------------------------------- map / network-graph toggle */
+.fig-toggle { margin: 0 0 8px; }
+.fig-map, .fig-graph { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.fig-map[hidden], .fig-graph[hidden] { display: none; }
+.chart-graph .edge-track { stroke: var(--track); stroke-width: 1.1; }
+.chart-graph .g-arrow { fill: var(--muted); }
+.chart-graph .gedge.closed .edge-track { stroke: var(--closed); stroke-dasharray: 4 4; }
+.chart-graph .gedge.dim { opacity: .3; }
+.chart-graph .node circle, .chart-graph .node rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; }
+.chart-graph .node.g-src circle { fill: var(--ink); }
+.chart-graph .node.g-imp circle { fill: var(--flow); stroke: var(--paper); }
+.chart-graph .node.g-lane circle { fill: var(--wash); stroke: var(--muted); }
+.chart-graph .node.g-pipe rect { fill: var(--ink); }
+.chart-graph .node.g-st circle { fill: var(--ink); stroke: var(--ink); }
+.chart-graph .g-st { fill: var(--paper); font: 700 14px var(--sans); stroke: none !important; }
+.chart-graph .node.g-lane .nlabel, .chart-graph .node.g-pipe .nlabel { font: 600 11px var(--sans); fill: var(--ink-2); }
+.chart-graph .node.g-src .nlabel { font: 600 12px var(--sans); }
+.chart-graph .node.g-st .nlabel { font: 700 12px var(--sans); }
+.chart-graph .node.closed circle, .chart-graph .node.closed rect { fill: var(--closed); stroke: var(--closed); }
+.chart-graph .node.imp.short circle { fill: var(--cut); }
+.chart-graph .g-bus { font: italic 11px var(--sans); fill: var(--muted); }
+.chart-graph .nvalue { font-variant-numeric: tabular-nums; }
+/* the augmenting path being added, while stepping */
+.edge-path { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 7 4; pointer-events: none; animation: march 0.9s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -22; } }
+.node.onpath circle, .node.onpath path, .node.onpath rect { stroke: var(--ink); stroke-width: 3; }
+.node.onpath .nlabel { font-weight: 800; }
+@media (prefers-reduced-motion: reduce) { .edge-path { animation: none; } }
+
+/* ---------------------------------------------------------------- algorithm stepper */
+.stepper { margin: 14px 0 6px; padding: 12px 14px; background: var(--wash); max-width: 1080px; }
+.stepper .lbl { margin: 0 0 6px; }
+.st-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--sans); }
+.st-play, .st-btn { font: 600 .84rem var(--sans); color: var(--paper); background: var(--ink); border: 1px solid var(--ink); border-radius: 999px; padding: 5px 13px; cursor: pointer; }
+.st-btn { background: var(--paper); color: var(--ink); border-color: var(--rule); padding: 3px 11px; font-size: 1rem; line-height: 1.2; }
+.st-btn:hover { border-color: var(--ink); }
+.st-range { flex: 1 1 200px; min-width: 140px; accent-color: var(--ink); }
+.st-count { font: .82rem var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; min-width: 9em; }
+.st-cap { font: .92rem/1.55 var(--sans); color: var(--ink-2); margin: 8px 0 0; min-height: 4.6em; max-width: 820px; }
+.fig-note { padding: 0 2px; margin: 8px 0 0; }

@@ -56,6 +56,9 @@ export interface Evaluation {
   /** LP only: shadow prices from the equal-rationing LP, λ per mtpa. */
   duals?: LPSolution["duals"];
   fleet?: { needed: number; available: number; binds: boolean };
+  /** Set while stepping through the algorithm: the arcs on the current augmenting path ("type:id"), and the
+   * demand met so far. Views then show partial flows and no cut. */
+  progress?: { path: Set<string>; delivered: Record<string, number> };
 }
 
 export const name = (id: string) =>

@@ -1,7 +1,9 @@
 /** The "Simple version" tab: exporters → sea lanes → importers (plus pipelines), solved by max-flow. */
-import { MTPA_NOTE, NET, evaluate, fmt, pct, type State, type View } from "./compute";
+import { MTPA_NOTE, NET, evaluate, fmt, pct, type Evaluation, type State, type View } from "./compute";
 import { holdingBack, maxflowCard, sharingCard } from "./explain";
-import { ChartMap } from "./map";
+import { traceSolve } from "../model/allocation";
+import { FlowFigure } from "./figure";
+import { Stepper } from "./stepper";
 
 const PRESETS: { label: string; close: string[] }[] = [
   { label: "Normal year (2025)", close: [] },
@@ -26,8 +28,9 @@ export function mountSimple(host: HTMLElement) {
     </section>
     <section class="wrap simple-body">
       <div class="seg simple-presets" id="s-presets" role="group" aria-label="Scenarios"></div>
-      <div class="simple-map" id="s-map"></div>
-      <p class="note">Click a diamond (a strait), a dot (an exporter) or a dotted line (a pipeline) to close or reopen it. Line width shows how much gas flows.</p>
+      <div id="s-fig"></div>
+      <p class="note" id="s-fig-note"></p>
+      <div id="s-step"></div>
       <div class="bignums" id="s-nums"></div>
       <div class="holding" id="s-holding" aria-live="polite"></div>
       <div class="who">
@@ -41,10 +44,16 @@ export function mountSimple(host: HTMLElement) {
 
   const presetBox = host.querySelector("#s-presets")!;
   const ruleBox = host.querySelector("#s-rules")!;
-  const map = new ChartMap(host.querySelector<HTMLElement>("#s-map")!, {
+  const fig = new FlowFigure(host.querySelector<HTMLElement>("#s-fig")!, {
     interactive: true,
     view: () => view,
     onToggle: (id) => { state.closed.has(id) ? state.closed.delete(id) : state.closed.add(id); render(); },
+  }, host.querySelector<HTMLElement>("#s-fig-note")!);
+  let ev: Evaluation;
+  let traced: string | null = null;
+  const stepper = new Stepper(host.querySelector<HTMLElement>("#s-step")!, (f) => {
+    if (!f) { fig.update(ev, state); return; }
+    fig.update({ ...ev, map: { arcFlow: f.arcFlow, cut: [], total: f.total }, progress: { path: f.path, delivered: f.delivered } }, state);
   });
   for (const p of PRESETS) {
     const b = document.createElement("button");
@@ -62,8 +71,10 @@ export function mountSimple(host: HTMLElement) {
   ex.append(maxflowCard(true), sharingCard(true, true));
 
   function render() {
-    const ev = evaluate(state);
-    map.update(ev, state);
+    ev = evaluate(state);
+    const k = [...state.closed].sort().join(",");
+    if (k !== traced) { traced = k; const tr = traceSolve(NET, { scenario: ev.scenario, simple: true }); stepper.load(tr.sol, tr.steps, ev); }
+    else stepper.redraw();
     const key = [...state.closed].sort().join(",");
     presetBox.querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(PRESETS[i].close.slice().sort().join(",") === key)));
     ruleBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String((b as HTMLElement).dataset.v === view)));

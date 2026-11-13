@@ -1,4 +1,4 @@
-import { edmondsKarp, type FlowResult } from "./maxflow";
+import { edmondsKarp, type AugmentStep, type FlowResult } from "./maxflow";
 import { buildGraph, type BuildOptions, type FlowGraph } from "./graph";
 import { minCut, type CutEdge } from "./mincut";
 import type { Network, Scenario } from "./types";
@@ -15,12 +15,12 @@ export interface Solution {
   arcFlow: Record<string, number>;
 }
 
-export function solve(net: Network, opts: BuildOptions = {}): Solution {
+export function solve(net: Network, opts: BuildOptions = {}, trace?: (step: AugmentStep) => void): Solution {
   const graph = buildGraph(net, opts);
   // Fill each exporter's 2025 Asian sales before diverted cargoes. Totals, the min cut and allocations are the same
   // for every maximum flow; this only picks which flow the map draws.
   const deferred = new Set(graph.meta.map((m, i) => (m.type === "divert" ? i : -1)).filter((i) => i >= 0));
-  const result = edmondsKarp(graph.n, graph.arcs, graph.s, graph.t, deferred);
+  const result = edmondsKarp(graph.n, graph.arcs, graph.s, graph.t, deferred, trace);
   const delivered: Record<string, number> = {};
   const arcFlow: Record<string, number> = {};
   let demand = 0;
@@ -29,6 +29,13 @@ export function solve(net: Network, opts: BuildOptions = {}): Solution {
     if (m.type === "demand") { delivered[m.id] = result.flows[i]; demand += graph.arcs[i][2]; }
   });
   return { graph, result, total: result.total, demand, cut: minCut(graph, result), delivered, arcFlow };
+}
+
+/** solve() plus every augmenting path the algorithm found, in order (for step-by-step display). */
+export function traceSolve(net: Network, opts: BuildOptions = {}): { sol: Solution; steps: AugmentStep[] } {
+  const steps: AugmentStep[] = [];
+  const sol = solve(net, opts, (st) => steps.push(st));
+  return { sol, steps };
 }
 
 export interface AllocOptions { scenario?: Scenario; buffers?: boolean; simple?: boolean }

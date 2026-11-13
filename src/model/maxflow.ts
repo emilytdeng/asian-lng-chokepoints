@@ -9,6 +9,10 @@ export interface FlowResult {
 
 export const EPS = 1e-9;
 
+/** One augmenting path found by edmondsKarp: the input arcs it uses in order from s to t (fwd = false means it
+ * pushes flow back along an arc, undoing earlier flow), the amount pushed, and the phase (2 = deferred arcs released). */
+export interface AugmentStep { arcs: { i: number; fwd: boolean }[]; amount: number; phase: 1 | 2 }
+
 interface ResArc { v: number; c: number; f: number }
 
 function buildResidual(n: number, arcs: Arc[]) {
@@ -44,13 +48,15 @@ function residualReach(n: number, g: number[][], A: ResArc[], s: number): boolea
  * `deferred` arcs are withheld in a first phase and released in a second, which steers which maximum flow is
  * returned without changing its value or the min cut.
  */
-export function edmondsKarp(n: number, arcs: Arc[], s: number, t: number, deferred?: Set<number>): FlowResult {
+export function edmondsKarp(n: number, arcs: Arc[], s: number, t: number, deferred?: Set<number>, trace?: (step: AugmentStep) => void): FlowResult {
   const { g, A, ids } = buildResidual(n, arcs);
   let total = 0;
+  let phase: 1 | 2 = 1;
   if (deferred?.size) {
     for (const i of deferred) A[ids[i]].c = 0;
     total += augment();
     for (const i of deferred) A[ids[i]].c = arcs[i][2];
+    phase = 2;
   }
   total += augment();
   return { total, flows: ids.map((i) => A[i].f), reach: residualReach(n, g, A, s) };
@@ -74,6 +80,12 @@ export function edmondsKarp(n: number, arcs: Arc[], s: number, t: number, deferr
     if (!isFinite(b)) throw new Error("unbounded s–t path (all arcs infinite)");
     for (let v = t; v !== s; v = A[prev[v] ^ 1].v) { A[prev[v]].f += b; A[prev[v] ^ 1].f -= b; }
     total += b;
+    if (trace) {
+      // residual index a: input arc a >> 1 (ids[i] = 2i), forward when even
+      const path: AugmentStep["arcs"] = [];
+      for (let v = t; v !== s; v = A[prev[v] ^ 1].v) path.unshift({ i: prev[v] >> 1, fwd: (prev[v] & 1) === 0 });
+      trace({ arcs: path, amount: b, phase });
+    }
   }
   return total;
   }

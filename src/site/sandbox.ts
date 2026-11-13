@@ -1,7 +1,7 @@
 import type { LPSolution } from "../model/lp";
 import { MTPA_NOTE, NET, VIEWS, VIEW_LABEL, days, evaluate, evaluateLP, fmt, name, needsLP, pct, type Evaluation, type HormuzMode, type State, type View } from "./compute";
 import { holdingBack, maxflowCard, openByDefault, sharingCard } from "./explain";
-import { ChartMap } from "./map";
+import { FlowFigure } from "./figure";
 
 const PRESETS: { label: string; key: string }[] = [
   { label: "Baseline 2025", key: "baseline" },
@@ -52,7 +52,7 @@ export function mountSandbox() {
 
   const panel = document.getElementById("panel")!;
   const table = document.getElementById("sb-table")!;
-  const map = new ChartMap(document.getElementById("sb-map")!, {
+  const map = new FlowFigure(document.getElementById("sb-map")!, {
     interactive: true,
     view: () => view,
     onToggle: (id) => {

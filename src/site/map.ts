@@ -45,9 +45,9 @@ export interface MapOptions {
 export class ChartMap {
   svg: SVGSVGElement;
   private proj = geoMercator();
-  private edges = new Map<string, { g: SVGGElement; track: SVGPathElement; flow: SVGPathElement; cut: SVGPathElement; id: string; reverse?: string }>();
+  private edges = new Map<string, { g: SVGGElement; track: SVGPathElement; flow: SVGPathElement; cut: SVGPathElement; path: SVGPathElement; id: string; reverse?: string }>();
   private nodes = new Map<string, { g: SVGGElement; v: SVGTextElement }>();
-  private pipes = new Map<string, { g: SVGGElement; flow: SVGPathElement; track: SVGPathElement }>();
+  private pipes = new Map<string, { g: SVGGElement; flow: SVGPathElement; track: SVGPathElement; path: SVGPathElement }>();
 
   constructor(host: HTMLElement, private opts: MapOptions) {
     this.svg = document.createElementNS(NS, "svg");
@@ -102,18 +102,20 @@ export class ChartMap {
       const g = this.el("g", { class: "edge" }, layer);
       const track = this.el("path", { d, class: "edge-track" }, g);
       const flow = this.el("path", { d, class: "edge-flow" }, g);
+      const path = this.el("path", { d, class: "edge-path" }, g);
       const cut = this.el("path", { d, class: "edge-cut" }, g);
       const rev = `${l.to}-${l.from}`;
-      this.edges.set(l.id, { g, track, flow, cut, id: l.id, reverse: NET.links.some((x) => x.id === rev) ? rev : undefined });
+      this.edges.set(l.id, { g, track, flow, cut, path, id: l.id, reverse: NET.links.some((x) => x.id === rev) ? rev : undefined });
     }
     for (const pl of NET.pipelines) {
       const a = this.proj(PIPE_FROM[pl.id])!, b = this.p(pl.to);
       const g = this.el("g", { class: "pipe" }, layer);
       const track = this.el("path", { d: this.curve(a, b), class: "pipe-track" }, g);
       const flow = this.el("path", { d: this.curve(a, b), class: "pipe-flow" }, g);
+      const path = this.el("path", { d: this.curve(a, b), class: "edge-path" }, g);
       const t = this.el("text", { x: a[0], y: a[1] - 7, class: "pipe-label", "text-anchor": "middle" }, g);
       t.textContent = pl.name.replace(" (not built)", "");
-      this.pipes.set(pl.id, { g, track, flow });
+      this.pipes.set(pl.id, { g, track, flow, path });
       if (this.opts.interactive) this.clickable(g, pl.id, `${pl.name}: click to shut or reopen`);
     }
     const nl = this.el("g", { class: "nodes" });
@@ -149,6 +151,7 @@ export class ChartMap {
   update(ev: Evaluation, s: State, highlight: string[] = []) {
     const f = ev.map.arcFlow;
     const cutIds = new Set(ev.map.cut.map((c) => `${c.meta.type}:${c.meta.id}`));
+    const path = ev.progress?.path ?? new Set<string>();
     const w = (x: number) => (x > 1e-6 ? 1.2 + Math.sqrt(x) * 1.15 : 0);
     for (const [id, e] of this.edges) {
       const flow = (f[`link:${id}`] ?? 0) + (e.reverse ? f[`link:${e.reverse}`] ?? 0 : 0);
@@ -158,12 +161,14 @@ export class ChartMap {
       e.g.classList.toggle("closed", closed);
       const onCut = cutIds.has(`link:${id}`);
       e.cut.style.display = onCut ? "" : "none";
+      e.path.style.display = path.has(`link:${id}`) || (e.reverse && path.has(`link:${e.reverse}`)) ? "" : "none";
     }
     for (const [id, p] of this.pipes) {
       const cap = NET.pipelines.find((x) => x.id === id)!.capacity.value;
       p.g.style.display = cap > 0 || s.closed.has(id) ? "" : "none";
       p.flow.setAttribute("stroke-width", String(w(f[`pipeline:${id}`] ?? 0)));
       p.g.classList.toggle("closed", s.closed.has(id));
+      p.path.style.display = path.has(`pipeline:${id}`) ? "" : "none";
     }
     const view: View = this.opts.view?.() ?? "priority";
     for (const [id, n] of this.nodes) {
@@ -171,10 +176,12 @@ export class ChartMap {
       n.g.classList.toggle("closed", s.closed.has(id));
       n.g.classList.toggle("oncut", cutIds.has(`route:${id}`) || cutIds.has(`supply:${id}`) || cutIds.has(`divert:${id}`));
       n.g.classList.toggle("hl", highlight.includes(id));
+      n.g.classList.toggle("onpath", [...path].some((k) => k.endsWith(`:${id}`)));
       n.g.classList.toggle("dim", !!s.focus && isImp && id !== s.focus);
       if (isImp) {
         const r = ev.rows.find((x) => x.id === id)!;
         const sh = r.share[view];
+        if (ev.progress) { n.v.textContent = `${fmt(f[`demand:${id}`] ?? 0, 0)} of ${fmt(r.demand, 0)} mtpa`; n.g.classList.remove("short"); continue; }
         n.v.textContent = sh < 0.995 || this.opts.interactive ? `${pct(sh)} of demand` : "";
         n.g.classList.toggle("short", sh < 0.995);
       } else if (NET.exporters.some((e) => e.id === id) && !MARGIN_NOTE[id]) {
