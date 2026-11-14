@@ -15,8 +15,8 @@ function limitText(m: ArcMeta, amount: number) {
     case "supply": return `${name(m.id)} has only ${fmt(amount)} mtpa left of its 2025 sales to Asia`;
     case "divert": return `${name(m.id)} has only ${fmt(amount)} mtpa left of the cargoes it could pull away from Europe and others`;
     case "demand": return `${name(m.id)} needs only ${fmt(amount)} mtpa more`;
-    case "pipeline": return `the ${name(m.id)} pipeline has only ${fmt(amount)} mtpa of room left`;
-    default: return `this route has only ${fmt(amount)} mtpa of room left`;
+    case "pipeline": return `the ${name(m.id)} pipeline has only ${fmt(amount)} mtpa of capacity left`;
+    default: return `this route has only ${fmt(amount)} mtpa of capacity left`;
   }
 }
 
@@ -70,7 +70,7 @@ export class Stepper {
       return { arcFlow, delivered, total, path };
     };
     this.frames = [snapshot(new Set())];
-    this.captions = [`Start: nothing flows yet. The algorithm (Edmonds–Karp) repeatedly looks for the shortest route from the source to the sink that still has spare room, then pushes as much gas along it as the tightest link allows. First it uses only each exporter's 2025 sales to Asia.`];
+    this.captions = [`Start: nothing flows yet. The algorithm (Edmonds–Karp) repeatedly looks for the shortest route from the source to the sink that still has spare capacity, then pushes as much gas along it as the tightest link allows. First it uses only each exporter's 2025 sales to Asia.`];
     let phase = 1, total = 0;
     steps.forEach((st, n) => {
       // what limited this step: the arc whose spare room equalled the amount pushed
@@ -107,7 +107,7 @@ export class Stepper {
       pipes.length ? `${pipes.length === 1 ? "a pipeline" : `${pipes.length} pipelines`} full` : "",
       met.length ? `${met.join(", ")} already getting all ${met.length === 1 ? "it needs" : "they need"}` : "",
     ].filter(Boolean);
-    this.captions[this.last] += ` <b>Done:</b> no route with spare room is left. The red dotted lines are the <b>minimum cut</b>, the limits that stop more gas getting through: ${parts.join("; ")}. ` +
+    this.captions[this.last] += ` <b>Done:</b> no route with spare capacity is left. The red dotted lines are the <b>minimum cut</b>, the limits that stop more gas getting through: ${parts.join("; ")}. ` +
       `Their capacities add up to ${fmt(ev.map.total)} mtpa, exactly the gas delivered. That match is the proof that no better answer exists.`;
     this.range.max = String(this.last);
     this.go(this.last, true);
