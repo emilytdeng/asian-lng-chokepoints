@@ -144,6 +144,7 @@ export function mountLNG(host: HTMLElement) {
           <tr><td>Pipes into T</td><td>Each importing country's needs: what it imported in 2025</td></tr>
           <tr><td>T, the finish</td><td>Gas that reaches a buyer who needs it</td></tr>
         </tbody></table></div>
+      <p class="prose-narrow">One difference from the toy: the real network has many starting points (every exporter) and many finishing points (every importer). The max-flow method needs exactly one of each, so we add a made-up <b>S</b> that feeds every exporter and a made-up <b>T</b> that every importer drains into. Neither is a real place; they just let us measure the whole network as a single flow from S to T.</p>
       <p class="prose-narrow">China and Thailand also get gas through overland pipelines, which count as extra pipes straight from S.</p>
     </div>
     <div class="wrap" id="lng-key"></div>
