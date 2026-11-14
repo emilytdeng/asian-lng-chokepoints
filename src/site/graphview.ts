@@ -1,6 +1,7 @@
 /** The same flow network drawn as a textbook graph: source → exporters → straits and seas → importers → sink. */
 import type { Evaluation, State } from "./compute";
-import { NET, fmt, pct } from "./compute";
+import { NET, fmt, name, pct } from "./compute";
+import { hoverTips } from "./tips";
 import { exporterSupply } from "../model/graph";
 import type { MapOptions } from "./map";
 import { cutPath } from "./cutline";
@@ -43,6 +44,7 @@ export class ChartGraph {
     this.svg.setAttribute("aria-label", "Network graph: a source feeds every exporter and pipeline, gas runs through straits and seas to eight importers, and each importer drains to a sink");
     this.svg.classList.add("chart-map", "chart-graph");
     host.appendChild(this.svg);
+    hoverTips(this.svg);
     const defs = this.el("defs", {});
     const m = this.el("marker", { id: `arrow-${Math.random().toString(36).slice(2, 8)}`, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse", markerUnits: "userSpaceOnUse" }, defs);
     this.el("path", { d: "M0,1 L10,5 L0,9 Z", class: "g-arrow" }, m);
@@ -85,6 +87,7 @@ export class ChartGraph {
     const flow = this.el("path", { d, class: "edge-flow" }, g);
     const path = this.el("path", { d, class: "edge-path" }, g);
     const cut = this.el("path", { d, class: "edge-cut" }, g);
+    this.el("path", { d, class: "hit" }, g);
     const title = this.el("title", {}, g);
     this.edges.set(id, { g, track, flow, cut, path, title, keys, label, from, to, pts });
   }
@@ -217,6 +220,7 @@ export class ChartGraph {
       e.g.classList.toggle("closed", shut);
       const c = id.startsWith("S-") ? cap[b] : id.endsWith("-T") ? NET.importers.find((i) => i.id === a)!.import_demand.value : NET.pipelines.some((p) => p.id === a) ? cap[a] : shut ? 0 : Infinity;
       e.title.textContent = `${e.label}: ${fmt(flow)} mtpa${Number.isFinite(c) ? ` of ${fmt(c)} possible` : " (no limit)"}`;
+      e.g.dataset.tip = shut ? `${e.label}: closed` : `${e.label}\n${fmt(flow)} mtpa${Number.isFinite(c) ? ` of ${fmt(c)} possible` : " (no limit)"}`;
       e.g.classList.toggle("dim", !!s.focus && (id.endsWith("-T") ? !id.startsWith(s.focus + "-") : false));
     }
 
@@ -231,23 +235,32 @@ export class ChartGraph {
       if (n.kind === "src") {
         const fl = (f[`supply:${id}`] ?? 0) + (f[`divert:${id}`] ?? 0);
         n.v.textContent = closed.has(id) ? "embargoed" : `${fmt(fl, 0)} / ${fmt(cap[id], 0)}`;
+        n.g.dataset.tip = `${name(id)}\n${closed.has(id) ? "Embargoed" : `Sells ${fmt(fl)} of the ${fmt(cap[id])} mtpa it can send to these buyers`}${this.opts.interactive ? "\nClick to embargo or restore" : ""}`;
       } else if (n.kind === "pipe") {
         n.v.textContent = closed.has(id) ? "shut" : `${fmt(f[`pipeline:${id}`] ?? 0, 0)} / ${fmt(cap[id], 0)}`;
+        n.g.dataset.tip = `${name(id)} pipeline\n${closed.has(id) ? "Shut" : `${fmt(f[`pipeline:${id}`] ?? 0)} of ${fmt(cap[id])} mtpa`}${this.opts.interactive ? "\nClick to shut or reopen" : ""}`;
       } else if (n.kind === "imp") {
         const im = NET.importers.find((i) => i.id === id)!;
         const got = f[`demand:${id}`] ?? 0;
         total += got;
-        if (ev.progress) { n.v.textContent = `${fmt(got, 0)} / ${fmt(im.import_demand.value, 0)}`; n.g.classList.remove("short"); }
+        if (ev.progress) { n.v.textContent = `${fmt(got, 0)} / ${fmt(im.import_demand.value, 0)}`; n.g.classList.remove("short"); n.g.dataset.tip = `${im.name}\nSo far ${fmt(got)} of ${fmt(im.import_demand.value)} mtpa`; }
         else {
           const sh = ev.rows.find((r) => r.id === id)!.share[view];
-          n.v.textContent = `${pct(sh)} of demand`;
+          const need = im.import_demand.value;
+          n.v.textContent = `${fmt(sh * need, 0)} / ${fmt(need, 0)}${sh < 0.995 ? ` (${pct(sh)})` : ""}`;
+          n.g.dataset.tip = `${im.name}\nGets ${fmt(sh * need)} of the ${fmt(need)} mtpa it needs (${pct(sh)})`;
           n.g.classList.toggle("short", sh < 0.995);
         }
       } else if (n.kind === "choke") {
         n.v.textContent = closed.has(id) || (id === "HORMUZ" && s.hormuz === "closed") ? "closed" : "";
+        n.g.dataset.tip = `${name(id)}\n${n.v.textContent ? "Closed" : `${fmt(f[`route:${id}`] ?? 0)} mtpa passing through`}${this.opts.interactive ? "\nClick to close or reopen" : ""}`;
       }
     }
     this.drawCut(ev, s);
     this.nodes.get("__S")!.v.textContent = this.nodes.get("__T")!.v.textContent = `${fmt(ev.progress ? total : ev.map.total, 0)} mtpa`;
+    const tot = fmt(ev.progress ? total : ev.map.total);
+    this.nodes.get("__S")!.g.dataset.tip = `S, the made-up start\nFeeds every exporter and pipeline: ${tot} mtpa in all`;
+    this.nodes.get("__T")!.g.dataset.tip = `T, the made-up finish\nCollects what every importer receives: ${tot} mtpa in all`;
+    for (const [id, n] of this.nodes) if (n.kind === "lane") n.g.dataset.tip = `${name(id)} (open sea)\n${fmt(f[`route:${id}`] ?? 0)} mtpa passing through`;
   }
 }

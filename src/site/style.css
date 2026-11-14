@@ -630,3 +630,17 @@ details.more > summary .muted { font-weight: 400; font-size: .85rem; margin-left
 .chart-map.spotlit .node:not(.dim) .nlabel { font-weight: 700; }
 .place { font-weight: 700; box-shadow: inset 0 -.35em 0 color-mix(in srgb, var(--hl) 28%, transparent); }
 @media (prefers-reduced-motion: reduce) { .chart-map .edge, .chart-map .pipe, .chart-map .node { transition: none; } }
+/* hover tooltips on figures */
+.tip { position: fixed; z-index: 50; pointer-events: none; max-width: 260px; padding: 6px 9px; font: 500 .8rem/1.4 var(--sans); white-space: pre-line; color: var(--paper); background: var(--ink); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.tip[hidden] { display: none; }
+[data-tip] { cursor: default; }
+.chart-map .edge[data-tip] .edge-track { pointer-events: stroke; stroke-linecap: round; }
+.chart-map .hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; }
+/* zoom and drag in the interactive model */
+.zoomable { position: relative; }
+.zoombar { position: absolute; right: 6px; bottom: 6px; display: flex; gap: 4px; z-index: 2; }
+.zoombar button { min-width: 30px; height: 30px; padding: 0 8px; font: 600 .85rem var(--sans); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 5px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.zoombar button:disabled { opacity: .45; cursor: default; }
+.zoombar button:focus-visible { outline: 2px solid var(--flow); outline-offset: 1px; }
+svg.zoomed { cursor: grab; }
+svg.zoomed.dragging { cursor: grabbing; }

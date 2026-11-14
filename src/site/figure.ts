@@ -2,11 +2,12 @@
 import type { Evaluation, State } from "./compute";
 import { ChartGraph } from "./graphview";
 import { ChartMap, type MapOptions } from "./map";
+import { panZoom } from "./panzoom";
 
 export type FigMode = "both" | "map" | "graph";
 const KEY = "flowFigure2";
-const MAP_NOTE = "Click a diamond (a strait), a dot (an exporter) or a dotted line (a pipeline) to close or reopen it. Line width shows how much gas flows.";
-const GRAPH_NOTE = "In the graph, gas starts at S, which supplies each exporter up to what it can sell to Asia, and ends at T, which takes up to each importer's needs. Sea lanes have no limit unless closed. Numbers show gas flowing / the most possible, in mtpa.";
+const MAP_NOTE = "Click a diamond (a strait), a dot (an exporter) or a dotted line (a pipeline) to close or reopen it. Line width shows how much gas flows. Hover anything for its numbers; use + and − to zoom (or ⌘/Ctrl + scroll), then drag to look around.";
+const GRAPH_NOTE = "In the graph, gas starts at S, which supplies each exporter up to what it can sell to Asia, and ends at T, which takes up to each importer's needs. Sea lanes have no limit unless closed. Numbers under each exporter, pipeline and importer show gas flowing / the most possible, in mtpa; hover a line for its flow.";
 
 export class FlowFigure {
   private map: ChartMap;
@@ -39,6 +40,7 @@ export class FlowFigure {
     host.append(this.bar, this.boxes.map, this.boxes.graph, this.note);
     this.map = new ChartMap(this.boxes.map, opts);
     this.graph = new ChartGraph(this.boxes.graph, opts);
+    if (opts.interactive) { panZoom(this.map.svg, this.boxes.map); panZoom(this.graph.svg, this.boxes.graph); }
     let saved: string | null = null;
     try { saved = localStorage.getItem(KEY); } catch { /* storage unavailable */ }
     this.setMode(saved === "map" || saved === "graph" ? saved : "both", false);

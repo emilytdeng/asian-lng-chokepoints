@@ -3,6 +3,7 @@ import { feature } from "topojson-client";
 import land110 from "world-atlas/land-110m.json";
 import type { Evaluation, State, View } from "./compute";
 import { NET, fmt, name, pct } from "./compute";
+import { hoverTips } from "./tips";
 
 const NS = "http://www.w3.org/2000/svg";
 type Pt = [number, number];
@@ -62,6 +63,7 @@ export class ChartMap {
     this.svg.setAttribute("aria-label", "Nautical-chart schematic of LNG routes from exporters to eight Asian importers");
     this.svg.classList.add("chart-map");
     host.appendChild(this.svg);
+    hoverTips(this.svg);
     this.proj.fitExtent([[0, 0], [W, H]], { type: "MultiPoint", coordinates: [[6, -42], [180, 50]] } as any);
     this.drawBase();
     this.drawNetwork();
@@ -126,6 +128,7 @@ export class ChartMap {
       const flow = this.el("path", { d, class: "edge-flow" }, g);
       const path = this.el("path", { d, class: "edge-path" }, g);
       const cut = this.el("path", { d, class: "edge-cut" }, g);
+      this.el("path", { d, class: "hit" }, g);
       const rev = `${l.to}-${l.from}`;
       this.edges.set(l.id, { g, track, flow, cut, path, q, from: l.from, to: l.to, id: l.id, reverse: NET.links.some((x) => x.id === rev) ? rev : undefined });
     }
@@ -135,6 +138,7 @@ export class ChartMap {
       const track = this.el("path", { d: this.curve(a, b), class: "pipe-track" }, g);
       const flow = this.el("path", { d: this.curve(a, b), class: "pipe-flow" }, g);
       const path = this.el("path", { d: this.curve(a, b), class: "edge-path" }, g);
+      this.el("path", { d: this.curve(a, b), class: "hit" }, g);
       const t = this.el("text", { x: a[0], y: a[1] - 7, class: "pipe-label", "text-anchor": "middle" }, g);
       t.textContent = pl.name.replace(" (not built)", "");
       this.pipes.set(pl.id, { g, track, flow, path, q: [a, this.ctrl(a, b), b] });
@@ -208,6 +212,7 @@ export class ChartMap {
       const closed = s.closed.has(l.from) || s.closed.has(l.to);
       e.g.classList.toggle("closed", closed);
       e.cut.style.display = "none";
+      e.g.dataset.tip = `${name(e.from)} ${e.reverse ? "↔" : "→"} ${name(e.to)}\n${closed ? "Closed" : flow > 1e-6 ? `${fmt(flow)} mtpa` : "No gas on this route here"}`;
       e.path.style.display = path.has(`link:${id}`) || (e.reverse && path.has(`link:${e.reverse}`)) ? "" : "none";
     }
     for (const [id, p] of this.pipes) {
@@ -217,6 +222,7 @@ export class ChartMap {
       p.g.classList.toggle("closed", s.closed.has(id));
       p.g.classList.toggle("dim", spot && !hl.has(id));
       p.path.style.display = path.has(`pipeline:${id}`) ? "" : "none";
+      p.g.dataset.tip = `${name(id)} pipeline\n${s.closed.has(id) ? "Shut" : `${fmt(f[`pipeline:${id}`] ?? 0)} of ${fmt(cap)} mtpa`}${this.opts.interactive ? "\nClick to shut or reopen" : ""}`;
     }
     const view: View = this.opts.view?.() ?? "priority";
     for (const [id, n] of this.nodes) {
@@ -237,6 +243,21 @@ export class ChartMap {
       } else if (NET.routes.some((r) => r.id === id && r.kind === "chokepoint") && !MARGIN_NOTE[id]) {
         n.v.textContent = s.closed.has(id) ? "closed" : "";
       }
+    }
+    for (const [id, n] of this.nodes) {
+      const click = this.opts.interactive ? (NET.exporters.some((e) => e.id === id) ? "\nClick to embargo or restore" : NET.routes.some((r) => r.id === id && r.kind === "chokepoint") ? "\nClick to close or reopen" : "") : "";
+      const imp = ev.rows.find((r) => r.id === id);
+      let t: string;
+      if (imp) {
+        const got = ev.progress ? f[`demand:${id}`] ?? 0 : imp.share[view] * imp.demand;
+        t = `${imp.name}\nGets ${fmt(got)} of the ${fmt(imp.demand)} mtpa it needs (${pct(got / imp.demand)})`;
+      } else if (NET.exporters.some((e) => e.id === id)) {
+        t = `${name(id)}\n${s.closed.has(id) ? "Embargoed" : `Sells ${fmt((f[`supply:${id}`] ?? 0) + (f[`divert:${id}`] ?? 0))} mtpa to these buyers`}`;
+      } else {
+        const lane = NET.routes.find((r) => r.id === id)?.kind === "lane";
+        t = `${name(id)}${lane ? " (open sea)" : ""}\n${s.closed.has(id) ? "Closed" : `${fmt(f[`route:${id}`] ?? 0)} mtpa passing through`}`;
+      }
+      n.g.dataset.tip = t + click;
     }
     this.drawCut(ev);
   }
