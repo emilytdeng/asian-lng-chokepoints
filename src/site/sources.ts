@@ -50,13 +50,13 @@ export async function renderReality(host: HTMLElement) {
     <h3>What the model got right</h3>
     <ul class="misses">
       <li><b>The size of Asia's loss, once Hormuz is partly open.</b> At the 37% of normal Gulf supply that got through, if everyone shared equally, every country would get <span id="lam26">…</span> of what it needs. Asia's LNG imports actually fell ${Math.abs(v("asia").value.value)}%.</li>
-      <li><b>Pakistan is the most exposed buyer.</b> Its LNG imports fell ${Math.abs(v("PAK").value.value)}% (more than 70% in March–September). Pakistan is shut out in both market cases, and in its worst case it gets nothing in 62 of 63 runs with different input assumptions.</li>
+      <li><b>Pakistan is the most exposed buyer.</b> Its LNG imports fell ${Math.abs(v("PAK").value.value)}% (more than 70% in March–September). Pakistan is shut out whenever richer buyers take the cargoes first, and in its worst case it gets nothing in 62 of 63 runs with different input assumptions.</li>
       <li><b>Selective passage.</b> In May Iran approved ${v("PAK_pass").value.value} Qatari cargoes bound for Pakistan (${link(v("PAK_pass").value, "Reuters via RFE/RL")}). The model's Pakistan-only passage scenario lets Pakistan be fully supplied from Qatar while nobody else gets Gulf gas.</li>
       <li><b>Ships were not the constraint.</b> The model finds closures change the ship-time needed by −5% to +11%, within spare fleet capacity, even with no spare ships assumed and every voyage 25% longer. Supply, not shipping, limited Asia.</li>
     </ul>
     <h3>What the model missed</h3>
     <ul class="misses">
-      <li><b>Who stepped back.</b> The highest-bidder-first order put India at 7%. India's imports actually rose ${v("IND").value.value}%, with US, African and Omani cargoes replacing Qatar. China, with pipelines, storage and coal, absorbed the largest cut (${v("CHN").value.value}%) and resold cargoes. Willingness to pay depends on alternatives as much as on income.</li>
+      <li><b>Who stepped back.</b> The richest-buyers-first order put India at 7%. India's imports actually rose ${v("IND").value.value}%, with US, African and Omani cargoes replacing Qatar. China, with pipelines, storage and coal, absorbed the largest cut (${v("CHN").value.value}%) and resold cargoes. Willingness to pay depends on alternatives as much as on income. Re-running the model with a queue reordered to match 2026 (China steps back, Pakistan priced out last) fixes these sign errors; that variant lives in the analysis, not on this page.</li>
       <li><b>New supply.</b> The model is fixed at 2025 capacity. In March–June 2026 new US and other non-Gulf liquefaction lifted non-Gulf output by about 18%.</li>
       <li><b>Demand destruction.</b> The model treats 2025 import needs as fixed. The IEA expects Asian gas demand to fall about 1.5% in 2026; Pakistan's gas-fired power fell more than 25% (March–September) and Bangladesh's 12% (March–August), replaced largely by coal.</li>
       <li><b>Contracts and subsidies.</b> Bangladesh kept buying spot cargoes with government support; its imports fell only ${Math.abs(v("BGD").value.value)}%.</li>
@@ -73,14 +73,14 @@ export async function renderReality(host: HTMLElement) {
       const r = ev.rows.find((x) => x.id === id)!;
       const o = V.find((x) => x.importer === id)!;
       const obs = o.value.unit === "%" ? `${sgn(o.value.value)} <span class="muted">(${o.period})</span>` : `${o.value.value} ${o.value.unit} <span class="muted">(${o.period})</span>`;
-      return `<tr><th scope="row">${r.name}</th><td>${obs}</td><td>${sgn(100 * (r.share.priority - 1))}</td><td>${sgn(100 * (r.share.market2026 - 1))}</td><td>${sgn(100 * (r.share.rationed - 1))}</td></tr>`;
+      return `<tr><th scope="row">${r.name}</th><td>${obs}</td><td>${sgn(100 * (r.share.priority - 1))}</td><td>${sgn(100 * (r.share.rationed - 1))}</td></tr>`;
     });
     const notes = ids.map((id) => { const o = V.find((x) => x.importer === id)!; return `<li><b>${NET.importers.find((i) => i.id === id)!.name}.</b> ${esc(o.value.note)}</li>`; }).join("");
     host.querySelector("#val-table")!.innerHTML = `
       <h3>Model vs what happened, by importer</h3>
       <p class="note">All figures are changes from 2025 LNG imports. The model lets 37% of normal Gulf LNG through Hormuz (the 2026 average), with the tanker limit on. (Tanker limit is the model's name for the fleet constraint, since there are only so many LNG tankers in the world.) Observed figures compare the same months of 2025 and 2026 (IEA; Taiwan from S&amp;P Global).</p>
       <div class="tablewrap"><table class="reality-t">
-        <thead><tr><th scope="col">Importer</th><th scope="col">Observed</th><th scope="col">${VIEW_LABEL.priority}</th><th scope="col">${VIEW_LABEL.market2026}</th><th scope="col">${VIEW_LABEL.rationed}</th></tr></thead>
+        <thead><tr><th scope="col">Importer</th><th scope="col">Observed</th><th scope="col">${VIEW_LABEL.priority}</th><th scope="col">${VIEW_LABEL.rationed}</th></tr></thead>
         <tbody>${rows.join("")}</tbody></table></div>
       <details><summary>What happened in each country</summary><ul class="misses">${notes}</ul></details>`;
   } catch (e) {
@@ -99,8 +99,8 @@ export function renderMethod(host: HTMLElement) {
       <div>
         <h3>How the model works</h3>
         <p>Asian LNG supply is modelled as a flow network: pipes and junctions, as in chapter 2. A single start node (the “super-source”) feeds ${NET.exporters.length} exporter nodes. Each can supply its 2025 deliveries to these importers plus ${pct(NET.meta.diversion.value)} of the cargoes it sent elsewhere, mainly to Europe, which Asian buyers could bid away. Cargoes travel through ${NET.routes.filter((r) => r.kind === "chokepoint").length} chokepoint nodes (Hormuz, Suez/Bab el-Mandeb, the Cape, Panama, Malacca, Lombok) to ${NET.importers.length} importers. Each importer is split into an arrival node and a delivery node, joined by a pipe the size of its import terminals (where LNG is turned back into gas). China's and Thailand's pipelines feed delivery nodes directly. Each importer's 2025 import demand flows to a single finish node (the “super-sink”).</p>
-        <p><b>Max-flow</b> (Edmonds–Karp) gives the most gas the network can deliver. The <b>min cut</b> (found from what the start can still reach when the algorithm stops, as in chapter 3) names the limits that bind. Five sharing rules split that gas: everyone shares equally (the computer searches for the largest share every country can get at once), highest bidder first, as in 2026, worst case and best case. <b>Days until storage runs out</b> = storage inventory ÷ the withdrawal still needed after fuel switching. Units are million tonnes per annum of LNG (1 Mt = ${NET.meta.bcm_per_mtpa} bcm).</p>
-        <p><b>Optimization solver.</b> The same network is also solved as a linear program (an optimization problem with a goal and limits) using the HiGHS solver, which runs in your browser. With no extras it reproduces max-flow exactly; the tests check this. It adds three things. A <b>fleet constraint</b> limits Σ flow × round-trip voyage days to the ship-time the 2025 trade needed plus ${pct(NET.meta.fleet_slack?.value ?? 0)} spare. <b>Gulf cargoes tagged by origin and destination</b> let a scenario pass only some of them through Hormuz, for example only Pakistan-bound ships. <b>Shadow prices</b> say how much one more mtpa of capacity anywhere would be worth; they extend the min cut and rank investments.</p>
+        <p><b>Max-flow</b> (Edmonds–Karp) gives the most gas the network can deliver. The <b>min cut</b> (found from what the start can still reach when the algorithm stops, as in chapter 3) names the limits that bind. The site splits that gas two ways: <b>share equally</b> (the computer searches for the largest share every country can get at once) and <b>richest buyers first</b> (max-flow re-run adding one country at a time in order of wealth, each taking whatever extra gas can still reach it). The analysis behind the write-up also computes each country's best case, its worst case, and a queue recalibrated to 2026. <b>Days until storage runs out</b> = storage inventory ÷ the withdrawal still needed after fuel switching. Units are million tonnes per annum of LNG (1 Mt = ${NET.meta.bcm_per_mtpa} bcm).</p>
+        <p><b>Optimization solver.</b> The same network is also solved as a linear program (an optimization problem with a goal and limits) using <b>HiGHS</b>, an open-source linear-programming solver, running in your browser via WebAssembly. With no extras it reproduces max-flow exactly; the tests check this. It is used where plain max-flow isn't enough, and adds three things. A <b>fleet constraint</b> ("the tanker limit") caps Σ flow × round-trip voyage days at the ship-time the 2025 trade needed plus ${pct(NET.meta.fleet_slack?.value ?? 0)} spare. <b>Gulf cargoes tagged by origin and destination</b> let a scenario pass only part of the normal flow through Hormuz, as in the 2026 scenario (37%). <b>Shadow prices</b> say how much one more mtpa of capacity anywhere would be worth; they extend the min cut and rank investments.</p>
       </div>
       <div>
         <h3>Key assumptions and limits</h3>
@@ -114,6 +114,13 @@ export function renderMethod(host: HTMLElement) {
         </ul>
       </div>
     </div>
+    <h3>Where this could go next</h3>
+    <ul class="misses">
+      <li><b>Prices and shipping costs.</b> Max-flow only asks whether gas can arrive, not what it costs. A minimum-cost flow would pick the cheapest routes (today, when two sea lanes are open, the split between them is arbitrary) and let willingness to pay, not a fixed queue, decide who wins cargoes.</li>
+      <li><b>Contracts and destination clauses.</b> Most LNG moves under long-term contracts that name the buyer. Tagging cargoes with contracts would shrink the pool that can actually be bid away.</li>
+      <li><b>Port and loading time.</b> The tanker limit counts only sailing days. Adding berth time and canal queues would tighten it, and droughts or congestion could then be modelled directly.</li>
+      <li><b>Beyond the 2025 snapshot.</b> New liquefaction arriving in 2026–27, seasonal demand swings and storage refill would turn the one-year picture into a timeline.</li>
+    </ul>
     <h3>Sources</h3>
     <ol class="sources">${[...bySource.entries()].sort((a, b) => b[1].length - a[1].length).map(([u, ps]) =>
       `<li><a href="${esc(u)}">${esc(TITLES[u] ?? u)}</a> <span class="muted">· ${ps.length} value${ps.length > 1 ? "s" : ""}</span></li>`).join("")}</ol>

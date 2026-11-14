@@ -644,3 +644,8 @@ details.more > summary .muted { font-weight: 400; font-size: .85rem; margin-left
 .zoombar button:focus-visible { outline: 2px solid var(--flow); outline-offset: 1px; }
 svg.zoomed { cursor: grab; }
 svg.zoomed.dragging { cursor: grabbing; }
+/* simplified controls */
+.seg-custom { display: none; align-self: center; padding: 3px 10px; font: 600 .76rem var(--sans); color: var(--paper); background: var(--ink); border-radius: 999px; }
+.seg-custom.on { display: inline-block; }
+.fleet-status { font: 600 .85rem var(--sans); }
+.info { cursor: help; color: var(--muted); font-style: normal; }

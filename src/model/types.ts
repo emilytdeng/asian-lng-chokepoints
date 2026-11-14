@@ -96,6 +96,8 @@ export interface Network {
     horizon_days: Datum;
     /** Spare LNG-carrier capacity beyond the ship-time the 2025 Asian trade needed (share). LP fleet constraint. */
     fleet_slack?: Datum;
+    /** Tonnes of LNG per m³ (≈ 0.45): converts carrier volume to Mt. */
+    lng_t_per_m3?: number;
     [k: string]: unknown;
   };
   exporters: Exporter[];

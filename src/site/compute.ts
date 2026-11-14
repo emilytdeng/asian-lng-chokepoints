@@ -2,7 +2,7 @@ import raw from "../../data/network.json";
 import { lastInLine, outbid, priorityAllocation, rationLambda, solve, type Solution } from "../model/allocation";
 import { coverFor, type Cover } from "../model/cover";
 import { exporterSupply } from "../model/graph";
-import { lpFleetNeeded, lpLambda, lpLastInLine, lpOutbid, lpPriority, lpSolve, type LPSolution } from "../model/lp";
+import { fleetCapacity, lpFleetNeeded, lpLambda, lpLastInLine, lpOutbid, lpPriority, lpSolve, type LPSolution } from "../model/lp";
 import { labelFor, type CutEdge } from "../model/mincut";
 import type { Network, Scenario } from "../model/types";
 
@@ -16,11 +16,18 @@ export const PRIORITY_2026 = ["JPN", "KOR", "TWN", "THA", "IND", "BGD", "CHN", "
 export type View = "priority" | "market2026" | "rationed" | "last" | "outbid";
 export const VIEWS: View[] = ["priority", "market2026", "rationed", "last", "outbid"];
 export const VIEW_LABEL: Record<View, string> = {
-  priority: "Highest bidder first",
+  priority: "Richest buyers first",
   market2026: "As in 2026",
-  rationed: "Everyone shares equally",
+  rationed: "Share equally",
   last: "Worst case (loses every bid)",
   outbid: "Best case (wins every bid)",
+};
+/** The two sharing rules the site shows. The other three views stay in the code for the analysis. */
+export const SITE_VIEWS = ["rationed", "priority"] as const;
+export type SiteView = (typeof SITE_VIEWS)[number];
+export const RULE_HELP: Record<SiteView, string> = {
+  rationed: "Every importer gets the same percentage of its needs. A fairness benchmark, not how markets behave.",
+  priority: "We run max-flow again, adding one country at a time in order of wealth (Japan, Korea, Taiwan, China, Thailand, India, Bangladesh, Pakistan). Each country gets whatever extra gas can still reach it. In reality, prices and contracts decide who gets scarce gas; this ordering is a simplification.",
 };
 
 export type HormuzMode = "open" | "closed" | "pakistan" | "share37";
@@ -78,6 +85,14 @@ export function scenarioOf(s: State): Scenario {
 }
 /** Whether this state needs the LP (fleet limit or selective/partial Hormuz). */
 export const needsLP = (s: State) => !!s.fleet || s.hormuz === "pakistan" || s.hormuz === "share37";
+
+/** Tonnes of LNG in one standard 174,000 m³ cargo, in Mt. */
+export const CARGO_MT = 174_000 * (NET.meta.lng_t_per_m3 ?? 0.45) / 1e6;
+/** The tanker limit, expressed as a number of ships: one ship sailing all year provides CARGO_MT × 365 mtpa·days. */
+export async function fleetShips(): Promise<{ ships: number; capacity: number }> {
+  const capacity = await fleetCapacity(NET); // mtpa·days of ship-time available
+  return { ships: Math.round(capacity / (CARGO_MT * 365)), capacity };
+}
 
 function rowsFrom(alloc: Record<View, Record<string, number>>): ImporterRow[] {
   return NET.importers.map((im) => {

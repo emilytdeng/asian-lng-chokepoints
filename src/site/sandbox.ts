@@ -1,5 +1,5 @@
 import type { LPSolution } from "../model/lp";
-import { MTPA_NOTE, NET, VIEWS, VIEW_LABEL, days, evaluate, evaluateLP, fmt, name, needsLP, pct, type Evaluation, type HormuzMode, type State, type View } from "./compute";
+import { MTPA_NOTE, NET, RULE_HELP, SITE_VIEWS, VIEW_LABEL, days, evaluate, evaluateLP, fleetShips, fmt, name, needsLP, pct, type Evaluation, type SiteView, type State } from "./compute";
 import { holdingBack } from "./explain";
 import { colorKey, miniKey } from "./legend";
 import { Stepper } from "./stepper";
@@ -7,27 +7,14 @@ import { traceSolve } from "../model/allocation";
 import { FlowFigure } from "./figure";
 
 const PRESETS: { label: string; key: string }[] = [
-  { label: "Baseline 2025", key: "baseline" },
-  { label: "Hormuz closed", key: "hormuz" },
-  { label: "2026 as it happened", key: "hormuz_2026" },
-  { label: "Red Sea closed", key: "redsea" },
-  { label: "Malacca closed", key: "malacca" },
-  { label: "Panama restricted", key: "panama" },
-  { label: "Russia sanctioned", key: "russia" },
+  { label: "Normal year (2025)", key: "baseline" },
+  { label: "Close Hormuz", key: "hormuz" },
+  { label: "Close the Red Sea", key: "redsea" },
+  { label: "Close Malacca", key: "malacca" },
+  { label: "Restrict Panama", key: "panama" },
+  { label: "Cut off Russian LNG", key: "russia" },
+  { label: "2026: Hormuz partly open (37%)", key: "hormuz_2026" },
 ];
-const HORMUZ_MODES: { mode: HormuzMode; label: string }[] = [
-  { mode: "open", label: "Open" },
-  { mode: "closed", label: "Closed" },
-  { mode: "pakistan", label: "Pakistan-bound only" },
-  { mode: "share37", label: "37% (2026 average)" },
-];
-const VIEW_HELP: Record<View, string> = {
-  priority: "Richer buyers buy first: Japan, Korea, Taiwan, China, Thailand, India, Bangladesh, Pakistan. Our prediction before looking at 2026.",
-  market2026: "What happened in 2026: China, which has pipelines, storage and coal, steps back; Pakistan is priced out. Order: Japan, Korea, Taiwan, Thailand, India, Bangladesh, China, Pakistan.",
-  rationed: "Every country gets the same share of what it needs. A fairness benchmark, not how markets behave.",
-  last: "What a country gets if every other buyer is served first.",
-  outbid: "What a country gets if it wins every cargo it can physically reach.",
-};
 const CUT_HELP: Record<string, string> = {
   "route bottleneck": "a closed or full sea lane",
   "exporter at capacity": "the exporter has nothing more to sell to Asia",
@@ -55,7 +42,7 @@ function emptyTrace(e: Evaluation): Parameters<Stepper["load"]> {
 
 export function mountSandbox() {
   const state: State = { closed: new Set(), diversion: NET.meta.diversion.value, focus: null, hormuz: "closed", fleet: false };
-  let view: View = "priority";
+  let view: SiteView = "rationed";
   let preset = "hormuz";
   let token = 0;
 
@@ -88,12 +75,13 @@ export function mountSandbox() {
     <div><p class="lbl">Who goes without</p><div class="bars" id="sb-bars"></div></div>`;
   const more = document.getElementById("sb-more")!;
   more.insertAdjacentHTML("afterbegin", `
-    <details class="more" id="more"><summary>More options <span class="muted">Hormuz partly open, tanker limit, storage, shadow prices and more</span></summary>
+    <details class="more" id="more"><summary>More options <span class="muted">Tanker limit, storage, shadow prices and more</span></summary>
       <div class="more-grid">
-        <div><p class="lbl">Strait of Hormuz</p><div class="seg" id="hz"></div></div>
         <div><label class="lbl" for="div">Share of Europe's and others' cargoes Asia could outbid them for: <span id="div-v"></span></label>
           <input type="range" id="div" min="0" max="50" step="5" /></div>
-        <div class="row2"><label class="check"><input type="checkbox" id="fleet" /> Limit by the number of LNG tankers</label><span class="engine" id="engine"></span></div>
+        <div class="row2"><label class="check"><input type="checkbox" id="fleet" /> Limit by LNG tankers</label> <b class="fleet-status" id="fleet-status"></b>
+          <p class="note">Assumes Asia's trade can use ${pct(NET.meta.fleet_slack?.value ?? 0)} more tanker time than it needed in 2025<span id="fleet-n"></span> (the world fleet was 899 LNG carriers at end-2025, per GIIGNL). <span class="info" title="One cargo = a 174,000 m³ carrier ≈ 0.078 Mt of LNG. A round trip counts 2 × the one-way laden days at ~18 knots, with no port time. Ships of capacity = ship-time capacity ÷ (0.078 Mt × 365 days).">ⓘ</span></p>
+          <span class="engine" id="engine" title="HiGHS is used when plain max-flow isn't enough: the tanker limit, and a partly open Hormuz (the 2026 scenario)."></span></div>
         <div><label class="lbl" for="focus">Map shows flows for</label>
           <select id="focus"><option value="">All importers</option>${NET.importers.map((i) => `<option value="${i.id}">${i.name} alone (outbids everyone)</option>`).join("")}</select></div>
       </div>
@@ -125,34 +113,45 @@ export function mountSandbox() {
       box.appendChild(b);
     }
   };
-  const presetsBox = panel.querySelector("#presets")!, hzBox = more.querySelector("#hz")!, viewsBox = panel.querySelector("#views")!;
+  const presetsBox = panel.querySelector("#presets")!, viewsBox = panel.querySelector("#views")!;
   seg(presetsBox, PRESETS.map((p) => ({ key: p.key, label: p.label })), (k) => {
     preset = k;
     const sc = NET.scenarios[k];
+    // a preset fully determines the scenario
     state.closed = new Set((sc.close ?? []).filter((x) => x !== "HORMUZ"));
-    state.hormuz = sc.close?.includes("HORMUZ") ? "closed" : sc.hormuz?.destinations ? "pakistan" : sc.hormuz?.share ? "share37" : "open";
+    state.hormuz = sc.close?.includes("HORMUZ") ? "closed" : sc.hormuz?.share ? "share37" : "open";
     state.capFactor = sc.cap_factor ?? {};
-    state.fleet = !!sc.fleet || state.fleet;
+    state.fleet = !!sc.fleet;
     fleetBox.checked = !!state.fleet;
     render();
   });
-  seg(hzBox, HORMUZ_MODES.map((h) => ({ key: h.mode, label: h.label })), (k) => { state.hormuz = k as HormuzMode; preset = ""; render(); });
-  seg(viewsBox, VIEWS.map((v) => ({ key: v, label: VIEW_LABEL[v] })), (k) => { view = k as View; render(); });
+  const custom = document.createElement("span");
+  custom.className = "seg-custom";
+  custom.textContent = "Custom";
+  custom.title = "You've changed something by hand: a click on the map, the diversion slider or the tanker limit.";
+  presetsBox.appendChild(custom);
+  seg(viewsBox, SITE_VIEWS.map((v) => ({ key: v, label: VIEW_LABEL[v] })), (k) => { view = k as SiteView; render(); });
   const div = more.querySelector<HTMLInputElement>("#div")!;
   div.value = String(Math.round(state.diversion * 100));
-  div.oninput = () => { state.diversion = Number(div.value) / 100; render(); };
+  div.oninput = () => { state.diversion = Number(div.value) / 100; preset = ""; render(); };
   const focus = more.querySelector<HTMLSelectElement>("#focus")!;
   focus.onchange = () => { state.focus = focus.value || null; render(); };
   const fleetBox = more.querySelector<HTMLInputElement>("#fleet")!;
   fleetBox.onchange = () => { state.fleet = fleetBox.checked; preset = ""; render(); };
+  // fill in the ship count once the solver has loaded; leave the sentence as is if it can't
+  fleetShips().then(({ ships }) => { more.querySelector("#fleet-n")!.textContent = ` — roughly ${ships} ships' worth of sailing time`; }).catch(() => {});
 
   function draw(ev: Evaluation) {
     if (ev.engine === "max-flow" || !ev0 || stepper.atEnd) map.update(ev, { ...state, closed: new Set(ev.scenario.close ?? []) });
     const pressed = (box: Element, k: string) => box.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String((b as HTMLElement).dataset.k === k)));
-    pressed(presetsBox, preset); pressed(hzBox, state.hormuz ?? "open"); pressed(viewsBox, view);
-    panel.querySelector("#view-help")!.textContent = VIEW_HELP[view];
+    pressed(presetsBox, preset); pressed(viewsBox, view);
+    custom.classList.toggle("on", preset === "");
+    panel.querySelector("#view-help")!.textContent = RULE_HELP[view];
     more.querySelector("#div-v")!.textContent = pct(state.diversion);
-    more.querySelector("#engine")!.textContent = ev.engine === "LP" ? "Calculated with an optimization solver (needed for ships and partial openings)" : "Calculated with max-flow";
+    more.querySelector("#engine")!.textContent = ev.engine === "LP"
+      ? "Calculated with HiGHS, an open-source linear-programming solver, running in your browser via WebAssembly."
+      : "Calculated with max-flow (Edmonds–Karp).";
+    more.querySelector("#fleet-status")!.textContent = state.fleet && ev.fleet ? (ev.fleet.binds ? "Ships are limiting supply." : "Ships are not the bottleneck.") : "";
     const hb = holdingBack(ev);
     panel.querySelector("#holding")!.innerHTML = `<p class="lbl">What's holding supply back</p><p class="hb-s">${hb.sentence}</p>`;
     const bars = [...ev.rows].sort((a, b) => a.share[view] - b.share[view] || a.name.localeCompare(b.name));
@@ -196,11 +195,11 @@ export function mountSandbox() {
       <table>
         <caption>By country. Shares are % of what each country imported in 2025. Days = how long storage lasts after switching some power plants to coal or oil, under “${VIEW_LABEL[view]}”.</caption>
         <thead><tr><th scope="col">Country</th><th scope="col">Imports needed (mtpa)</th><th scope="col">Via Hormuz in 2025</th>
-          ${VIEWS.map((v) => `<th scope="col" class="${v === view ? "sel" : ""}">${VIEW_LABEL[v]}</th>`).join("")}
+          ${SITE_VIEWS.map((v) => `<th scope="col" class="${v === view ? "sel" : ""}">${VIEW_LABEL[v]}</th>`).join("")}
           <th scope="col">Days until storage runs out</th><th scope="col">Still missing once storage is empty (mtpa)</th></tr></thead>
         <tbody>${ev.rows.map((r) => `<tr>
           <th scope="row">${r.name}</th><td>${fmt(r.demand)}</td><td>${pct(r.exposure)}</td>
-          ${VIEWS.map((v) => `<td class="${v === view ? "sel" : ""} ${r.share[v] < 0.995 ? "low" : ""}">${pct(r.share[v])}</td>`).join("")}
+          ${SITE_VIEWS.map((v) => `<td class="${v === view ? "sel" : ""} ${r.share[v] < 0.995 ? "low" : ""}">${pct(r.share[v])}</td>`).join("")}
           <td>${days(r.cover[view])}</td><td>${fmt(r.cover[view].unmetAfterDry)}</td></tr>`).join("")}</tbody>
       </table>`;
   }
@@ -220,7 +219,7 @@ export function mountSandbox() {
     } else {
       ev0 = null;
       stepper.setEnabled(false);
-      stepNote.textContent = "Step-by-step works only with max-flow. Turn off the tanker limit and set Hormuz to open or closed to use it.";
+      stepNote.textContent = "Step-by-step works only with plain max-flow. Turn off the tanker limit, or pick a scenario other than 2026, to use it.";
       more.querySelector("#engine")!.textContent = "Solving the linear program…";
     }
     if (!needsLP(state)) more.querySelector("#duals")!.innerHTML = `<li class="muted"><span>Computing…</span></li>`;
@@ -230,7 +229,7 @@ export function mountSandbox() {
       if (needsLP(state)) {
         // never leave another scenario's max-flow numbers on screen for a scenario only the solver can represent
         more.querySelector("#engine")!.textContent = "The optimization solver could not run in this browser, so this scenario can't be shown.";
-        panel.querySelector("#headline")!.innerHTML = `<p class="note">This scenario needs the optimization solver, which didn't load. Try another browser, or pick a scenario with Hormuz open or closed.</p>`;
+        panel.querySelector("#headline")!.innerHTML = `<p class="note">This scenario needs the optimization solver, which didn't load. Try another browser, or pick a scenario other than 2026 and untick the tanker limit.</p>`;
         more.querySelector("#cut")!.innerHTML = "";
         table.innerHTML = "";
       } else more.querySelector("#engine")!.textContent = "Calculated with max-flow (the optimization solver didn't load)";

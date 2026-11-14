@@ -24,7 +24,7 @@ function rangeDots(host: HTMLElement, ev: Evaluation, spec: Spec, highlight: str
   const fig = document.createElement("figure");
   fig.className = "rd";
   const cap = document.createElement("figcaption");
-  cap.innerHTML = `<span class="rd-title">${spec.title}</span><span class="rd-legend"><span><i class="lg band"></i>${spec.legend[0]}</span><span><i class="lg dot"></i>${spec.legend[1]}</span><span><i class="lg ring"></i>${spec.legend[2]}</span>${spec.legend[3] ? `<span><i class="lg dot2"></i>${spec.legend[3]}</span>` : ""}</span>`;
+  cap.innerHTML = `<span class="rd-title">${spec.title}</span><span class="rd-legend">${spec.legend[0] ? `<span><i class="lg band"></i>${spec.legend[0]}</span>` : ""}<span><i class="lg dot"></i>${spec.legend[1]}</span><span><i class="lg ring"></i>${spec.legend[2]}</span>${spec.legend[3] ? `<span><i class="lg dot2"></i>${spec.legend[3]}</span>` : ""}</span>`;
   fig.appendChild(cap);
   const rows = [...ev.rows].sort(spec.order);
   const L = 104, R = 16, rowH = 30, top = 8, Wd = 560, Hd = top + rows.length * rowH + 26;
@@ -42,8 +42,10 @@ function rangeDots(host: HTMLElement, ev: Evaluation, spec: Spec, highlight: str
     const t = el("title", {}, g); t.textContent = v.tip;
     el("rect", { x: 0, y: y - rowH / 2, width: Wd, height: rowH, class: "rd-hit" }, g);
     const lab = el("text", { x: L - 10, y: y + 4, "text-anchor": "end", class: "rd-label" }, g); lab.textContent = r.name;
-    const x0 = X(v.lo), x1 = X(v.hi);
-    el("rect", { x: Math.min(x0, x1) - 4, y: y - 4, width: Math.abs(x1 - x0) + 8, height: 8, rx: 4, class: "rd-band" }, g);
+    if (spec.legend[0]) {
+      const x0 = X(v.lo), x1 = X(v.hi);
+      el("rect", { x: Math.min(x0, x1) - 4, y: y - 4, width: Math.abs(x1 - x0) + 8, height: 8, rx: 4, class: "rd-band" }, g);
+    }
     el("circle", { cx: X(v.alt), cy: y, r: 5, class: "rd-ring" }, g);
     if (v.second !== undefined) el("circle", { cx: X(v.second), cy: y + 0.5, r: 5, class: "rd-dot2" }, g);
     el("circle", { cx: X(v.main), cy: y, r: 5.5, class: "rd-dot" }, g);
@@ -71,9 +73,9 @@ export function coverChart(host: HTMLElement, ev: Evaluation, highlight: string[
     title: "Days until storage runs out, Hormuz closed (after switching some power plants to coal or oil)",
     ticks: [{ v: 1, label: "1 day" }, { v: 10, label: "10" }, { v: 100, label: "100" }, { v: 1000, label: "1,000" }, { v: CAP * 2, label: "no gap" }],
     x: logx,
-    order: (a, b) => d(a.cover.priority) - d(b.cover.priority) || d(a.cover.rationed) - d(b.cover.rationed),
-    row: (r) => ({ lo: d(r.cover.last), hi: d(r.cover.rationed), main: d(r.cover.priority), alt: d(r.cover.rationed),
-      tip: `${r.name}: highest bidder first ${days(r.cover.priority)}, everyone shares equally ${days(r.cover.rationed)}, worst case ${days(r.cover.last)}. Drawing ${fmt(r.cover.priority.storageDraw)} mtpa from storage.` }),
-    legend: ["Worst case → everyone shares equally", "Highest bidder first", "Everyone shares equally"],
+    order: (a, b) => d(a.cover.rationed) - d(b.cover.rationed) || d(a.cover.priority) - d(b.cover.priority),
+    row: (r) => ({ lo: 0, hi: 0, main: d(r.cover.rationed), alt: d(r.cover.priority),
+      tip: `${r.name}: share equally ${days(r.cover.rationed)}, richest buyers first ${days(r.cover.priority)}. Drawing ${fmt(r.cover.rationed.storageDraw)} mtpa from storage.` }),
+    legend: ["", "Share equally", "Richest buyers first"],
   }, highlight);
 }
