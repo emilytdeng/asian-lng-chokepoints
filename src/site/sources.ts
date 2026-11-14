@@ -1,5 +1,5 @@
 import type { Datum } from "../model/types";
-import { NET, fmt, pct } from "./compute";
+import { NET, evaluate, fmt, pct } from "./compute";
 
 const IEA_GMR_Q2 = "https://iea.blob.core.windows.net/assets/8a1b93f9-d096-4dcd-b29a-77613f201ecc/GasMarketReport%2CQ2-2026.pdf";
 const CGEP = "https://www.energypolicy.columbia.edu/asias-gas-shock-playbook-coal-curtailment-and-competing-for-lng/";
@@ -89,6 +89,7 @@ export async function renderReality(host: HTMLElement) {
 }
 
 export function renderMethod(host: HTMLElement) {
+  const lamAt = (diversion: number) => evaluate({ closed: new Set(["HORMUZ"]), diversion, focus: null }).lambda;
   const all = [...datums(NET)];
   const bySource = new Map<string, string[]>();
   for (const [p, d] of all) if (d.source_url !== "estimate") bySource.set(d.source_url, [...(bySource.get(d.source_url) ?? []), p]);
@@ -107,11 +108,13 @@ export function renderMethod(host: HTMLElement) {
         <ul>
           <li><b>Pooled, fungible gas.</b> Any cargo can serve any importer it can physically reach. No prices, contracts or destination clauses.</li>
           <li><b>Static annual rates</b> from the 2025 baseline; no seasonality or ships already at sea.</li>
-          <li><b>Diversion of ${pct(NET.meta.diversion.value)}</b> of non-Asian cargoes is an assumption, varied 0–50% in the robustness checks. It is the most influential input.</li>
+          <li><b>Diversion of ${pct(NET.meta.diversion.value)}</b> of non-Asian cargoes is an assumption, varied 0–50% in the robustness checks. It is the most influential input: moving it from none to half moves the equal share in a Hormuz closure from ${pct(lamAt(0))} to ${pct(lamAt(0.5))}. The headline findings hold across that whole range.</li>
           <li><b>Fuel switching</b> capacities are estimates built from announced 2026 measures. Fuel switching is used before storage.</li>
           <li><b>Voyage times</b> are estimated from port-to-port sea distances at about 18 knots. They matter only for the fleet constraint, which never binds in the tested cases.</li>
           <li><b>Two market orders</b> are assumptions: ability to pay (set before the 2026 evidence) and the order seen in 2026 (China steps back, Pakistan last). The second is fitted to the outcome it is compared with.</li>
         </ul>
+        <h3>Why a flow network at all?</h3>
+        <p>Most chokepoint analysis ranks straits by the volume passing through them; by that measure Malacca looks vital. A flow network asks a different question: which limit still binds once everything else adjusts? By that test, Asia's LNG vulnerability sits in one strait, can be relieved only by more supply, and falls hardest on the buyers least able to pay — things a map of shipping volumes can't show. The price of the approach: max-flow measures what is <i>physically possible</i>, not what will happen.</p>
       </div>
     </div>
     <h3>Where this could go next</h3>
@@ -124,7 +127,7 @@ export function renderMethod(host: HTMLElement) {
     <h3>Sources</h3>
     <ol class="sources">${[...bySource.entries()].sort((a, b) => b[1].length - a[1].length).map(([u, ps]) =>
       `<li><a href="${esc(u)}">${esc(TITLES[u] ?? u)}</a> <span class="muted">· ${ps.length} value${ps.length > 1 ? "s" : ""}</span></li>`).join("")}</ol>
-    <details><summary>${ests.length} of ${all.length} values are estimates. Show each with its basis.</summary>
+    <details><summary>${ests.length} of ${all.length} values are estimates; the 29 that affect the flow results are each stress-tested at ±25%. Show each with its basis.</summary>
       <div class="tablewrap"><table class="est"><thead><tr><th scope="col">Value</th><th scope="col">Field</th><th scope="col">Basis</th></tr></thead><tbody>
       ${ests.map(([p, d]) => `<tr><td>${fmt(d.value, d.value < 10 ? 2 : 1)} ${esc(d.unit)}</td><td><code>${esc(p)}</code></td><td>${esc(d.note)}</td></tr>`).join("")}
       </tbody></table></div></details>`;

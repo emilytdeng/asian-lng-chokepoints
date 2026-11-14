@@ -33,7 +33,7 @@ addEventListener("hashchange", oldHash);
 const B = ev(S_BASE);
 const hzShare = B.rows.reduce((a, r) => a + r.exposure * r.demand, 0) / B.demand;
 document.getElementById("lede")!.innerHTML =
-  `Asia's big economies run partly on liquefied natural gas, shipped across oceans through a handful of narrow straits. In 2025 about <b>${pct(hzShare)}</b> of the LNG these eight economies imported came through just one: the Strait of Hormuz. What happens if it closes?`;
+  `Asia's big economies run partly on liquefied natural gas, shipped across oceans through a handful of narrow straits. In 2025 about <b>${pct(hzShare)}</b> of the LNG these eight economies imported came through just one: the Strait of Hormuz. What happens if it closes?<br /><br />We follow LNG rather than oil because it's the harder case: LNG is costly to store, so countries hold weeks of it, not months — and about a fifth of the world's supply is loaded in Qatar and the UAE, with no way out of the Gulf but Hormuz. This story asks how much gas each buyer could still get, how long it could hold out, and what would actually help.`;
 new ChartMap(document.getElementById("hook-map")!, { interactive: false }).update(ev(S_2025), S_2025);
 mountToy(document.getElementById("ch-toy")!);
 mountAlgo(document.getElementById("ch-algo")!);
