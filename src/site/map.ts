@@ -43,6 +43,8 @@ export interface MapOptions {
   cut?: boolean;
   onToggle?: (id: string) => void;
   view?: () => View;
+  /** story mode: when places are highlighted, fade everything else and light the routes between them */
+  spotlight?: boolean;
 }
 
 export class ChartMap {
@@ -193,7 +195,13 @@ export class ChartMap {
     const cutIds = new Set(ev.map.cut.map((c) => `${c.meta.type}:${c.meta.id}`));
     const path = ev.progress?.path ?? new Set<string>();
     const w = (x: number) => (x > 1e-6 ? 1.2 + Math.sqrt(x) * 1.15 : 0);
+    const hl = new Set(highlight);
+    const spot = !!this.opts.spotlight && hl.size > 0;
+    this.svg.classList.toggle("spotlit", spot);
     for (const [id, e] of this.edges) {
+      const lit = hl.has(e.from) && hl.has(e.to);
+      e.g.classList.toggle("dim", spot && !lit);
+      e.g.classList.toggle("lit", spot && lit);
       const flow = (f[`link:${id}`] ?? 0) + (e.reverse ? f[`link:${e.reverse}`] ?? 0 : 0);
       e.flow.setAttribute("stroke-width", String(w(flow)));
       const l = NET.links.find((x) => x.id === id)!;
@@ -207,6 +215,7 @@ export class ChartMap {
       p.g.style.display = cap > 0 || s.closed.has(id) ? "" : "none";
       p.flow.setAttribute("stroke-width", String(w(f[`pipeline:${id}`] ?? 0)));
       p.g.classList.toggle("closed", s.closed.has(id));
+      p.g.classList.toggle("dim", spot && !hl.has(id));
       p.path.style.display = path.has(`pipeline:${id}`) ? "" : "none";
     }
     const view: View = this.opts.view?.() ?? "priority";
@@ -214,9 +223,9 @@ export class ChartMap {
       const isImp = NET.importers.some((i) => i.id === id);
       n.g.classList.toggle("closed", s.closed.has(id));
       n.g.classList.toggle("oncut", cutIds.has(`route:${id}`) || cutIds.has(`supply:${id}`) || cutIds.has(`divert:${id}`));
-      n.g.classList.toggle("hl", highlight.includes(id));
+      n.g.classList.toggle("hl", spot ? id === highlight[0] : highlight.includes(id)); // spotlight: ring only the subject
       n.g.classList.toggle("onpath", [...path].some((k) => k.endsWith(`:${id}`)));
-      n.g.classList.toggle("dim", !!s.focus && isImp && id !== s.focus);
+      n.g.classList.toggle("dim", (!!s.focus && isImp && id !== s.focus) || (spot && !hl.has(id)));
       if (isImp) {
         const r = ev.rows.find((x) => x.id === id)!;
         const sh = r.share[view];

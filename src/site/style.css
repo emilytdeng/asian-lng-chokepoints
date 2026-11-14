@@ -622,3 +622,11 @@ details.more > summary .muted { font-weight: 400; font-size: .85rem; margin-left
 .sb-keybar { position: sticky; top: 0; z-index: 3; padding: 6px 0; background: var(--paper); }
 .sb-keybar .minikey { margin: 0; }
 #sb-legend details > summary { cursor: pointer; font: 600 .85rem var(--sans); color: var(--ink-2); }
+/* story spotlight: the places the text is talking about stay bright, the rest fades */
+.chart-map .edge, .chart-map .pipe, .chart-map .node { transition: opacity .35s; }
+.chart-map .edge.dim, .chart-map .pipe.dim { opacity: .14; }
+.chart-map.spotlit .node.dim { opacity: .22; }
+.chart-map .edge.lit .edge-track { stroke: var(--ink-2); stroke-width: 1.4; }
+.chart-map.spotlit .node:not(.dim) .nlabel { font-weight: 700; }
+.place { font-weight: 700; box-shadow: inset 0 -.35em 0 color-mix(in srgb, var(--hl) 28%, transparent); }
+@media (prefers-reduced-motion: reduce) { .chart-map .edge, .chart-map .pipe, .chart-map .node { transition: none; } }

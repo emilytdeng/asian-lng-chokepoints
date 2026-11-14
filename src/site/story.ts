@@ -85,11 +85,11 @@ export function mountAlgo(host: HTMLElement) {
 
 // ------------------------------------------------------------------ real-network figure used in chapters 4–5
 type Kind = "map" | "graph" | "chart";
-interface Scene { kind: Kind; state: State; hl?: string[]; cut?: boolean; chart?: (h: HTMLElement, e: Evaluation, hl?: string[]) => void }
+interface Scene { kind: Kind; state: State; hl?: string[]; cut?: boolean; spot?: boolean; chart?: (h: HTMLElement, e: Evaluation, hl?: string[]) => void }
 
 class StoryFigure {
   el = document.createElement("div");
-  private mapOpts: MapOptions = { interactive: false, cut: false };
+  private mapOpts: MapOptions = { interactive: false, cut: false, spotlight: false };
   private graphOpts: MapOptions = { interactive: false, cut: false };
   private map: ChartMap;
   private graph: ChartGraph;
@@ -109,6 +109,7 @@ class StoryFigure {
     for (const k of ["map", "graph", "chart"] as Kind[]) this.boxes[k].classList.toggle("on", k === sc.kind);
     const e = ev(sc.state);
     this.mapOpts.cut = this.graphOpts.cut = !!sc.cut;
+    this.mapOpts.spotlight = !!sc.spot;
     if (sc.kind === "chart") sc.chart!(this.chart, e, sc.hl);
     else (sc.kind === "map" ? this.map : this.graph).update(e, sc.state, sc.hl);
   }
@@ -116,9 +117,17 @@ class StoryFigure {
 /** Phones: a standalone copy of one scene. */
 function staticScene(host: HTMLElement, sc: Scene) {
   const e = ev(sc.state);
-  const o: MapOptions = { interactive: false, cut: !!sc.cut };
+  const o: MapOptions = { interactive: false, cut: !!sc.cut, spotlight: !!sc.spot };
   if (sc.kind === "chart") { const d = document.createElement("div"); d.className = "sf-inline-chart"; host.appendChild(d); sc.chart!(d, e, sc.hl); }
-  else { const box = document.createElement("div"); box.className = "sf-inline-wide"; host.appendChild(box); (sc.kind === "map" ? new ChartMap(box, o) : new ChartGraph(box, o)).update(e, sc.state, sc.hl); host.appendChild(miniKey(sc.kind === "map" ? "map" : "graph")); }
+  else { const box = document.createElement("div"); box.className = "sf-inline-wide"; host.appendChild(box); (sc.kind === "map" ? new ChartMap(box, o) : new ChartGraph(box, o)).update(e, sc.state, sc.hl); host.appendChild(miniKey(sc.kind === "map" ? "map" : "graph"));
+    // a wide map on a phone: scroll so the place this step is about sits in the middle
+    requestAnimationFrame(() => {
+      const n = box.querySelector(".node.hl");
+      if (!n || host.scrollWidth <= host.clientWidth) return;
+      const r = n.getBoundingClientRect(), h = host.getBoundingClientRect();
+      host.scrollLeft += r.left + r.width / 2 - (h.left + h.width / 2);
+    });
+  }
 }
 function sceneScrolly(host: HTMLElement, scenes: (Scene & { html: string })[]) {
   const fig = new StoryFigure();
@@ -129,7 +138,7 @@ function sceneScrolly(host: HTMLElement, scenes: (Scene & { html: string })[]) {
 // ------------------------------------------------------------------ chapter 4: from toy to LNG
 export function mountLNG(host: HTMLElement) {
   const y = ev(S_2025), B = ev(S_BASE);
-  const via = (r: string) => y.map.arcFlow[`route:${r}`] ?? 0;
+  const hzTop = [...y.rows].filter((r) => r.exposure > 0.05).sort((p, q) => q.exposure - p.exposure).slice(0, 3);
   const hzShare = B.rows.reduce((a, r) => a + r.exposure * r.demand, 0) / B.demand;
   const japan = Math.round(NET.importers.find((i) => i.id === "JPN")!.import_demand.value);
   host.innerHTML = `${chapterHead(4, "h-lng", "From toy to LNG", "Some logistics of shipping liquefied natural gas (LNG).")}
@@ -153,11 +162,11 @@ export function mountLNG(host: HTMLElement) {
     </div>
     <div class="wrap" id="lng-scrolly"></div>`;
   sceneScrolly(host.querySelector("#lng-scrolly")!, [
-    { kind: "map", state: S_2025, html: `<p>Here is the real network in 2025. Lines are shipping routes; the thicker the line, the more LNG it carried. Black dots are exporters; the eight blue dots are the economies in this story.</p>` },
-    { kind: "map", state: S_2025, hl: ["HORMUZ"], html: `<p><b>The Strait of Hormuz</b>, between Iran and Oman, is the only way out of the Persian Gulf. Qatar and the UAE ship all their LNG through it: about ${pct(hzShare)} of what these eight economies imported in 2025.</p>` },
-    { kind: "map", state: S_2025, hl: ["MALACCA"], html: `<p><b>The Strait of Malacca</b>, between Malaysia and Indonesia, links the Indian Ocean to the South China Sea. About ${fmt(via("MALACCA"), 0)} mtpa of these flows went through it. Ships can also go the long way round, through Indonesia's Lombok Strait.</p>` },
-    { kind: "map", state: S_2025, hl: ["BAB_SUEZ"], html: `<p><b>The Red Sea route</b>, through Egypt's Suez Canal and the Bab el-Mandeb strait, is the short cut from the Atlantic to Asia (${fmt(via("BAB_SUEZ"), 0)} mtpa here). When it's unsafe, ships sail round Africa's Cape of Good Hope instead: slower, but they still arrive.</p>` },
-    { kind: "map", state: S_2025, hl: ["PANAMA"], html: `<p><b>The Panama Canal</b> is the short cut for US cargoes heading to Asia (${fmt(via("PANAMA"), 0)} mtpa). Its locks run on rainwater, so in droughts it lets fewer ships through and the rest go the long way.</p>` },
+    { kind: "map", state: S_2025, html: `<p>Here is the real network in 2025. Lines are shipping routes; the thicker the line, the more LNG it carried. Small dots are exporters; the eight blue dots are the economies in this story.</p>` },
+    { kind: "map", state: S_2025, spot: true, hl: ["HORMUZ", "QAT", "UAE", "IO", ...hzTop.map((r) => r.id)], html: `<p><span class="place">The Strait of Hormuz</span>, between Iran and Oman, is the only way out of the Persian Gulf. <span class="place">Qatar</span> and the <span class="place">UAE</span> ship all their LNG through it: about ${pct(hzShare)} of what these eight economies imported in 2025.</p><p>Most exposed: ${hzTop.map((r, k) => `<span class="place">${r.name}</span> (${pct(r.exposure)}${k === 0 ? " of its LNG" : ""})`).join(", ")}.</p>` },
+    { kind: "map", state: S_2025, spot: true, hl: ["MALACCA", "IO", "PACIFIC", "LOMBOK", "CHN", "JPN", "KOR", "TWN", "THA"], html: `<p><span class="place">The Strait of Malacca</span>, between Malaysia and Indonesia, is the short cut from the Indian Ocean to the South China Sea. Cargoes from the Gulf and the Atlantic heading for <span class="place">China</span>, <span class="place">Japan</span>, <span class="place">South Korea</span>, <span class="place">Taiwan</span> and <span class="place">Thailand</span> pass through it.</p><p>If it shut, ships could take the longer way through Indonesia's <span class="place">Lombok Strait</span>.</p>` },
+    { kind: "map", state: S_2025, spot: true, hl: ["BAB_SUEZ", "USA", "RUS_ARC", "OTH_ATL", "CAPE", "IO"], html: `<p><span class="place">The Red Sea route</span>, through Egypt's Suez Canal and the Bab el-Mandeb strait off Yemen, is the short cut to Asia for the <span class="place">United States</span>, <span class="place">Russia's Arctic</span> plants and <span class="place">other Atlantic and East African</span> exporters.</p><p>Since attacks on shipping began in late 2023, most LNG tankers sail round Africa's <span class="place">Cape of Good Hope</span> instead: slower, but they still arrive.</p>` },
+    { kind: "map", state: S_2025, spot: true, hl: ["PANAMA", "USA", "PACIFIC", "CAPE"], html: `<p><span class="place">The Panama Canal</span> is the short cut from the <span class="place">US Gulf Coast</span> to buyers across the Pacific. Its locks run on rainwater, so in droughts it lets fewer ships through and the rest go round the <span class="place">Cape of Good Hope</span>.</p>` },
     { kind: "graph", state: S_2025, html: `<p>Now redraw the same network like the toy: a start <b>S</b> feeding every exporter and pipeline, and a finish <b>T</b> fed by every importer. It's the same puzzle, just bigger, and the same method solves it in a few milliseconds.</p><p class="small">Numbers show gas flowing / the most possible, in mtpa. ${MTPA_NOTE}.</p>` },
   ]);
 }
