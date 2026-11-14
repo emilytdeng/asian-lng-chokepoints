@@ -134,6 +134,7 @@ function sceneScrolly(host: HTMLElement, scenes: (Scene & { html: string })[]) {
 }
 
 // ------------------------------------------------------------------ chapter 4: from toy to LNG
+const listNames = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 export function mountLNG(host: HTMLElement) {
   const y = ev(S_2025), B = ev(S_BASE);
   const hzTop = [...y.rows].filter((r) => r.exposure > 0.05).sort((p, q) => q.exposure - p.exposure).slice(0, 3);
@@ -160,7 +161,7 @@ export function mountLNG(host: HTMLElement) {
     </div>
     <div class="wrap" id="lng-scrolly"></div>`;
   sceneScrolly(host.querySelector("#lng-scrolly")!, [
-    { kind: "map", state: S_2025, html: `<p>Here is the real network in 2025. Lines are shipping routes; the thicker the line, the more LNG it carried. Small dots are exporters; the eight blue dots are the economies in this story.</p>` },
+    { kind: "map", state: S_2025, html: `<p>Here is the real network in 2025. Lines are shipping routes; the thicker the line, the more LNG it carried. Small dots are exporters; the eight blue dots are the economies in this story: ${listNames(NET.importers.map((i) => i.name))}.</p>` },
     { kind: "map", state: S_2025, spot: true, hl: ["HORMUZ", "QAT", "UAE", "IO", ...hzTop.map((r) => r.id)], html: `<p><span class="place">The Strait of Hormuz</span>, between Iran and Oman, is the only way out of the Persian Gulf. <span class="place">Qatar</span> and the <span class="place">UAE</span> ship all their LNG through it: about ${pct(hzShare)} of what these eight economies imported in 2025.</p><p>Most exposed: ${hzTop.map((r, k) => `<span class="place">${r.name}</span> (${pct(r.exposure)}${k === 0 ? " of its LNG" : ""})`).join(", ")}.</p>` },
     { kind: "map", state: S_2025, spot: true, hl: ["MALACCA", "IO", "PACIFIC", "LOMBOK", "CHN", "JPN", "KOR", "TWN", "THA"], html: `<p><span class="place">The Strait of Malacca</span>, between Malaysia and Indonesia, is the short cut from the Indian Ocean to the South China Sea. Cargoes from the Gulf and the Atlantic heading for <span class="place">China</span>, <span class="place">Japan</span>, <span class="place">South Korea</span>, <span class="place">Taiwan</span> and <span class="place">Thailand</span> pass through it.</p><p>If it shut, ships could take the longer way through Indonesia's <span class="place">Lombok Strait</span>.</p>` },
     { kind: "map", state: S_2025, spot: true, hl: ["BAB_SUEZ", "USA", "RUS_ARC", "OTH_ATL", "CAPE", "IO"], html: `<p><span class="place">The Red Sea route</span>, through Egypt's Suez Canal and the Bab el-Mandeb strait off Yemen, is the short cut to Asia for the <span class="place">United States</span>, <span class="place">Russia's Arctic</span> plants and <span class="place">other Atlantic and East African</span> exporters.</p><p>Since attacks on shipping began in late 2023, most LNG tankers sail round Africa's <span class="place">Cape of Good Hope</span> instead: slower, but they still arrive.</p>` },
