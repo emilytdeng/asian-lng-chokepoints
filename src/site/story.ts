@@ -34,8 +34,6 @@ export function mountToy(host: HTMLElement): void {
         <p><b><a href="https://en.wikipedia.org/wiki/Max-flow_min-cut_theorem" target="_blank" rel="noopener noreferrer">Min-cut</a>.</b> This is the set of pipes with the smallest combined capacity whose removal disconnects S from T. It may include several pipes—not just one narrow pipe.</p>
 
         <p class="theorem-box"><b>The max-flow min-cut theorem</b> says the min cut's capacity equals the maximum possible flow.</p>
-
-        <p>How much can flow through this network? With only nine pipes, you can nearly work it out by eye. Asia's LNG network has more than sixty links, so let's see what a computer finds.</p>
       </div>
       <figure class="toy-fig" id="toy-static"></figure>
     </div>
