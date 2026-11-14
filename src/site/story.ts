@@ -70,7 +70,7 @@ export function mountAlgo(host: HTMLElement) {
     { html: `<p>The dashed line separates what S can reach from what it can't. It crosses only full pipes, ${cutNames.join(" and ")}: that's the <b>min cut</b>. (S→A is full too, but gas can get around it, so it isn't the narrowest point.)</p>`, frame: fr({ flows: f(3), total: sum(3), reach: t.result.reach, cut: true }) },
     { html: `<p class="theorem">The flow equals the capacity of the cut: ${cutCaps.join(" + ")} = ${t.result.total}. That's the <b>max-flow min-cut theorem</b>. When the algorithm stops we know two things at once: the most that can get through, and exactly which pipes are holding it back.</p>`, frame: fr({ flows: f(3), total: sum(3), reach: t.result.reach, cut: true, note: `cut: ${cutCaps.join(" + ")} = ${t.result.total}` }) },
   ];
-  host.innerHTML = `${chapterHead(3, "h-algo", "How the computer finds it", "The standard method is called Edmonds–Karp, after Jack Edmonds and Richard Karp, who published it in 1972. It repeats one simple move. Scroll to run it.")}<div class="wrap" id="algo-scrolly"></div>`;
+  host.innerHTML = `${chapterHead(3, "h-algo", "How the computer finds it", "The standard method is called Edmonds–Karp, after Jack Edmonds and Richard Karp, who published it in 1972. At a high level, it finds the shortest route from S to T that still has spare capacity, pushes as much through that path as its tightest pipe allows, and repeats. If an earlier choice blocks a better route, it can send flow back to undo it. We have reached max flow when no route has capacity left. Scroll to watch it run.")}<div class="wrap" id="algo-scrolly"></div>`;
   const fig = document.createElement("figure");
   fig.className = "toy-fig sticky-toy";
   const toy = new ToyGraph(fig);

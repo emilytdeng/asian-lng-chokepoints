@@ -80,7 +80,7 @@ export async function renderReality(host: HTMLElement) {
     const notes = ids.map((id) => { const o = V.find((x) => x.importer === id)!; return `<li><b>${NET.importers.find((i) => i.id === id)!.name}.</b> ${esc(o.value.note)}</li>`; }).join("");
     host.querySelector("#val-table")!.innerHTML = `
       <h3>Model vs what happened, by importer</h3>
-      <p class="note">Model: Hormuz at 37% of normal Gulf supply (the 2026 average), fleet limit on. Model change is against 2025 import needs; observed change is LNG imports compared with the same months of 2025 (IEA; Taiwan from S&amp;P Global).</p>
+      <p class="note">All figures are changes from 2025 LNG imports. The model lets 37% of normal Gulf LNG through Hormuz (the 2026 average), with the tanker limit on. (Tanker limit is the model's name for the fleet constraint, since there are only so many LNG tankers in the world.) Observed figures compare the same months of 2025 and 2026 (IEA; Taiwan from S&amp;P Global).</p>
       <div class="tablewrap"><table class="reality-t">
         <thead><tr><th scope="col">Importer</th><th scope="col">Observed</th><th scope="col">${VIEW_LABEL.priority}</th><th scope="col">${VIEW_LABEL.market2026}</th><th scope="col">${VIEW_LABEL.rationed}</th></tr></thead>
         <tbody>${rows.join("")}</tbody></table></div>
