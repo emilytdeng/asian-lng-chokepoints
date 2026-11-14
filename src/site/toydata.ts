@@ -1,12 +1,15 @@
 /** The made-up network used to teach max-flow (chapters 2–3). Pure data plus the real Edmonds–Karp trace. */
 import { cutArcs, edmondsKarp, type Arc, type AugmentStep, type FlowResult } from "../model/maxflow";
 
-export const TOY_NODES = ["S", "A", "B", "C", "D", "T"] as const;
+export const TOY_NODES = ["S", "A", "B", "C", "D", "E", "F", "T"] as const;
 const n = (x: (typeof TOY_NODES)[number]) => TOY_NODES.indexOf(x);
-/** Arc order matters: it makes Edmonds–Karp try A→D before A→C, a choice it later has to undo. */
+/**
+ * Routes have different lengths, and each one Edmonds–Karp picks is the unique shortest at that moment:
+ * S→A→F→T (3 pipes), then the top route S→A→C→E→T (4), then S→B→D→F→A→C→E→T (7), which undoes part of A→F.
+ */
 export const TOY_ARCS: Arc[] = [
-  [n("S"), n("A"), 8], [n("S"), n("B"), 5], [n("A"), n("D"), 5], [n("A"), n("C"), 6],
-  [n("B"), n("D"), 5], [n("C"), n("T"), 7], [n("D"), n("T"), 5],
+  [n("S"), n("A"), 8], [n("S"), n("B"), 5], [n("A"), n("F"), 5], [n("A"), n("C"), 6], [n("B"), n("D"), 5],
+  [n("D"), n("F"), 5], [n("C"), n("E"), 7], [n("E"), n("T"), 7], [n("F"), n("T"), 5],
 ];
 export const arcName = (i: number) => `${TOY_NODES[TOY_ARCS[i][0]]}→${TOY_NODES[TOY_ARCS[i][1]]}`;
 

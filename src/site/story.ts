@@ -7,7 +7,7 @@ import { ChartGraph } from "./graphview";
 import { ChartMap, type MapOptions } from "./map";
 import { scrolly, type Step } from "./scrolly";
 import { ToyGraph, type ToyFrame } from "./toy";
-import { TOY_ARCS, arcName, flowsAfter, pathNodes, toyTrace } from "./toydata";
+import { TOY_ARCS, TOY_NODES, arcName, flowsAfter, pathNodes, toyTrace } from "./toydata";
 
 const D = NET.meta.diversion.value;
 export const S_BASE: State = { closed: new Set(), diversion: D, focus: null };
@@ -35,7 +35,7 @@ export function mountToy(host: HTMLElement): void {
 
         <p class="theorem-box"><b>The max-flow min-cut theorem</b> says the min cut's capacity equals the maximum possible flow.</p>
 
-        <p>How much can flow through this network? With only seven pipes, you can nearly work it out by eye. Asia's LNG network has more than sixty links, so let's see what a computer finds.</p>
+        <p>How much can flow through this network? With only nine pipes, you can nearly work it out by eye. Asia's LNG network has more than sixty links, so let's see what a computer finds.</p>
       </div>
       <figure class="toy-fig" id="toy-static"></figure>
     </div>
@@ -58,20 +58,23 @@ export function mountAlgo(host: HTMLElement) {
   const back = p3.arcs.find((a) => !a.fwd)!;
   const cutNames = t.cut.map(arcName);
   const cutCaps = t.cut.map((i) => TOY_ARCS[i][2]);
-  const reachNames = ["S", "A", "B", "C", "D", "T"].filter((_, k) => t.result.reach[k]);
+  const reachNames = TOY_NODES.filter((_, k) => t.result.reach[k]);
+  const sOnly = TOY_NODES.map((x) => x === "S");
+  const otherCut = TOY_ARCS.filter(([u, v]) => sOnly[u] && !sOnly[v]).map(([, , c]) => c);
   const fr = (o: Partial<ToyFrame>): ToyFrame => ({ flows: f(0), labels: "flow", total: 0, ...o });
 
   const frames: { html: string; frame: ToyFrame }[] = [
     { html: `<p>Each pipe now shows <b>flow / capacity</b>. Nothing is flowing yet.</p>`, frame: fr({}) },
-    { html: `<p><b>Find the shortest route from S to T that still has capacity.</b> "Shortest" means fewest pipes, not distance. Here three routes tie at three pipes each (S → A → C → T, S → A → D → T and S → B → D → T), so the computer simply takes the first one its search reaches: ${route(0)}.</p>`, frame: fr({ path: p1 }) },
+    { html: `<p><b>Find the shortest route from S to T that still has capacity.</b> "Shortest" means fewest pipes, not distance. ${route(0)} uses ${p1.arcs.length}; every other route needs at least ${p2.arcs.length}.</p>`, frame: fr({ path: p1 }) },
     { html: `<p><b>Push as much as the tightest pipe on that route allows: ${p1.amount}.</b> Pipes thicken as they fill; full pipes turn red. ${fullAfter(1).join(" and ")} are now full.</p>`, frame: fr({ flows: f(1), total: sum(1) }) },
-    { html: `<p><b>Repeat.</b> Another three-pipe route that still has capacity is ${route(1)}. It takes ${p2.amount} more, and ${fullAfter(2).join(" and ")} ${fullAfter(2).length > 1 ? "are" : "is"} now full.</p>`, frame: fr({ flows: f(2), total: sum(2), path: p2 }) },
-    { html: `<p>B still has ${TOY_ARCS[1][2]} waiting to send, but its only pipe leads to D, and D's exit to T is full. Looks stuck?</p>`, frame: fr({ flows: f(2), total: sum(2), pulse: "B" }) },
-    { html: `<p><b>The trick: gas can be sent backward to undo an earlier choice.</b> B sends gas into D, and D hands back ${p3.amount} of the units A sent it, so A can send them through C instead: ${route(2)}.</p>`, frame: fr({ flows: f(2), total: sum(2), path: p3 }) },
+    { html: `<p><b>Repeat.</b> With F→T full, the shortest route that still has capacity is longer: ${route(1)}, ${p2.arcs.length} pipes. It takes ${p2.amount} more, and ${fullAfter(2).join(" and ")} ${fullAfter(2).length > 1 ? "are" : "is"} now full.</p>`, frame: fr({ flows: f(2), total: sum(2), path: p2 }) },
+    { html: `<p>B still has ${TOY_ARCS[1][2]} waiting to send, but its route runs B → D → F, and F's exit to T is full. Looks stuck?</p>`, frame: fr({ flows: f(2), total: sum(2), pulse: "B" }) },
+    { html: `<p><b>The trick: gas can be sent backward to undo an earlier choice.</b> B's gas flows on to F, and F hands back ${p3.amount} of the units A sent it, so A can send them along the top instead: ${route(2)} (${p3.arcs.length} pipes).</p>`, frame: fr({ flows: f(2), total: sum(2), path: p3 }) },
     { html: `<p>That pushes ${p3.amount} more. ${arcName(back.i)} thins from ${f(2)[back.i]} to ${f(3)[back.i]} and turns blue again; ${fullAfter(3).join(" and ")} ${fullAfter(3).length > 1 ? "are" : "is"} now full. Total: <b>${sum(3)}</b>.</p>`, frame: fr({ flows: f(3), total: sum(3) }) },
     { html: `<p><b>Now no route has capacity left, even using the undo trick, so the computer stops.</b> The shaded circles are everything S can still reach: ${reachNames.join(", ")}.</p>`, frame: fr({ flows: f(3), total: sum(3), reach: t.result.reach }) },
     { html: `<p>The dashed line separates what S can reach from what it can't. It crosses only full pipes, ${cutNames.join(" and ")}: that's the <b>min cut</b>. (S→A is full too, but gas can get around it, so it isn't the narrowest point.)</p>`, frame: fr({ flows: f(3), total: sum(3), reach: t.result.reach, cut: true }) },
-    { html: `<p class="theorem">The flow equals the capacity of the cut: ${cutCaps.join(" + ")} = ${t.result.total}. That's the <b>max-flow min-cut theorem</b>. When the algorithm stops we know two things at once: the most that can get through, and exactly which pipes are holding it back.</p>`, frame: fr({ flows: f(3), total: sum(3), reach: t.result.reach, cut: true, note: `cut: ${cutCaps.join(" + ")} = ${t.result.total}` }) },
+    { html: `<p><b>Not every cut is the min cut.</b> This dashed line also separates S from T: it crosses S→A and S→B, so it adds up to ${otherCut.join(" + ")} = ${otherCut.reduce((x, y) => x + y, 0)}. That's more than ${t.result.total}, so it isn't the narrowest point: there's more capacity out of S than the network can carry further on. The min cut is the cut with the smallest total.</p>`, frame: fr({ flows: f(3), total: sum(3), reach: sOnly, cut: true, note: `not the min cut: ${otherCut.join(" + ")} = ${otherCut.reduce((x, y) => x + y, 0)}` }) },
+    { html: `<p class="theorem">Back to the min cut. The flow equals its capacity: ${cutCaps.join(" + ")} = ${t.result.total}. That's the <b>max-flow min-cut theorem</b>. When the algorithm stops we know two things at once: the most that can get through, and exactly which pipes are holding it back.</p>`, frame: fr({ flows: f(3), total: sum(3), reach: t.result.reach, cut: true, note: `cut: ${cutCaps.join(" + ")} = ${t.result.total}` }) },
   ];
   host.innerHTML = `${chapterHead(3, "h-algo", "How the computer finds it", "The standard method is called Edmonds–Karp, after Jack Edmonds and Richard Karp, who published it in 1972. At a high level, it finds the shortest route (the fewest pipes) from S to T that still has spare capacity, pushes as much through that path as its tightest pipe allows, and repeats. If an earlier choice blocks a better route, it can send flow back to undo it. We have reached max flow when no route has capacity left. Scroll to watch it run.")}<div class="wrap" id="algo-scrolly"></div>`;
   const fig = document.createElement("figure");

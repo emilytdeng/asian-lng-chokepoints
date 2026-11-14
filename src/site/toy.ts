@@ -5,7 +5,7 @@ import { TOY_ARCS, TOY_NODES } from "./toydata";
 
 const NS = "http://www.w3.org/2000/svg";
 const W = 540, H = 300, R = 19, K = 2.6; // px of width per unit
-const POS: Record<string, [number, number]> = { S: [44, 150], A: [190, 62], B: [190, 238], C: [352, 62], D: [352, 238], T: [496, 150] };
+const POS: Record<string, [number, number]> = { S: [34, 150], A: [140, 62], C: [290, 62], E: [420, 62], B: [140, 238], D: [290, 238], F: [420, 238], T: [506, 150] };
 
 export interface ToyFrame {
   flows: number[];
@@ -27,7 +27,7 @@ export class ToyGraph {
   private total: SVGTextElement;
   private cutText: SVGTextElement;
 
-  constructor(host: HTMLElement, label = "A small made-up network: source S, sink T and four junctions A to D, joined by pipes of different sizes") {
+  constructor(host: HTMLElement, label = "A small made-up network: source S, sink T and six junctions A to F, joined by pipes of different sizes") {
     this.svg = document.createElementNS(NS, "svg");
     this.svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
     this.svg.setAttribute("role", "img");
