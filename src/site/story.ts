@@ -140,13 +140,12 @@ export function mountLNG(host: HTMLElement) {
       <div class="tablewrap"><table class="maptable">
         <thead><tr><th scope="col">In the toy</th><th scope="col">In Asia's LNG trade</th></tr></thead>
         <tbody>
-          <tr><td>S, the start</td><td>A made-up starting point that feeds every exporter. Not a real place.</td></tr>
+          <tr><td>S, the start</td><td>A made-up starting point that feeds every exporter. The real network has many exporters, but max flow needs a single start.</td></tr>
           <tr><td>Pipes out of S</td><td>Each exporter's limit: what it sold to these buyers in 2025, plus some cargoes it could pull away from Europe and others</td></tr>
           <tr><td>Junctions and pipes</td><td>Chokepoints and seas, and the shipping lanes between them (no limit unless closed)</td></tr>
           <tr><td>Pipes into T</td><td>Each importing country's needs: what it imported in 2025</td></tr>
-          <tr><td>T, the finish</td><td>A made-up finishing point that collects from every importer. Everything that reaches T is gas delivered to a buyer who needs it.</td></tr>
+          <tr><td>T, the finish</td><td>A made-up finishing point that collects from every importer, so the many buyers become a single finish. Everything that reaches T is gas delivered to a buyer who needs it.</td></tr>
         </tbody></table></div>
-      <p class="prose-narrow">One difference from the toy: the real network has many starting points (every exporter) and many finishing points (every importer). The max-flow method needs exactly one of each, so we add a made-up <b>S</b> that feeds every exporter and a made-up <b>T</b> that every importer drains into. Neither is a real place; they just let us measure the whole network as a single flow from S to T.</p>
       <p class="prose-narrow">China and Thailand also get gas through overland pipelines, which count as extra pipes straight from S.</p>
     </div>
     <div class="wrap" id="lng-scrolly"></div>`;
