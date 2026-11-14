@@ -525,6 +525,7 @@ svg.toy { display: block; width: 100%; height: auto; overflow: visible; }
 .maptable caption { text-align: left; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
 .maptable td { font-size: .92rem; vertical-align: top; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule); }
 .maptable td:first-child { font-weight: 700; white-space: nowrap; }
+.maptable th, .maptable td { text-align: left; padding-left: 0; }
 
 /* chapter 6 */
 .bid-svg { display: block; width: 100%; max-width: 480px; height: auto; margin-top: 10px; }
