@@ -613,3 +613,4 @@ details.more > summary .muted { font-weight: 400; font-size: .85rem; margin-left
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .key .dk { display: inline; } :root:not([data-theme="light"]) .key .lt { display: none; } }
 :root[data-theme="dark"] .key .dk { display: inline; }
 :root[data-theme="dark"] .key .lt { display: none; }
+.theorem-box { background: var(--wash); border-left: 4px solid var(--cut); border-radius: 0 6px 6px 0; padding: 12px 16px; font-weight: 500; }

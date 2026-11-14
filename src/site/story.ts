@@ -27,13 +27,15 @@ export function mountToy(host: HTMLElement): void {
     ${chapterHead(2, "h-toy", "A toy network", "Before any real gas, a small puzzle.")}
     <div class="wrap two-col">
       <div class="prose">
-        <p>Below is a made-up network of pipes. Gas enters at <b>S</b> and must reach <b>T</b>. Each pipe has a <b>capacity</b>—the maximum it can carry in a year. The number beside each pipe shows its capacity; thicker pipes represent larger capacities. Arrows show the direction of flow.</p>
+        <p>Below is a made-up network of pipes. Gas enters at <b>S</b> and must reach <b>T</b>. Each pipe has a <b>capacity</b>—the maximum it can carry in a year. The number beside each pipe shows its capacity. Arrows show the direction of flow.</p>
 
         <p><b><a href="https://en.wikipedia.org/wiki/Maximum_flow_problem" target="_blank" rel="noopener noreferrer">Max-flow</a>.</b> This is the greatest amount that can travel from S to T at once without exceeding any pipe's capacity.</p>
 
-        <p><b><a href="https://en.wikipedia.org/wiki/Max-flow_min-cut_theorem" target="_blank" rel="noopener noreferrer">Min-cut</a>.</b> This is the set of pipes with the smallest combined capacity whose removal disconnects S from T. It may include several pipes—not just one narrow pipe. The max-flow min-cut theorem says its capacity equals the maximum possible flow.</p>
+        <p><b><a href="https://en.wikipedia.org/wiki/Max-flow_min-cut_theorem" target="_blank" rel="noopener noreferrer">Min-cut</a>.</b> This is the set of pipes with the smallest combined capacity whose removal disconnects S from T. It may include several pipes—not just one narrow pipe.</p>
 
-        <p>How much can flow through this network? Take a guess. With only seven pipes, you can nearly work it out by eye. Asia's LNG network has more than sixty links, so let's see what a computer finds.</p>
+        <p class="theorem-box"><b>The max-flow min-cut theorem</b> says the min cut's capacity equals the maximum possible flow.</p>
+
+        <p>How much can flow through this network? With only seven pipes, you can nearly work it out by eye. Asia's LNG network has more than sixty links, so let's see what a computer finds.</p>
       </div>
       <figure class="toy-fig" id="toy-static"></figure>
     </div>
@@ -125,16 +127,15 @@ export function mountLNG(host: HTMLElement) {
   const via = (r: string) => y.map.arcFlow[`route:${r}`] ?? 0;
   const hzShare = B.rows.reduce((a, r) => a + r.exposure * r.demand, 0) / B.demand;
   const japan = Math.round(NET.importers.find((i) => i.id === "JPN")!.import_demand.value);
-  host.innerHTML = `${chapterHead(4, "h-lng", "From toy to LNG", "Now swap the toy pipes for the real thing.")}
+  host.innerHTML = `${chapterHead(4, "h-lng", "From toy to LNG", "Some logistics of shipping liquefied natural gas (LNG).")}
     <div class="wrap">
       <ol class="lng-steps">
-        <li><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v36M8 15l32 18M8 33l32-18" /></svg><b>Chill.</b> Natural gas is cooled to −162 °C, where it becomes a liquid that takes up about 600 times less space. That's LNG: liquefied natural gas.</li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v36M8 15l32 18M8 33l32-18" /></svg><b>Chill.</b> Natural gas is cooled to −162 °C, where it becomes a liquid that takes up about 600 times less space.</li>
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 30h36l-5 9H11zM14 30v-8h20v8M19 22a3 3 0 1 1 0-.1M29 22a3 3 0 1 1 0-.1" /></svg><b>Ship.</b> Special tankers carry it across oceans. Most routes squeeze through a few narrow sea passages called <b>chokepoints</b>.</li>
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V22l8-6 8 6v18M24 40V14l8-6 8 6v26M4 40h40" /></svg><b>Warm.</b> At an <b>import terminal</b> it's warmed back into gas ("regasification") and piped to power plants, factories and homes.</li>
       </ol>
       <p class="prose-narrow">We measure LNG in <b>mtpa</b>: million tonnes a year. Japan, the biggest buyer in this story, imports about ${japan}.</p>
       <div class="tablewrap"><table class="maptable">
-        <caption>The same puzzle, with real names</caption>
         <thead><tr><th scope="col">In the toy</th><th scope="col">In Asia's LNG trade</th></tr></thead>
         <tbody>
           <tr><td>S, the start</td><td>All the gas that exporters can sell to Asia</td></tr>
