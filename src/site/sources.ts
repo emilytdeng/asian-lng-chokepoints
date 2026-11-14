@@ -44,8 +44,6 @@ export async function renderReality(host: HTMLElement) {
     <h3 class="reality-h">Reality check: what actually happened in 2026</h3>
     <p class="sub">The Strait of Hormuz was effectively closed from 28 February 2026. LNG traffic stopped in March and recovered only partly. By September, 27 laden LNG carriers left the Gulf, against about 95 a month in 2025. Iranian strikes also knocked out about ${v("QAT_damage").value.value}% of Qatar's export capacity, possibly for years.</p>
     <div class="cards facts">
-      <div class="card"><p class="big">${v("gulf_supply").value.value}%</p><p>Qatar and UAE LNG deliveries, Jan–Oct, year on year. ${link(v("gulf_supply").value, "IEA")}</p></div>
-      <div class="card"><p class="big">${v("global_supply").value.value}%</p><p>Global LNG supply. New non-Gulf liquefaction made up most of the loss. ${link(v("global_supply").value, "IEA")}</p></div>
       <div class="card"><p class="big">${v("asia").value.value}%</p><p>Asia's LNG imports. Europe's fell 6%. ${link(v("asia").value, "IEA")}</p></div>
     </div>
     <div id="val-table"><p class="note">Solving the 2026 scenario…</p></div>
