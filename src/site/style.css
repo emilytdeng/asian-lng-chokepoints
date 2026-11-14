@@ -566,3 +566,49 @@ details.more > summary .muted { font-weight: 400; font-size: .85rem; margin-left
 .to-top.on { opacity: 1; pointer-events: auto; }
 .g-cuthalo { fill: none; stroke: var(--paper); stroke-width: 8; stroke-linecap: round; opacity: .85; pointer-events: none; }
 .g-cutline { stroke-width: 3.5; }
+
+/* sandbox: step player above the figure, map and graph stacked */
+#sb-step.stepper { margin: 0 0 14px; padding: 14px 16px; background: var(--wash); border-left: 4px solid var(--flow); max-width: none; }
+#sb-step .lbl { font-size: .8rem; color: var(--ink); }
+#sb-step .st-play { font-size: 1rem; padding: 9px 20px; background: var(--flow); border-color: var(--flow); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+#sb-step .st-play:hover { filter: brightness(1.1); }
+#sb-step .st-cap { min-height: 3.2em; }
+.stepper.off .st-row { opacity: .45; }
+.stepper.off button, .stepper.off input { cursor: not-allowed; }
+.fig-cap { display: none; font: 700 .72rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; }
+.fig-both .fig-cap { display: block; }
+.fig-both .fig-graph { margin-top: 10px; }
+
+/* sandbox layout: player and figures full width (map | graph side by side), controls and results in a row below */
+#model .sb-grid { display: block; }
+#sb-map.fig-both { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 20px; align-items: start; }
+#sb-map.fig-both > .fig-toggle, #sb-map.fig-both > .fig-note { grid-column: 1 / -1; }
+#sb-map.fig-both .fig-graph { margin-top: 0; }
+#model .panel { margin-top: 18px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "presets headline bars" "views holding bars"; gap: 18px 28px; align-items: start; }
+#model .panel > :nth-child(1) { grid-area: presets; }
+#model .panel > :nth-child(2) { grid-area: views; }
+#model .panel > :nth-child(3) { grid-area: headline; }
+#model .panel > :nth-child(4) { grid-area: holding; }
+#model .panel > :nth-child(5) { grid-area: bars; }
+@media (max-width: 960px) {
+  #sb-map.fig-both { display: block; }
+  #sb-map.fig-both .fig-graph { margin-top: 10px; }
+  #model .panel { grid-template-columns: minmax(0, 1fr); grid-template-areas: "presets" "views" "headline" "holding" "bars"; }
+}
+
+/* colour key */
+.key { margin: 22px 0 8px; padding: 16px 0 6px; border-top: 2px solid var(--ink); }
+.key-h { font: 700 1.1rem var(--serif); margin: 0 0 10px; }
+.key-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 32px; }
+.key-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.key-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: start; font: .9rem/1.45 var(--sans); color: var(--ink-2); }
+.key-list b { color: var(--ink); }
+.key-sw { width: 56px; height: 22px; display: block; margin-top: 1px; }
+#sb-legend { display: block; padding: 0; }
+#sb-legend .key { margin-top: 10px; }
+@media (max-width: 760px) { .key-cols { grid-template-columns: minmax(0, 1fr); } }
+.key-list li > span { display: block; }
+.key .dk { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .key .dk { display: inline; } :root:not([data-theme="light"]) .key .lt { display: none; } }
+:root[data-theme="dark"] .key .dk { display: inline; }
+:root[data-theme="dark"] .key .lt { display: none; }

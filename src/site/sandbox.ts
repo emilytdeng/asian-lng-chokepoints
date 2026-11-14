@@ -1,6 +1,7 @@
 import type { LPSolution } from "../model/lp";
 import { MTPA_NOTE, NET, VIEWS, VIEW_LABEL, days, evaluate, evaluateLP, fmt, name, needsLP, pct, type Evaluation, type HormuzMode, type State, type View } from "./compute";
 import { holdingBack } from "./explain";
+import { colorKey } from "./legend";
 import { Stepper } from "./stepper";
 import { traceSolve } from "../model/allocation";
 import { FlowFigure } from "./figure";
@@ -70,8 +71,7 @@ export function mountSandbox() {
       preset = ""; render();
     },
   });
-  document.getElementById("sb-legend")!.innerHTML =
-    `<span><i class="sw flow"></i>Gas flow (thicker = more)</span><span><i class="sw cutline"></i>Min cut: what's holding supply back</span><span><i class="sw closed"></i>Closed</span><span><i class="sw track"></i>Unused route</span>`;
+  document.getElementById("sb-legend")!.replaceChildren(colorKey());
 
   panel.innerHTML = `
     <div><p class="lbl">Scenario</p><div class="seg" id="presets"></div></div>
@@ -81,7 +81,7 @@ export function mountSandbox() {
     <div><p class="lbl">Who goes without</p><div class="bars" id="sb-bars"></div></div>`;
   const more = document.getElementById("sb-more")!;
   more.insertAdjacentHTML("afterbegin", `
-    <details class="more" id="more"><summary>More options <span class="muted">Hormuz partly open, ships, storage, the step-by-step algorithm and more</span></summary>
+    <details class="more" id="more"><summary>More options <span class="muted">Hormuz partly open, tanker limit, storage, shadow prices and more</span></summary>
       <div class="more-grid">
         <div><p class="lbl">Strait of Hormuz</p><div class="seg" id="hz"></div></div>
         <div><label class="lbl" for="div">Share of Europe's and others' cargoes Asia could outbid them for: <span id="div-v"></span></label>
@@ -90,7 +90,6 @@ export function mountSandbox() {
         <div><label class="lbl" for="focus">Map shows flows for</label>
           <select id="focus"><option value="">All importers</option>${NET.importers.map((i) => `<option value="${i.id}">${i.name} alone (outbids everyone)</option>`).join("")}</select></div>
       </div>
-      <div id="sb-step"></div>
       <div class="more-grid">
         <div><p class="lbl">The min cut, in detail</p><ul class="cut" id="cut"></ul></div>
         <div><p class="lbl">What one more unit is worth</p><ul class="cut" id="duals"><li class="muted">Computing…</li></ul>
@@ -98,15 +97,18 @@ export function mountSandbox() {
       </div>
     </details>`);
   let ev0: Evaluation | null = null;
-  const stepper = new Stepper(more.querySelector<HTMLElement>("#sb-step")!, (f) => {
+  const stepHost = document.createElement("div");
+  stepHost.id = "sb-step";
+  document.querySelector(".sb-map")!.prepend(stepHost);
+  const stepper = new Stepper(stepHost, (f) => {
     if (!ev0) return;
     const st = { ...state, closed: new Set(ev0.scenario.close ?? []) };
     map.update(f ? { ...ev0, map: { arcFlow: f.arcFlow, cut: [], total: f.total }, progress: { path: f.path, delivered: f.delivered } } : ev0, st);
-  });
+  }, { title: "Watch the computer solve this scenario", onStart: () => { if (map.mode !== "both") map.setMode("both", false); } });
   more.querySelector("#more")!.appendChild(table);
   const stepNote = document.createElement("p");
   stepNote.className = "note";
-  more.querySelector("#sb-step")!.appendChild(stepNote);
+  stepHost.appendChild(stepNote);
 
   const seg = (box: Element, items: { key: string; label: string }[], onClick: (k: string) => void) => {
     for (const it of items) {
@@ -205,10 +207,12 @@ export function mountSandbox() {
         const tr = traceSolve(NET, { scenario: e.scenario });
         stepper.load(tr.sol, tr.steps, e);
         stepNote.textContent = "";
-      } else { stepper.load(...emptyTrace(e)); stepNote.textContent = "Step-by-step works for all importers together. Set the map back to All importers to use it."; }
+        stepper.setEnabled(true);
+      } else { stepper.load(...emptyTrace(e)); stepper.setEnabled(false); stepNote.textContent = "Step-by-step works for all importers together. Set the map back to All importers to use it."; }
       draw(e);
     } else {
       ev0 = null;
+      stepper.setEnabled(false);
       stepNote.textContent = "Step-by-step works only with max-flow. Turn off the tanker limit and set Hormuz to open or closed to use it.";
       more.querySelector("#engine")!.textContent = "Solving the linear program…";
     }

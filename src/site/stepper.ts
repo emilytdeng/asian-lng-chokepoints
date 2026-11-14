@@ -21,6 +21,7 @@ function limitText(m: ArcMeta, amount: number) {
 }
 
 export class Stepper {
+  private host!: HTMLElement;
   private frames: Frame[] = [];
   private captions: string[] = [];
   private k = 0;
@@ -30,10 +31,11 @@ export class Stepper {
   private count: HTMLElement;
   private cap: HTMLElement;
 
-  constructor(host: HTMLElement, private show: (f: Frame | null, final: boolean) => void) {
+  constructor(host: HTMLElement, private show: (f: Frame | null, final: boolean) => void, private opts: { title?: string; onStart?: () => void } = {}) {
+    this.host = host;
     host.classList.add("stepper");
     host.innerHTML = `
-      <p class="lbl">Watch the algorithm</p>
+      <p class="lbl">${opts.title ?? "Watch the algorithm"}</p>
       <div class="st-row">
         <button type="button" class="st-play"></button>
         <button type="button" class="st-btn st-prev" aria-label="Previous step">‹</button>
@@ -123,10 +125,19 @@ export class Stepper {
     this.show(done ? null : this.frames[this.k], done);
   }
 
+  /** Turn the player off (with the reason shown by the caller) when stepping isn't possible. */
+  setEnabled(on: boolean) {
+    this.stop();
+    this.host.querySelectorAll<HTMLButtonElement | HTMLInputElement>("button, input").forEach((b) => (b.disabled = !on));
+    this.host.classList.toggle("off", !on);
+  }
+
   /** Redraw the current frame (e.g. after the sharing rule changed). */
   redraw() { this.show(this.k === this.last ? null : this.frames[this.k], this.k === this.last); }
 
   private start() {
+    if (this.play.disabled) return;
+    this.opts.onStart?.();
     if (this.k >= this.last) this.go(0);
     this.timer = window.setInterval(() => {
       if (this.k >= this.last) { this.stop(); return; }

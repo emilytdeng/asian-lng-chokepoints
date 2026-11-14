@@ -2,6 +2,7 @@
 import { coverChart } from "./charts";
 import { MTPA_NOTE, NET, evaluate, fmt, pct, type Evaluation, type State } from "./compute";
 import { holdingBack } from "./explain";
+import { colorKey } from "./legend";
 import { ChartGraph } from "./graphview";
 import { ChartMap, type MapOptions } from "./map";
 import { scrolly, type Step } from "./scrolly";
@@ -144,7 +145,9 @@ export function mountLNG(host: HTMLElement) {
         </tbody></table></div>
       <p class="prose-narrow">China and Thailand also get gas through overland pipelines, which count as extra pipes straight from S.</p>
     </div>
+    <div class="wrap" id="lng-key"></div>
     <div class="wrap" id="lng-scrolly"></div>`;
+  host.querySelector("#lng-key")!.appendChild(colorKey("Before we look: how to read the map and graph"));
   sceneScrolly(host.querySelector("#lng-scrolly")!, [
     { kind: "map", state: S_2025, html: `<p>Here is the real network in 2025. Lines are shipping routes; the thicker the line, the more LNG it carried. Black dots are exporters; the eight blue dots are the economies in this story.</p>` },
     { kind: "map", state: S_2025, hl: ["HORMUZ"], html: `<p><b>The Strait of Hormuz</b>, between Iran and Oman, is the only way out of the Persian Gulf. Qatar and the UAE ship all their LNG through it: about ${pct(hzShare)} of what these eight economies imported in 2025.</p>` },
