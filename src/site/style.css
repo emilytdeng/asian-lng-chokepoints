@@ -445,7 +445,8 @@ html { scroll-behavior: smooth; }
 .btn.ghost { color: var(--ink); background: transparent; }
 .btn:hover { opacity: .85; }
 .chapter { padding: 64px 0 32px; border-top: 1px solid var(--rule); }
-.chap-head { max-width: 760px; margin-bottom: 18px; }
+.chap-head { margin-bottom: 18px; }
+.chap-head > * { max-width: 760px; }
 .dek { font: 400 1.2rem/1.5 var(--serif); color: var(--ink-2); margin: 0; }
 .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 36px; align-items: center; }
 @media (max-width: 880px) { .two-col { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
