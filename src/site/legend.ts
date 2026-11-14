@@ -35,3 +35,27 @@ export function colorKey(title = "How to read the map and graph"): HTMLElement {
     </div>`;
   return el;
 }
+
+/** A one-line key that travels with a figure. `on` picks which items apply ("map", "graph" or both). */
+type MiniItem = [swatch: string, label: string, tip: string, where: "map" | "graph" | "both"];
+const mini = (s: string) => `<svg class="mk-sw" viewBox="0 0 28 14" aria-hidden="true">${s}</svg>`;
+const mline = (style: string) => mini(`<line x1="2" y1="7" x2="26" y2="7" style="stroke-linecap:round;${style}" />`);
+const MINI: MiniItem[] = [
+  [mline("stroke:var(--flow);stroke-width:5"), "Gas flow", "Thicker means more gas.", "both"],
+  [mline("stroke:var(--cut);stroke-width:5"), "Full", "Carrying all it can.", "graph"],
+  [mline("stroke:var(--closed);stroke-width:2;stroke-dasharray:4 4"), "Closed", "A closed route.", "both"],
+  [mline("stroke:var(--track);stroke-width:2.5;stroke-dasharray:1 4"), "Pipeline", "An overland pipeline.", "map"],
+  [mline("stroke:var(--cut);stroke-width:2.5;stroke-dasharray:6 4"), "Min cut", "The limits holding supply back.", "both"],
+  [mini(`<circle cx="14" cy="7" r="4.5" style="fill:var(--ink)" />`), "Exporter", "A country selling LNG.", "both"],
+  [mini(`<circle cx="9" cy="7" r="4.5" style="fill:var(--flow)" /><circle cx="20" cy="7" r="4.5" style="fill:var(--cut)" />`), "Importer: supplied / short", "Blue gets all it needs; red is short of gas.", "both"],
+  [mini(`<path d="M14,1.5 L19.5,7 L14,12.5 L8.5,7 Z" style="fill:var(--paper);stroke:var(--ink);stroke-width:1.4" />`), "Chokepoint", "A narrow strait or canal. Red when closed.", "map"],
+  [mini(`<circle cx="14" cy="7" r="3" style="fill:var(--ink)" /><circle cx="14" cy="7" r="6" style="fill:none;stroke:var(--cut);stroke-width:1.6;stroke-dasharray:3 2" />`), "On the cut", "An exporter selling all it has, or an importer fully supplied.", "map"],
+];
+export function miniKey(on: "map" | "graph" | "both" = "both"): HTMLElement {
+  const el = document.createElement("ul");
+  el.className = "minikey";
+  el.setAttribute("aria-label", "Key");
+  el.innerHTML = MINI.filter((m) => on === "both" || m[3] === "both" || m[3] === on)
+    .map(([s, l, t]) => `<li title="${t}">${s}<span>${l}</span></li>`).join("");
+  return el;
+}

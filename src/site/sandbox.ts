@@ -1,7 +1,7 @@
 import type { LPSolution } from "../model/lp";
 import { MTPA_NOTE, NET, VIEWS, VIEW_LABEL, days, evaluate, evaluateLP, fmt, name, needsLP, pct, type Evaluation, type HormuzMode, type State, type View } from "./compute";
 import { holdingBack } from "./explain";
-import { colorKey } from "./legend";
+import { colorKey, miniKey } from "./legend";
 import { Stepper } from "./stepper";
 import { traceSolve } from "../model/allocation";
 import { FlowFigure } from "./figure";
@@ -71,7 +71,14 @@ export function mountSandbox() {
       preset = ""; render();
     },
   });
-  document.getElementById("sb-legend")!.replaceChildren(colorKey());
+  const keybar = document.createElement("div");
+  keybar.className = "sb-keybar";
+  keybar.appendChild(miniKey("both"));
+  document.getElementById("sb-map")!.before(keybar);
+  const full = document.createElement("details");
+  full.innerHTML = "<summary>Full colour key</summary>";
+  full.appendChild(colorKey());
+  document.getElementById("sb-legend")!.replaceChildren(full);
 
   panel.innerHTML = `
     <div><p class="lbl">Scenario</p><div class="seg" id="presets"></div></div>
